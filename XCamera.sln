@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCamera.UWP", "XCamera\XCam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XCamera", "XCamera\XCamera\XCamera.csproj", "{A14012C2-8D98-4DDC-8BD5-EDB2E746BFAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCamera.Wpf", "XCamera.Wpf\XCamera.Wpf.csproj", "{15211E33-AB72-4D2A-83C3-897EB39B5EEE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCamera.Wpf", "XCamera\XCamera.Wpf\XCamera.Wpf.csproj", "{15211E33-AB72-4D2A-83C3-897EB39B5EEE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -165,7 +165,6 @@ Global
 		{C2E76BC3-D46C-4466-A5B1-17554542E3D3}.Debug|x64.Build.0 = Debug|iPhone
 		{C2E76BC3-D46C-4466-A5B1-17554542E3D3}.Debug|x64.Deploy.0 = Debug|iPhone
 		{C2E76BC3-D46C-4466-A5B1-17554542E3D3}.Debug|x86.ActiveCfg = Debug|iPhone
-		{C2E76BC3-D46C-4466-A5B1-17554542E3D3}.Debug|x86.Build.0 = Debug|iPhone
 		{C2E76BC3-D46C-4466-A5B1-17554542E3D3}.Debug|x86.Deploy.0 = Debug|iPhone
 		{C2E76BC3-D46C-4466-A5B1-17554542E3D3}.Release|Any CPU.ActiveCfg = Release|iPhone
 		{C2E76BC3-D46C-4466-A5B1-17554542E3D3}.Release|Any CPU.Build.0 = Release|iPhone
