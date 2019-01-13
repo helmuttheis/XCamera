@@ -21,7 +21,7 @@ namespace XCamera.UWP
         {
             this.InitializeComponent();
 
-            LoadApplication(new XCamera.App(new Exif(), new ManagerUwp()));
+            LoadApplication(new XCamera.App(new ExifUwp(), new ManagerUwp()));
         }
     }
 }

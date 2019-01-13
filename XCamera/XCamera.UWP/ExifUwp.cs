@@ -7,28 +7,19 @@ using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
+using Windows.Storage.Streams;
 
 namespace XCamera.UWP
 {
-    class Exif: XCamera.IExif
+    class ExifUwp: XCamera.IExif
     {
-        public async Task<string> GetComment(string filename)
+        public async Task<string> GetComment(Stream stream)
         {
-            string basedir = Path.GetDirectoryName(filename);
-            string basename = Path.GetFileName(filename);
-
-            var src = await StorageFile.GetFileFromPathAsync(filename);
-
-
-            ImageProperties props = await src.Properties.GetImagePropertiesAsync();
-
-
-            using (var stream = await src.OpenAsync(FileAccessMode.ReadWrite))
+            using (IRandomAccessStream iRandomAccessStream = stream.AsRandomAccessStream())
             {
-                var decoder = await BitmapDecoder.CreateAsync(stream);
+                var decoder = await BitmapDecoder.CreateAsync(iRandomAccessStream);
 
-                var encoder = await BitmapEncoder.CreateForTranscodingAsync(stream, decoder);
-
+                var encoder = await BitmapEncoder.CreateForTranscodingAsync(iRandomAccessStream, decoder);
 
                 // var props = await encoder.BitmapProperties.GetPropertiesAsync(new string[] { "/app1/ifd/exif/{ushort=315}" });
                 
@@ -38,7 +29,7 @@ namespace XCamera.UWP
 
                 var artist = new BitmapTypedValue("Hello World", Windows.Foundation.PropertyType.String);
 
-                list.Add(new KeyValuePair<string, BitmapTypedValue>("/app1/ifd/{ushort=37510}", artist));
+                list.Add(new KeyValuePair<string, BitmapTypedValue>("/app1/ifd/{ushort=" + (int)ExifTag.XPComment + "}", artist));
 
                 await encoder.BitmapProperties.SetPropertiesAsync(list);
 
@@ -49,19 +40,13 @@ namespace XCamera.UWP
 
             return "";
         }
-        public async Task<string> SetComment(string filename, string newComment)
+        public async Task<string> SetComment(Stream stream, string newComment)
         {
-            string basename = Path.GetFileName(filename);
-
-            var src = await KnownFolders
-                        .PicturesLibrary
-                        .GetFileAsync(filename);
-
-            using (var stream = await src.OpenAsync(FileAccessMode.ReadWrite))
+            using (IRandomAccessStream iRandomAccessStream = stream.AsRandomAccessStream())
             {
-                var decoder = await BitmapDecoder.CreateAsync(stream);
+                var decoder = await BitmapDecoder.CreateAsync(iRandomAccessStream);
 
-                var encoder = await BitmapEncoder.CreateForTranscodingAsync(stream, decoder);
+                var encoder = await BitmapEncoder.CreateForTranscodingAsync(iRandomAccessStream, decoder);
 
                 // var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, stream);
 
@@ -69,7 +54,7 @@ namespace XCamera.UWP
 
                 var comment = new BitmapTypedValue(newComment, Windows.Foundation.PropertyType.String);
 
-                list.Add(new KeyValuePair<string, BitmapTypedValue>("/app1/ifd/exif/{ushort=37510}", comment));
+                list.Add(new KeyValuePair<string, BitmapTypedValue>("/app1/ifd/exif/{ushort=" + (int)ExifTag.XPComment + "}" , comment));
 
                 await encoder.BitmapProperties.SetPropertiesAsync(list);
 

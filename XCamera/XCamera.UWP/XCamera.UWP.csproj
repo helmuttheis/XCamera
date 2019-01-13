@@ -92,7 +92,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Exif.cs" />
+    <Compile Include="ExifUwp.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -145,9 +145,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp">
-      <Version>1.0.0-beta0005</Version>
-    </PackageReference>
     <PackageReference Include="Xam.Plugin.Media">
       <Version>4.0.1.5</Version>
     </PackageReference>

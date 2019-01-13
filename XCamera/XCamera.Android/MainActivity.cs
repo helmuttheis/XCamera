@@ -27,7 +27,7 @@ namespace XCamera.Droid
            // await CrossMedia.Current.Initialize();
 
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
-            LoadApplication(new App(new Exif(), new ManagerDroid()));
+            LoadApplication(new App(new ExifDroid(), new ManagerDroid()));
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, Android.Content.PM.Permission[] grantResults)

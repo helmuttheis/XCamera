@@ -91,8 +91,9 @@ namespace XCamera
 
             if (photo != null)
             {
-                entryComment.Text = await exif.GetComment(photo.Path);
-                PhotoImage.Source = ImageSource.FromStream(() => { return photo.GetStream(); });
+                var stream = photo.GetStream();
+                entryComment.Text = await exif.GetComment(stream);
+                PhotoImage.Source = ImageSource.FromStream(() => { return stream; });
             }
         }
     }
