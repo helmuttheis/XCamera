@@ -7,12 +7,12 @@ namespace XCamera
 {
     public partial class App : Application
     {
-        public App(IExif exif,IManager manager)
+        public App()
         {
             InitializeComponent();
-
-            MainPage = new MainPage(exif, manager);
+            MainPage = new NavigationPage( new ProjectPage());
         }
+        
 
         protected override void OnStart()
         {

@@ -11,33 +11,43 @@ namespace XCamera
 {
     public partial class MainPage : ContentPage
     {
-        IExif exif;
-        IManager manager;
-        public MainPage(IExif exif, IManager manager)
+        
+        public string szFullImageName { get; set; }
+        // private Plugin.Media.Abstractions.MediaFile curPhoto;
+
+        public Project curProject { get; set; }
+
+        public MainPage()
         {
-            this.exif = exif;
-            this.manager = manager;
+            //this.exif = exif;
+            //this.manager = manager;
             InitializeComponent();
-            if (Device.RuntimePlatform.Equals(Device.WPF))
-            {
-                btnTakePhoto.Clicked += btnTakePhotoWpf_Clicked;
-                btnPickPhoto.Clicked += btnPickPhotoWpf_Clicked;
-            }
-            else
-            {
-                btnTakePhoto.Clicked += btnTakePhoto_Clicked;
-                btnPickPhoto.Clicked += btnPickPhoto_Clicked;
-            }
-        }
 
-        private async void btnTakePhotoWpf_Clicked(object sender, EventArgs e)
-        {
-        }
-        private async void btnPickPhotoWpf_Clicked(object sender, EventArgs e)
-        {
-            await manager.Open(); 
-        }
+            curProject = new Project();
 
+            btnTakePhoto.Clicked += btnTakePhoto_Clicked;
+            btnPickPhoto.Clicked += btnPickPhoto_Clicked;
+            btnSaveComment.Clicked += BtnSaveComment_Clicked;
+        }
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            if( !string.IsNullOrWhiteSpace(szFullImageName))
+            {
+                PhotoImage.Source = ImageSource.FromFile(szFullImageName);
+                string szComment = curProject.GetComment(szFullImageName);
+                entryComment.Text = szComment;
+            }
+        }
+        private void BtnSaveComment_Clicked(object sender, EventArgs e)
+        {
+            if ( !string.IsNullOrWhiteSpace(szFullImageName) )
+            {
+                curProject.SetComment(szFullImageName, entryComment.Text);
+                curProject.Save();
+            }
+        }
+        
         private async void btnTakePhoto_Clicked(object sender, EventArgs e)
         {
             await Plugin.Media.CrossMedia.Current.Initialize();
@@ -56,17 +66,18 @@ namespace XCamera
             {
                 if (Plugin.Media.CrossMedia.Current.IsCameraAvailable)
                 {
-                    var photo = await Plugin.Media.CrossMedia.Current.TakePhotoAsync(
+                    Plugin.Media.Abstractions.MediaFile  curPhoto = await Plugin.Media.CrossMedia.Current.TakePhotoAsync(
                         new Plugin.Media.Abstractions.StoreCameraMediaOptions()
                         {
                             AllowCropping = false,
-                            SaveToAlbum = true,
                             Directory = "Sample"
                         });
 
-                    if (photo != null)
+                    if (curPhoto != null)
                     {
-                        PhotoImage.Source = ImageSource.FromStream(() => { return photo.GetStream(); });
+                        //  entryComment.Text = await exif.GetComment(curPhoto.GetStream());
+                        szFullImageName = curPhoto.Path;
+                        PhotoImage.Source = ImageSource.FromStream(() => { return curPhoto.GetStream(); });
                     }
                 }
                 else
@@ -85,16 +96,18 @@ namespace XCamera
         }
         private async void btnPickPhoto_Clicked(object sender, EventArgs e)
         {
-            var photo = await Plugin.Media.CrossMedia.Current.PickPhotoAsync(new Plugin.Media.Abstractions.PickMediaOptions()
-            {
-            });
 
-            if (photo != null)
-            {
-                var stream = photo.GetStream();
-                entryComment.Text = await exif.GetComment(stream);
-                PhotoImage.Source = ImageSource.FromStream(() => { return stream; });
-            }
+            ImagePage imagePage = new ImagePage(this);
+            await Navigation.PushModalAsync(imagePage);
+            // await DisplayAlert("Image selected", imagePage.szImageName, "OK");
+
+         // if (curPhoto != null)
+         // {
+         //     var stream = curPhoto.GetStream();
+         //     PhotoImage.Source = ImageSource.FromStream(() => { return stream; });
+         //     string szComment = curProject.GetComment(curPhoto.Path);
+         //     entryComment.Text = szComment;
+         // }
         }
     }
 }

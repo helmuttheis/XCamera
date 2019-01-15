@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="XCamera.ProjectPage">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="Projektliste"
+                VerticalOptions="CenterAndExpand" 
+                HorizontalOptions="CenterAndExpand" />
+            <ListView x:Name="lstProjects" ItemTapped="LstProjects_ItemTapped" >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" BackgroundColor="Olive">
+                                <Label Text = "{Binding .}" FontSize="24" HorizontalOptions="End" AbsoluteLayout.LayoutBounds="0.25, 0.25, 400, 40"/>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <Button x:Name="btnContinue" Clicked="BtnContinue_Clicked" Text="auswählen"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

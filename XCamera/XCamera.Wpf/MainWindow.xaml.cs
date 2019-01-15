@@ -26,7 +26,7 @@ namespace XCamera.Wpf
         {
             InitializeComponent();
             Forms.Init();
-            LoadApplication(new XCamera.App(new ExifWpf(), new ManagerWpf()));
+            LoadApplication(new XCamera.App());
         }
     }
 }
