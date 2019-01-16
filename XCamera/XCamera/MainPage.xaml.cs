@@ -2,6 +2,7 @@
 using Plugin.Permissions.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,7 +35,14 @@ namespace XCamera
             base.OnAppearing();
             if( !string.IsNullOrWhiteSpace(szFullImageName))
             {
-                PhotoImage.Source = ImageSource.FromFile(szFullImageName);
+                var memoryStream = new MemoryStream();
+
+                using (var fileStream = new FileStream(szFullImageName, FileMode.Open, FileAccess.Read))
+                {
+                    fileStream.CopyTo(memoryStream);
+                }
+                memoryStream.Position = 0;
+                PhotoImage.Source = ImageSource.FromStream(()=> memoryStream);
                 string szComment = curProject.GetComment(szFullImageName);
                 entryComment.Text = szComment;
             }
@@ -77,7 +85,15 @@ namespace XCamera
                     {
                         //  entryComment.Text = await exif.GetComment(curPhoto.GetStream());
                         szFullImageName = curPhoto.Path;
-                        PhotoImage.Source = ImageSource.FromStream(() => { return curPhoto.GetStream(); });
+                        var memoryStream = new MemoryStream();
+
+                        using (var fileStream = new FileStream(szFullImageName, FileMode.Open, FileAccess.Read))
+                        {
+                            fileStream.CopyTo(memoryStream);
+                        }
+                        memoryStream.Position = 0;
+                        PhotoImage.Source = ImageSource.FromStream(() => memoryStream);
+
                     }
                 }
                 else

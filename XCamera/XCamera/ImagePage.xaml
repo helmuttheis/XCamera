@@ -12,6 +12,7 @@
                             <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" BackgroundColor="Olive">
                                 <Image Source="{Binding ImageSource}" AbsoluteLayout.LayoutBounds="250.25, 0.25, 50, 50 "/>
                                 <Label Text = "{Binding Comment}" FontSize="24" HorizontalOptions="End" AbsoluteLayout.LayoutBounds="0.25, 0.25, 400, 40"/>
+                                <Button x:Name="btnDelete" Text="löschen" Clicked="BtnDelete_Clicked" CommandParameter="{Binding ImageName}"/>
                             </StackLayout>
                         </ViewCell>
                     </DataTemplate>

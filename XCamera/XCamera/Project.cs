@@ -10,7 +10,7 @@ namespace XCamera
     {
 
 
-        public static string szProjectName { get; set; }
+        public static string szProjectName { get; set; } = "Sample";
         public string szProjectPath { get; set; }
         public string szProjectFile { get; set; }
         private XmlDocument xmlDoc { get; set; }
@@ -41,7 +41,10 @@ namespace XCamera
             string[] images = Directory.GetFiles(szProjectPath,"*.jpg");
             foreach (var image in images)
             {
-                imgList.Add(image.Split(Path.DirectorySeparatorChar).LastOrDefault());
+                if (!IsDeleted(image))
+                {
+                    imgList.Add(image.Split(Path.DirectorySeparatorChar).LastOrDefault());
+                }
             }
 
             return imgList;
@@ -49,6 +52,60 @@ namespace XCamera
         public string GetImageFullName(string szImage)
         {
             return Path.Combine(szProjectPath, szImage);
+        }
+        
+        public void Delete(string szFullImageName)
+        {
+            XmlNode imgNode = rootNode.SelectSingleNode("image[@name='" + szFullImageName + "']");
+            if (imgNode == null)
+            {
+                imgNode = xmlDoc.CreateElement("image");
+                XmlNode attrNode = xmlDoc.CreateAttribute("name");
+                attrNode.InnerText = szFullImageName;
+                imgNode.Attributes.SetNamedItem(attrNode);
+                rootNode.AppendChild(imgNode);
+            }
+            XmlNode commentNode = imgNode.SelectSingleNode("deleted");
+            if (commentNode == null)
+            {
+                commentNode = xmlDoc.CreateElement("deleted");
+
+                imgNode.AppendChild(commentNode);
+            }
+            commentNode.InnerText = "1";
+            Save();
+        }
+        public Boolean HasDeleted()
+        {
+            XmlNodeList imgNodes = rootNode.SelectNodes("image/deleted");
+            return imgNodes.Count > 0;
+        }
+        public void ClearDeleted()
+        {
+            XmlNodeList imgNodes = rootNode.SelectNodes("image/deleted");
+            for(int i=0; i<  imgNodes.Count;i++)
+            {
+                XmlNode imgNode = imgNodes[i].ParentNode;
+                string szFullImageName = imgNode.Attributes.GetNamedItem("name").InnerText;
+                System.IO.File.Delete(szFullImageName);
+                imgNode.ParentNode.RemoveChild(imgNode);
+            }
+            Save();
+        }
+        public Boolean IsDeleted(string szFullImageName)
+        {
+            XmlNode imgNode = rootNode.SelectSingleNode("image[@name='" + szFullImageName + "']");
+            if (imgNode == null)
+            {
+                return false;
+
+            }
+            XmlNode commentNode = imgNode.SelectSingleNode("deleted");
+            if (commentNode == null)
+            {
+                return false;
+            }
+            return commentNode.InnerText.Equals("1");
         }
         public void SetComment(string szFullImageName, string szComment)
         {
@@ -70,6 +127,7 @@ namespace XCamera
             }
             commentNode.InnerText = szComment;
         }
+        
         public string GetComment(string szFullImageName)
         {
             XmlNode imgNode = rootNode.SelectSingleNode("image[@name='" + szFullImageName + "']");
@@ -87,9 +145,26 @@ namespace XCamera
         }
         public void Save()
         {
+            XmlNode attrNode = rootNode.Attributes.GetNamedItem("isdirty");
+            if (attrNode == null)
+            {
+                attrNode = xmlDoc.CreateAttribute("isdirty");
+            }
+            attrNode.InnerText = "1";
+            rootNode.Attributes.SetNamedItem(attrNode);
             xmlDoc.Save(szProjectFile);
         }
 
+        public Boolean IsDirty()
+        {
+            XmlNode attrNode = rootNode.Attributes.GetNamedItem("isdirty");
+            if (attrNode == null)
+            {
+                return false;
+            }
+            return attrNode.InnerText.Equals("1");
+
+        }
 
         public static List<string> GetList()
         {

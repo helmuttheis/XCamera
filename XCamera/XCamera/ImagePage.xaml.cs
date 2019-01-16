@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,15 +29,33 @@ namespace XCamera
             foreach (string szImageName in mainPage.curProject.GetImages())
             {
                 string szFullImageName = mainPage.curProject.GetImageFullName(szImageName);
+                var memoryStream = new MemoryStream();
+
+                using (var fileStream = new FileStream(szFullImageName, FileMode.Open, FileAccess.Read))
+                {
+                    fileStream.CopyTo(memoryStream);
+                }
+                memoryStream.Position = 0;
+
                 images.Add(new ImageViewModel {
                     Comment = mainPage.curProject.GetComment(szFullImageName),
-                    ImageSource = ImageSource.FromFile(szFullImageName),
+                    ImageSource = ImageSource.FromStream(() => memoryStream),
                     ImageName = szFullImageName
                 });
             }
             lstView.ItemsSource = images;
         }
-
+        protected override void OnDisappearing()
+        {
+            for (int i = images.Count - 1; i >= 0;i--)
+            {
+                images.RemoveAt(i);
+            }
+            BindingContext = null;
+            Content = null;
+            base.OnDisappearing();
+            GC.Collect();
+        }
         private void btnSelect_Clicked(object sender, EventArgs e)
         {
             if (lstView.SelectedItem != null)
@@ -52,6 +71,18 @@ namespace XCamera
             {
                 mainPage.szFullImageName = ((ImageViewModel)lstView.SelectedItem).ImageName;
                 Navigation.PopModalAsync();
+            }
+        }
+
+        private void BtnDelete_Clicked(object sender, EventArgs e)
+        {
+            var selectedLocation = images.First(item =>
+                            item.ImageName.Equals((sender as Button).CommandParameter));
+            if ( selectedLocation != null)
+            {
+                images.Remove(selectedLocation);
+                
+                mainPage.curProject.Delete(selectedLocation.ImageName);
             }
         }
     }
