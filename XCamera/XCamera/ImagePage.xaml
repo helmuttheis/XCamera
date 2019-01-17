@@ -18,7 +18,6 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <Button x:Name="btnSelect" Text="select" Clicked="btnSelect_Clicked"/>
         </StackLayout>
     </ContentPage.Content>
 </ContentPage>

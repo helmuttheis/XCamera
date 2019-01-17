@@ -56,14 +56,6 @@ namespace XCamera
             base.OnDisappearing();
             GC.Collect();
         }
-        private void btnSelect_Clicked(object sender, EventArgs e)
-        {
-            if (lstView.SelectedItem != null)
-            {
-                mainPage.szFullImageName = ((ImageViewModel)lstView.SelectedItem).ImageName;
-                Navigation.PopModalAsync();
-            }
-        }
 
         private void LstView_ItemTapped(object sender, ItemTappedEventArgs e)
         {

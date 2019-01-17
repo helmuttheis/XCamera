@@ -7,14 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using XCamera.Util;
 
 namespace XCamera
 {
     public partial class MainPage : ContentPage
     {
-        
         public string szFullImageName { get; set; }
-        // private Plugin.Media.Abstractions.MediaFile curPhoto;
 
         public Project curProject { get; set; }
 
@@ -24,7 +23,7 @@ namespace XCamera
             //this.manager = manager;
             InitializeComponent();
 
-            curProject = new Project();
+            curProject = new Project(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
 
             btnTakePhoto.Clicked += btnTakePhoto_Clicked;
             btnPickPhoto.Clicked += btnPickPhoto_Clicked;
@@ -83,8 +82,12 @@ namespace XCamera
 
                     if (curPhoto != null)
                     {
-                        //  entryComment.Text = await exif.GetComment(curPhoto.GetStream());
-                        szFullImageName = curPhoto.Path;
+                        curProject.szTempProjectPath = Path.GetDirectoryName(curPhoto.Path);
+                        szFullImageName = Path.Combine(curProject.szProjectPath, Path.GetFileName(curPhoto.Path));
+
+                        File.Copy(curPhoto.Path, szFullImageName);
+
+                        szFullImageName = szFullImageName;
                         var memoryStream = new MemoryStream();
 
                         using (var fileStream = new FileStream(szFullImageName, FileMode.Open, FileAccess.Read))

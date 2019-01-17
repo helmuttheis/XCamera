@@ -3,23 +3,48 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="XCamera.ProjectPage">
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Projektliste"
+        <AbsoluteLayout>
+            <Grid AbsoluteLayout.LayoutBounds="0, 0, 1, 1"
+                 AbsoluteLayout.LayoutFlags="All">
+                <StackLayout>
+                <Label Text="Projektliste"
                 VerticalOptions="CenterAndExpand" 
                 HorizontalOptions="CenterAndExpand" />
-            <ListView x:Name="lstProjects" ItemTapped="LstProjects_ItemTapped" >
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" BackgroundColor="Olive">
-                                <Label Text = "{Binding .}" FontSize="24" HorizontalOptions="End" AbsoluteLayout.LayoutBounds="0.25, 0.25, 400, 40"/>
-                            </StackLayout>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                <ListView x:Name="lstProjects" ItemTapped="LstProjects_ItemTapped" >
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <StackLayout Orientation="Horizontal" HorizontalOptions="Fill" BackgroundColor="Olive">
+                                    <Label Text = "{Binding .}" FontSize="24" HorizontalOptions="End" AbsoluteLayout.LayoutBounds="0.25, 0.25, 400, 40"/>
+                                </StackLayout>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
 
-            <Button x:Name="btnContinue" Clicked="BtnContinue_Clicked" Text="auswählen"/>
-        </StackLayout>
+                <Button x:Name="btnNew" Clicked="BtnNew_Clicked" Text="neu"/>
+                </StackLayout>
+            </Grid>
+            <!-- Overlay -->
+            <ContentView x:Name="overlay"
+                 AbsoluteLayout.LayoutBounds="0, 0, 1, 1"
+                 AbsoluteLayout.LayoutFlags="All"
+                 IsVisible="False"
+                 BackgroundColor="#C0808080"
+                 Padding="10, 0">
+
+                <Grid x:Name="grdOverlay"
+                   BackgroundColor="White" 
+                   HeightRequest="175" 
+                   WidthRequest="300" 
+                   HorizontalOptions="Center" 
+                   VerticalOptions="Start" 
+                   Margin="0,20,0,0" >
+
+                </Grid>
+
+
+            </ContentView>
+        </AbsoluteLayout>
     </ContentPage.Content>
 </ContentPage>

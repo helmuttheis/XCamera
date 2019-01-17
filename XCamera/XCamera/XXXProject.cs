@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace XCamera
 {
-    public class Project
+    public class xXXXProject
     {
 
 
@@ -15,7 +15,7 @@ namespace XCamera
         public string szProjectFile { get; set; }
         private XmlDocument xmlDoc { get; set; }
         private XmlNode rootNode { get; set; }
-        public Project()
+        public xXXXProject()
         {
             // build the filename
             szProjectPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), szProjectName);
