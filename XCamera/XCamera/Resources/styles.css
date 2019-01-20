@@ -1,0 +1,41 @@
+
+/*
+    see https://docs.microsoft.com/de-de/xamarin/xamarin-forms/user-interface/styles/css/#selector-reference
+    .CLASS
+    #NAME
+*/
+navigationpage {
+    -xf-bar-background-color: lightgray;
+}
+
+^contentpage {
+    background-color: lightcoral;
+}
+
+#listView {
+    background-color: lightcoral;
+}
+
+stacklayout {
+    margin: 5;
+}
+.projectViewCell {
+    background-color: lightgoldenrodyellow;
+}
+#grdOverlay {
+    background-color: white;
+    margin:25;
+    padding:25;
+}
+#overlay {
+    margin: 5;
+    background-color: lightskyblue;
+}
+#overlay Label{
+    height:12;
+    background-color: red;
+}
+#OverlayCancelX {
+    color:red;
+    background-color: darkblue;
+}

@@ -4,9 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using Xamarin.Forms.StyleSheets;
 using XCamera.Util;
 
 namespace XCamera
@@ -22,6 +24,9 @@ namespace XCamera
             //this.exif = exif;
             //this.manager = manager;
             InitializeComponent();
+            this.Resources.Add(StyleSheet.FromAssemblyResource(
+            IntrospectionExtensions.GetTypeInfo(typeof(MainPage)).Assembly,
+            "XCamera.Resources.styles.css"));
 
             curProject = new Project(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
 
@@ -77,7 +82,7 @@ namespace XCamera
                         new Plugin.Media.Abstractions.StoreCameraMediaOptions()
                         {
                             AllowCropping = false,
-                            Directory = "Sample"
+                            Directory = "__temp__"
                         });
 
                     if (curPhoto != null)
@@ -127,6 +132,73 @@ namespace XCamera
          //     string szComment = curProject.GetComment(curPhoto.Path);
          //     entryComment.Text = szComment;
          // }
+        }
+        List< Picker> lstPicker;
+        private void EntryComment_Focused(object sender, FocusEventArgs e)
+        {
+            if (lstPicker == null)
+            {
+                grdOverlay.Children.Clear();
+                lstPicker = new List<Picker>();
+                int iRow = 0;
+
+                var lstLevel = curProject.GetLevelList();
+                foreach (var szLevel in lstLevel)
+                {
+                    Picker newPicker = Overlay.AddPicker(grdOverlay, iRow.ToString(), iRow++, szLevel);
+
+                    newPicker.Items.Add("---     ---");
+                    newPicker.Items.Add("--- neu ---");
+                    var levelValuesList = curProject.GetLevelValuesList(iRow);
+                    foreach(var levelValue in levelValuesList)
+                    {
+                        newPicker.Items.Add(levelValue);
+                    }
+
+                    newPicker.SelectedIndexChanged += (curSender, e1) => {
+                        Picker curPicker = (Picker)curSender;
+                        string szId = curPicker.StyleId;
+                        int r;
+                        if( int.TryParse(szId, out r) )
+                        {
+                            for(int i=r+1;i<lstLevel.Count;i++)
+                            {
+                                lstPicker[i].IsVisible = false;
+                            }
+                            string szValue = curPicker.SelectedItem.ToString();
+                            if( !szValue.StartsWith("-"))
+                            {
+                                if (r < lstLevel.Count - 1)
+                                {
+                                    lstPicker[r + 1].IsVisible = true;
+                                }
+                            }
+                        }
+
+                    };
+                    lstPicker.Add(newPicker);
+                }
+                var submitButton = new Button { Text = "anlegen" };
+                submitButton.Clicked += async (senderx, e2) =>
+                {
+
+                };
+                grdOverlay.Children.Add(submitButton, 0, iRow);
+
+                var cancelButton = new Button { Text = "abbrechen" };
+                cancelButton.Clicked += (senderx, e2) =>
+                {
+                    overlay.IsVisible = false;
+                };
+                grdOverlay.Children.Add(cancelButton, 1, iRow);
+            }
+
+            overlay.IsVisible = true;
+        }
+
+        private void NewPicker_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

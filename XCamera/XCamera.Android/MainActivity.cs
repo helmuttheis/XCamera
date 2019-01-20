@@ -23,6 +23,7 @@ namespace XCamera.Droid
 
             base.OnCreate(savedInstanceState);
 
+            FFImageLoading.Forms.Platform.CachedImageRenderer.Init(enableFastRenderer: true);
             CrossCurrentActivity.Current.Init(this, savedInstanceState);
            // await CrossMedia.Current.Initialize();
 

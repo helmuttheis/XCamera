@@ -17,6 +17,12 @@ namespace XCamera.Util
         private string szBasePath { get; set; }
         private XmlDocument xmlDoc { get; set; }
         private XmlNode rootNode { get; set; }
+
+        private XmlNode hierarchyNode { get; set; }
+        private List<string> lstLevel { get; set; }
+
+        private Dictionary<string, List<string>> dictLevel { get; set; }
+
         public Project(string szBasePath)
         {
             this.szBasePath = szBasePath;
@@ -36,7 +42,99 @@ namespace XCamera.Util
                 xmlDoc.Load(szProjectFile);
             }
             rootNode = xmlDoc.SelectSingleNode("//XCamera");
+
+            FillLevel();
         }
+        private void FillLevel()
+        {
+            dictLevel = new Dictionary<string, List<string>>();
+            hierarchyNode = EnsureElement(rootNode, "hierarchy");
+            lstLevel = new List<string>();
+            int levelCnt = lstLevel.Count;
+
+            string szLevelName = "Gebäude";
+            lstLevel.Add(szLevelName);
+            levelCnt = lstLevel.Count;
+            XmlNode levelNode = EnsureElement(hierarchyNode, "level" + levelCnt.ToString());
+            EnsureAttribute(levelNode, "id",  levelCnt.ToString());
+            EnsureAttribute(levelNode, "name", szLevelName);
+            EnsureAttribute(AddElement(levelNode, "value", "Haus A"), "id", "1");
+            EnsureAttribute(AddElement(levelNode, "value", "Haus B"), "id", "2");
+
+            szLevelName = "Etage";
+            lstLevel.Add(szLevelName);
+            levelCnt = lstLevel.Count;
+            levelNode = EnsureElement(hierarchyNode, "level" + levelCnt.ToString());
+            EnsureAttribute(levelNode, "id", levelCnt.ToString());
+            EnsureAttribute(levelNode, "name", szLevelName);
+            EnsureAttribute(AddElement(levelNode, "value", "Etage 1"), "id", "1");
+            EnsureAttribute(AddElement(levelNode, "value", "Etage 2"), "id", "2");
+
+            szLevelName = "Wohnung";
+            lstLevel.Add(szLevelName);
+            levelCnt = lstLevel.Count;
+            levelNode = EnsureElement(hierarchyNode, "level" + levelCnt.ToString());
+            EnsureAttribute(levelNode, "id", levelCnt.ToString());
+            EnsureAttribute(levelNode, "name", szLevelName);
+            EnsureAttribute(AddElement(levelNode, "value", "Wohnung 1"), "id", "1");
+            EnsureAttribute(AddElement(levelNode, "value", "Wohnung 2"), "id", "2");
+
+            szLevelName = "Zimmer";
+            lstLevel.Add(szLevelName);
+            levelCnt = lstLevel.Count;
+            levelNode = EnsureElement(hierarchyNode, "level" + levelCnt.ToString());
+            EnsureAttribute(levelNode, "id", levelCnt.ToString());
+            EnsureAttribute(levelNode, "name", szLevelName);
+            EnsureAttribute(AddElement(levelNode, "value", "Flur"), "id", "1");
+            EnsureAttribute(AddElement(levelNode, "value", "Küche"), "id", "2");
+            EnsureAttribute(AddElement(levelNode, "value", "Wohnzimmer"), "id", "3");
+            EnsureAttribute(AddElement(levelNode, "value", "Bad"), "id", "4");
+        }
+        private XmlNode EnsureElement(XmlNode parentNode,string szElement, string szText="")
+        {
+            XmlNode oneNode = parentNode.SelectSingleNode(szElement);
+            if (oneNode == null)
+            {
+                oneNode = xmlDoc.CreateElement(szElement);
+
+                parentNode.AppendChild(oneNode);
+            }
+            oneNode.InnerText = szText;
+            return oneNode;
+        }
+        private XmlNode AddElement(XmlNode parentNode, string szElement, string szText = "")
+        {
+            XmlNode oneNode = xmlDoc.CreateElement(szElement);
+            parentNode.AppendChild(oneNode);
+            
+            oneNode.InnerText = szText;
+            return oneNode;
+        }
+        private XmlNode EnsureElement(XmlNode parentNode, string szElement, string szAttrName, string szAttrValue)
+        {
+            XmlNode oneNode = parentNode.SelectSingleNode(szElement + "[@" + szAttrName + " ='" + szAttrValue + "']");
+            if (oneNode == null)
+            {
+                oneNode = xmlDoc.CreateElement(szElement);
+                XmlNode attrNode = xmlDoc.CreateAttribute(szAttrName);
+                attrNode.InnerText = szAttrValue;
+                oneNode.Attributes.SetNamedItem(attrNode);
+                parentNode.AppendChild(oneNode);
+            }
+            return oneNode;
+        }
+        private XmlNode EnsureAttribute(XmlNode oneNode, string szAttrName, string szAttrValue)
+        {
+            XmlNode attrNode = oneNode.Attributes.GetNamedItem(szAttrName);
+            if( attrNode == null)
+            { 
+                attrNode = xmlDoc.CreateAttribute(szAttrName);
+                attrNode.InnerText = szAttrValue;
+                oneNode.Attributes.SetNamedItem(attrNode);
+            }
+            return oneNode;
+        }
+
         public List<string> GetImages()
         {
             List<string> imgList = new List<string>();
@@ -183,6 +281,32 @@ namespace XCamera.Util
             }
             return attrNode.InnerText.Equals("1");
         }
+        public List<string> GetLevelList()
+        {
+            List<string> lstLevel = new List<string>();
+            lstLevel.Add("Gebäude");
+            lstLevel.Add("Etage");
+            lstLevel.Add("Wohnung");
+            lstLevel.Add("Zimmer");
+
+            return lstLevel;
+        }
+        public List<string> GetLevelValuesList(int iLevelId)
+        {
+            XmlNode levelNode = hierarchyNode.SelectSingleNode("child::level" + iLevelId.ToString());
+
+            List<string> lstLevel = new List<string>();
+            if (levelNode != null )
+            {
+                XmlNodeList valueNodes = levelNode.SelectNodes("child::value");
+                foreach (XmlNode valueNode in valueNodes)
+                {
+                    lstLevel.Add(valueNode.InnerText);
+                }
+            }
+
+            return lstLevel;
+        }
 
         public static List<string> GetList()
         {
@@ -190,10 +314,18 @@ namespace XCamera.Util
             string[] projects = Directory.GetDirectories(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
             foreach (var project in projects)
             {
-                projList.Add(project.Split(Path.DirectorySeparatorChar).LastOrDefault());
+                string szProjectName = project.Split(Path.DirectorySeparatorChar).LastOrDefault();
+                if (Project.IsValidName(szProjectName))
+                {
+                    projList.Add(szProjectName);
+                }
             }
 
             return projList;
+        }
+        public static Boolean IsValidName(string szProjectName)
+        {
+            return !szProjectName.StartsWith("__");
         }
     }
 }
