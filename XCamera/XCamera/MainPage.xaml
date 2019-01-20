@@ -29,31 +29,16 @@
             <Button x:Name="btnPickPhoto" Text="Pick Photo" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="3" />
         </Grid>
             <!-- Overlay -->
-            <ContentView x:Name="overlay"
-                 AbsoluteLayout.LayoutBounds="0, 0, 1, 1"
+            <ContentView x:Name="viewOverlay"
+                 AbsoluteLayout.LayoutBounds="1, 1, 1, 1"
                  AbsoluteLayout.LayoutFlags="All"
                  IsVisible="False"
                  BackgroundColor="#C0808080"
-                 Padding="10, 0">
-
+                 Padding="0, 0">
                 <Grid x:Name="grdOverlay"
-                   BackgroundColor="White" 
-                   HeightRequest="175" 
-                   WidthRequest="300" 
                    HorizontalOptions="Center" 
-                   VerticalOptions="Start" 
-                   Margin="0,20,0,0" >
-                    <Picker x:Name="pckLevel1" />
-                    <Picker x:Name="pckLevel2" />
-                    <Picker x:Name="pckLevel3" />
-                    <Picker x:Name="pckLevel4" />
-                    <Picker x:Name="pckLevel5" />
-                    <Picker x:Name="pckLevel6" />
-                    <Picker x:Name="pckLevel7" />
-                    <Picker x:Name="pckLevel8" />
-                    <Picker x:Name="pckLevel9" />
+                   VerticalOptions="Center" >
                 </Grid>
-
 
             </ContentView>
             </Grid>

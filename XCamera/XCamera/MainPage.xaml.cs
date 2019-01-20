@@ -136,20 +136,21 @@ namespace XCamera
         List< Picker> lstPicker;
         private void EntryComment_Focused(object sender, FocusEventArgs e)
         {
+            Overlay overlay = new Overlay(grdOverlay);
             if (lstPicker == null)
             {
+                overlay.Reset();
                 grdOverlay.Children.Clear();
                 lstPicker = new List<Picker>();
-                int iRow = 0;
-
+                
                 var lstLevel = curProject.GetLevelList();
                 foreach (var szLevel in lstLevel)
                 {
-                    Picker newPicker = Overlay.AddPicker(grdOverlay, iRow.ToString(), iRow++, szLevel);
+                    Picker newPicker = overlay.AddPicker(overlay.iRow.ToString(), szLevel);
 
                     newPicker.Items.Add("---     ---");
                     newPicker.Items.Add("--- neu ---");
-                    var levelValuesList = curProject.GetLevelValuesList(iRow);
+                    var levelValuesList = curProject.GetLevelValuesList(overlay.iRow);
                     foreach(var levelValue in levelValuesList)
                     {
                         newPicker.Items.Add(levelValue);
@@ -178,22 +179,21 @@ namespace XCamera
                     };
                     lstPicker.Add(newPicker);
                 }
-                var submitButton = new Button { Text = "anlegen" };
+                var submitButton = overlay.AddButton("anlegen" );
                 submitButton.Clicked += async (senderx, e2) =>
                 {
 
-                };
-                grdOverlay.Children.Add(submitButton, 0, iRow);
+                };                
 
-                var cancelButton = new Button { Text = "abbrechen" };
-                cancelButton.Clicked += (senderx, e2) =>
-                {
-                    overlay.IsVisible = false;
-                };
-                grdOverlay.Children.Add(cancelButton, 1, iRow);
+                // var cancelButton = overlay.AddButton("abbrechen");
+                // cancelButton.Clicked += (senderx, e2) =>
+                // {
+                //     overlay.Close();
+                // };
+                overlay.AddCancelX();
             }
 
-            overlay.IsVisible = true;
+            overlay.Show();
         }
 
         private void NewPicker_SelectedIndexChanged(object sender, EventArgs e)

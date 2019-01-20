@@ -5,30 +5,49 @@ using Xamarin.Forms;
 
 namespace XCamera
 {
-    public static class Overlay
+    public class Overlay
     {
-        public static void ShowWait(ContentView overlay, Grid grdOverlay,string szMessage)
+        private Grid grdOverlay;
+        public int iRow { get; set; }
+        public Overlay(Grid grdOverlay)
+        {
+            this.grdOverlay = grdOverlay;
+        }
+        public void Reset()
         {
             grdOverlay.Children.Clear();
-
-            int iRow = 0;
-            AddLabel(grdOverlay, iRow++, szMessage);
-
-            overlay.IsVisible = true;
+            iRow = 0;
         }
-        public static void AddRowDefinitions(Grid grdOverlay, int iRowCnt)
+        public void Close()
+        {
+            ((ContentView)grdOverlay.Parent).IsVisible = false;
+        }
+        public void Show()
+        {
+            ((ContentView)grdOverlay.Parent).IsVisible = true;
+        }
+        // public static void ShowWait(ContentView overlay, Grid grdOverlay,string szMessage)
+        // {
+        //     grdOverlay.Children.Clear();
+        // 
+        //     int iRow = 0;
+        //     AddLabel(grdOverlay, iRow++, szMessage);
+        // 
+        //     overlay.IsVisible = true;
+        // }
+        public void AddRowDefinitions()
         {
             RowDefinition rd;
             grdOverlay.RowDefinitions.Clear();
             
-            for (int r=0;r<= iRowCnt+1;r++)
+            for (int r=0;r<= iRow+1;r++)
             {
                 rd = new RowDefinition();
                 rd.Height = new GridLength(1,GridUnitType.Auto);
                 grdOverlay.RowDefinitions.Add(rd);
             }
         }
-        public static Entry AddInput(Grid grdOverlay, int iRow, string szLabel, string szPlaceholder, string szDefaultValue)
+        public Entry AddInput(string szLabel, string szPlaceholder, string szDefaultValue)
         {
             var label = new Label { Text = szLabel };
             var entry = new Entry { Placeholder = szPlaceholder };
@@ -39,10 +58,10 @@ namespace XCamera
 
             grdOverlay.Children.Add(label, 0 + 1, iRow + 1);
             grdOverlay.Children.Add(entry, 1 + 1, iRow + 1);
-
+            iRow++;
             return entry;
         }
-        public static Picker AddPicker(Grid grdOverlay,string szId, int iRow, string szLabel)
+        public Picker AddPicker(string szId, string szLabel)
         {
             var label = new Label { Text = szLabel };
             var picker = new Picker { };
@@ -51,31 +70,33 @@ namespace XCamera
             picker.StyleId = szId;
             grdOverlay.Children.Add(label, 0 + 1, iRow + 1);
             grdOverlay.Children.Add(picker, 1 + 1, iRow + 1);
-
+            iRow++;
             return picker;
         }
-        public static void FillPicker(Picker picker, Dictionary<string,string> dict)
+        public void FillPicker(Picker picker, Dictionary<string,string> dict)
         {
             foreach (string val in dict.Keys)
             {
                 picker.Items.Add(val);
             }
         }
-        public static Button AddButton(Grid grdOverlay, int iRow, string szLabel)
+        public Button AddButton( string szLabel)
         {
             var button = new Button { Text = szLabel };
             
             grdOverlay.Children.Add(button, 1+1, iRow+1);
+            iRow++;
             return button;
         }
-        public static void AddLabel(Grid grdOverlay, int iRow, string szLabel)
+        public void AddLabel( string szLabel)
         {
             var label = new Label { Text = szLabel };
 
             grdOverlay.Children.Add(label, 0+1, iRow+1);
+            iRow++;
 
         }
-        public static void AddCancelX(Grid grdOverlay)
+        public void AddCancelX()
         {
             var button = new Button { Text = "X" };
             button.StyleId = "OverlayCancelX";

@@ -26,7 +26,7 @@
                 </StackLayout>
             </Grid>
             <!-- Overlay -->
-            <ContentView x:Name="overlay"
+            <ContentView x:Name="viewOverlay"
                  AbsoluteLayout.LayoutBounds="1, 1, 1, 1"
                  AbsoluteLayout.LayoutFlags="All"
                  IsVisible="False"

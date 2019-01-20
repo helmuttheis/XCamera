@@ -22,20 +22,26 @@ stacklayout {
 .projectViewCell {
     background-color: lightgoldenrodyellow;
 }
+/* Overlay */
 #grdOverlay {
     background-color: white;
     margin:25;
     padding:25;
 }
-#overlay {
+#OverlayCancelX {
+    color: red;
+    background-color: darkblue;
+}
+
+#viewOverlay {
     margin: 5;
     background-color: lightskyblue;
 }
-#overlay Label{
-    height:12;
-    background-color: red;
+#viewOverlay Label {
+    height: 12;
+    background-color: white;
 }
-#OverlayCancelX {
-    color:red;
-    background-color: darkblue;
+#viewOverlay  Picker {
+    height: 24;
+    background-color: green;
 }

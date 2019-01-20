@@ -67,12 +67,12 @@ namespace XCamera
         }
         private void BtnNew_Clicked(object sender, EventArgs e)
         {
-            grdOverlay.Children.Clear();
-            int iRow = 0;
-            Entry entryProject = Overlay.AddInput(grdOverlay, iRow++, "Projekt", "Name", "");
-            var submitButton = Overlay.AddButton(grdOverlay, iRow++, "anlegen");
-            Overlay.AddRowDefinitions(grdOverlay, iRow);
-            Overlay.AddCancelX(grdOverlay);
+            Overlay overlay = new Overlay(grdOverlay);
+            overlay.Reset();
+            Entry entryProject = overlay.AddInput("Projekt", "Name", "");
+            var submitButton = overlay.AddButton( "anlegen");
+            overlay.AddRowDefinitions();
+            overlay.AddCancelX();
 
             submitButton.Clicked += async (senderx, e2) =>
             {
@@ -97,22 +97,22 @@ namespace XCamera
                     Project.szProjectName = szNewProject;
                     await Navigation.PushAsync(new MainPage());
                     // close the overlay
-                    overlay.IsVisible = false;
+                    overlay.Close();
                 }
                 else
                 {
                     await DisplayAlert("", "Den Projektname gibt es schon.", "Weiter");
                 }
             };
-            
-            overlay.IsVisible = true;
+
+            overlay.Show();
             
         }
         
-        void OnCancelButtonClicked(object sender, EventArgs args)
-        {
-            overlay.IsVisible = false;
-        }
+        //void OnCancelButtonClicked(object sender, EventArgs args)
+        //{
+        //    overlay.IsVisible = false;
+        //}
         private void LstProjects_ItemTapped(object sender, ItemTappedEventArgs e)
         {
             if (lstProjects.SelectedItem != null)
