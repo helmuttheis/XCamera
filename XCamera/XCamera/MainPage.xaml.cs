@@ -18,7 +18,7 @@ namespace XCamera
         public string szFullImageName { get; set; }
 
         public Project curProject { get; set; }
-
+        public ProjectSql curProjectSql { get; set; }
         public MainPage()
         {
             //this.exif = exif;
@@ -29,6 +29,7 @@ namespace XCamera
             "XCamera.Resources.styles.css"));
 
             curProject = new Project(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+            curProjectSql = new ProjectSql(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
 
             btnTakePhoto.Clicked += btnTakePhoto_Clicked;
             btnPickPhoto.Clicked += btnPickPhoto_Clicked;
@@ -48,6 +49,7 @@ namespace XCamera
                 memoryStream.Position = 0;
                 PhotoImage.Source = ImageSource.FromStream(()=> memoryStream);
                 string szComment = curProject.GetComment(szFullImageName);
+                szComment = curProjectSql.GetComment(szFullImageName);
                 entryComment.Text = szComment;
             }
         }
@@ -55,6 +57,7 @@ namespace XCamera
         {
             if ( !string.IsNullOrWhiteSpace(szFullImageName) )
             {
+                curProjectSql.SetComment(szFullImageName, entryComment.Text);
                 curProject.SetComment(szFullImageName, entryComment.Text);
                 curProject.Save();
             }
@@ -134,6 +137,7 @@ namespace XCamera
          // }
         }
         List< Picker> lstPicker;
+        Entry kommentarEntry;
         private void EntryComment_Focused(object sender, FocusEventArgs e)
         {
             Overlay overlay = new Overlay(grdOverlay);
@@ -179,10 +183,14 @@ namespace XCamera
                     };
                     lstPicker.Add(newPicker);
                 }
+                kommentarEntry = overlay.AddInput("", "", curProjectSql.GetComment(szFullImageName));
                 var submitButton = overlay.AddButton("anlegen" );
-                submitButton.Clicked += async (senderx, e2) =>
+                submitButton.Clicked += (senderx, e2) =>
                 {
-
+                    curProjectSql.SetComment(szFullImageName, kommentarEntry.Text);
+                    curProject.SetComment(szFullImageName, kommentarEntry.Text);
+                    curProject.Save();
+                    overlay.Close();
                 };                
 
                 // var cancelButton = overlay.AddButton("abbrechen");
@@ -192,7 +200,13 @@ namespace XCamera
                 // };
                 overlay.AddCancelX();
             }
+            else
+            {
+                // set the selected items in the pickers
 
+                // set the comment
+                kommentarEntry.Text = curProjectSql.GetComment(szFullImageName);
+            }
             overlay.Show();
         }
 
