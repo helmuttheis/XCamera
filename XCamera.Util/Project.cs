@@ -48,92 +48,49 @@ namespace XCamera.Util
         private void FillLevel()
         {
             dictLevel = new Dictionary<string, List<string>>();
-            hierarchyNode = EnsureElement(rootNode, "hierarchy");
+            hierarchyNode = XmlUtil.EnsureElement(rootNode, "hierarchy");
             lstLevel = new List<string>();
             int levelCnt = lstLevel.Count;
 
             string szLevelName = "Gebäude";
             lstLevel.Add(szLevelName);
             levelCnt = lstLevel.Count;
-            XmlNode levelNode = EnsureElement(hierarchyNode, "level" + levelCnt.ToString());
-            EnsureAttribute(levelNode, "id",  levelCnt.ToString());
-            EnsureAttribute(levelNode, "name", szLevelName);
-            EnsureAttribute(AddElement(levelNode, "value", "Haus A"), "id", "1");
-            EnsureAttribute(AddElement(levelNode, "value", "Haus B"), "id", "2");
+            XmlNode levelNode = XmlUtil.EnsureElement(hierarchyNode, "level" + levelCnt.ToString());
+            XmlUtil.EnsureAttribute(levelNode, "id",  levelCnt.ToString());
+            XmlUtil.EnsureAttribute(levelNode, "name", szLevelName);
+            XmlUtil.EnsureAttribute(XmlUtil.AddElement(levelNode, "value", "Haus A"), "id", "1");
+            XmlUtil.EnsureAttribute(XmlUtil.AddElement(levelNode, "value", "Haus B"), "id", "2");
 
             szLevelName = "Etage";
             lstLevel.Add(szLevelName);
             levelCnt = lstLevel.Count;
-            levelNode = EnsureElement(hierarchyNode, "level" + levelCnt.ToString());
-            EnsureAttribute(levelNode, "id", levelCnt.ToString());
-            EnsureAttribute(levelNode, "name", szLevelName);
-            EnsureAttribute(AddElement(levelNode, "value", "Etage 1"), "id", "1");
-            EnsureAttribute(AddElement(levelNode, "value", "Etage 2"), "id", "2");
+            levelNode = XmlUtil.EnsureElement(hierarchyNode, "level" + levelCnt.ToString());
+            XmlUtil.EnsureAttribute(levelNode, "id", levelCnt.ToString());
+            XmlUtil.EnsureAttribute(levelNode, "name", szLevelName);
+            XmlUtil.EnsureAttribute(XmlUtil.AddElement(levelNode, "value", "Etage 1"), "id", "1");
+            XmlUtil.EnsureAttribute(XmlUtil.AddElement(levelNode, "value", "Etage 2"), "id", "2");
 
             szLevelName = "Wohnung";
             lstLevel.Add(szLevelName);
             levelCnt = lstLevel.Count;
-            levelNode = EnsureElement(hierarchyNode, "level" + levelCnt.ToString());
-            EnsureAttribute(levelNode, "id", levelCnt.ToString());
-            EnsureAttribute(levelNode, "name", szLevelName);
-            EnsureAttribute(AddElement(levelNode, "value", "Wohnung 1"), "id", "1");
-            EnsureAttribute(AddElement(levelNode, "value", "Wohnung 2"), "id", "2");
+            levelNode = XmlUtil.EnsureElement(hierarchyNode, "level" + levelCnt.ToString());
+            XmlUtil.EnsureAttribute(levelNode, "id", levelCnt.ToString());
+            XmlUtil.EnsureAttribute(levelNode, "name", szLevelName);
+            XmlUtil.EnsureAttribute(XmlUtil.AddElement(levelNode, "value", "Wohnung 1"), "id", "1");
+            XmlUtil.EnsureAttribute(XmlUtil.AddElement(levelNode, "value", "Wohnung 2"), "id", "2");
 
             szLevelName = "Zimmer";
             lstLevel.Add(szLevelName);
             levelCnt = lstLevel.Count;
-            levelNode = EnsureElement(hierarchyNode, "level" + levelCnt.ToString());
-            EnsureAttribute(levelNode, "id", levelCnt.ToString());
-            EnsureAttribute(levelNode, "name", szLevelName);
-            EnsureAttribute(AddElement(levelNode, "value", "Flur"), "id", "1");
-            EnsureAttribute(AddElement(levelNode, "value", "Küche"), "id", "2");
-            EnsureAttribute(AddElement(levelNode, "value", "Wohnzimmer"), "id", "3");
-            EnsureAttribute(AddElement(levelNode, "value", "Bad"), "id", "4");
+            levelNode = XmlUtil.EnsureElement(hierarchyNode, "level" + levelCnt.ToString());
+            XmlUtil.EnsureAttribute(levelNode, "id", levelCnt.ToString());
+            XmlUtil.EnsureAttribute(levelNode, "name", szLevelName);
+            XmlUtil.EnsureAttribute(XmlUtil.AddElement(levelNode, "value", "Flur"), "id", "1");
+            XmlUtil.EnsureAttribute(XmlUtil.AddElement(levelNode, "value", "Küche"), "id", "2");
+            XmlUtil.EnsureAttribute(XmlUtil.AddElement(levelNode, "value", "Wohnzimmer"), "id", "3");
+            XmlUtil.EnsureAttribute(XmlUtil.AddElement(levelNode, "value", "Bad"), "id", "4");
         }
-        private XmlNode EnsureElement(XmlNode parentNode,string szElement, string szText="")
-        {
-            XmlNode oneNode = parentNode.SelectSingleNode(szElement);
-            if (oneNode == null)
-            {
-                oneNode = xmlDoc.CreateElement(szElement);
-
-                parentNode.AppendChild(oneNode);
-            }
-            oneNode.InnerText = szText;
-            return oneNode;
-        }
-        private XmlNode AddElement(XmlNode parentNode, string szElement, string szText = "")
-        {
-            XmlNode oneNode = xmlDoc.CreateElement(szElement);
-            parentNode.AppendChild(oneNode);
-            
-            oneNode.InnerText = szText;
-            return oneNode;
-        }
-        private XmlNode EnsureElement(XmlNode parentNode, string szElement, string szAttrName, string szAttrValue)
-        {
-            XmlNode oneNode = parentNode.SelectSingleNode(szElement + "[@" + szAttrName + " ='" + szAttrValue + "']");
-            if (oneNode == null)
-            {
-                oneNode = xmlDoc.CreateElement(szElement);
-                XmlNode attrNode = xmlDoc.CreateAttribute(szAttrName);
-                attrNode.InnerText = szAttrValue;
-                oneNode.Attributes.SetNamedItem(attrNode);
-                parentNode.AppendChild(oneNode);
-            }
-            return oneNode;
-        }
-        private XmlNode EnsureAttribute(XmlNode oneNode, string szAttrName, string szAttrValue)
-        {
-            XmlNode attrNode = oneNode.Attributes.GetNamedItem(szAttrName);
-            if( attrNode == null)
-            { 
-                attrNode = xmlDoc.CreateAttribute(szAttrName);
-                attrNode.InnerText = szAttrValue;
-                oneNode.Attributes.SetNamedItem(attrNode);
-            }
-            return oneNode;
-        }
+       
 
         public List<string> GetImages()
         {

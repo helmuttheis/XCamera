@@ -102,6 +102,121 @@ namespace XCamera.Util
                 database.Update(kommentar);
             }
         }
+        public void SetGebaeude(int bildId, int gebaeudeId)
+        {
+            var liste = database.Query<Bild_Gebaeude>(
+                "SELECT * FROM [Bild_Gebaeude] WHERE BildID = " + bildId.ToString());
+
+            if (liste.Count == 0)
+            {
+                var eintrag = new Bild_Gebaeude();
+                eintrag.BildID = bildId;
+                eintrag.GebaeudeID = gebaeudeId;
+                database.Insert(eintrag);
+                
+            }
+            else
+            {
+                var eintrag = liste[0];
+                eintrag.GebaeudeID = gebaeudeId;
+                database.Update(eintrag);
+            }
+        }
+        public void SetEtage(int bildId, int etageId)
+        {
+            var liste = database.Query<Bild_Etage>(
+                "SELECT * FROM [Bild_Etage] WHERE BildID = " + bildId.ToString());
+
+            if (liste.Count == 0)
+            {
+                var eintrag = new Bild_Etage();
+                eintrag.BildID = bildId;
+                eintrag.EtageID = etageId;
+                database.Insert(eintrag);
+
+            }
+            else
+            {
+                var eintrag = liste[0];
+                eintrag.EtageID = etageId;
+                database.Update(eintrag);
+            }
+        }
+        public void SetWohnung(int bildId, int wohnungId)
+        {
+            var liste = database.Query<Bild_Wohnung>(
+                "SELECT * FROM [Bild_Wohnung] WHERE BildID = " + bildId.ToString());
+
+            if (liste.Count == 0)
+            {
+                var eintrag = new Bild_Wohnung();
+                eintrag.BildID = bildId;
+                eintrag.WohnungID = wohnungId;
+                database.Insert(eintrag);
+
+            }
+            else
+            {
+                var eintrag = liste[0];
+                eintrag.WohnungID = wohnungId;
+                database.Update(eintrag);
+            }
+        }
+        public void SetZimmer(int bildId, int zimmerId)
+        {
+            var liste = database.Query<Bild_Zimmer>(
+                "SELECT * FROM [Bild_Zimmer] WHERE BildID = " + bildId.ToString());
+
+            if (liste.Count == 0)
+            {
+                var eintrag = new Bild_Zimmer();
+                eintrag.BildID = bildId;
+                eintrag.ZimmerID = zimmerId;
+                database.Insert(eintrag);
+
+            }
+            else
+            {
+                var eintrag = liste[0];
+                eintrag.ZimmerID = zimmerId;
+                database.Update(eintrag);
+            }
+        }
+        public int AddBild(string szFullImageName)
+        {
+            Bild bild = new Bild();
+            bild.Name = szFullImageName;
+            database.Insert(bild);
+            return database.ExecuteScalar<int>("select last_insert_rowid();");
+        }
+        public int AddGebaeude(string szGebaeude)
+        {
+            Gebaeude gebaeude = new Gebaeude();
+            gebaeude.Bezeichnung = szGebaeude;
+            database.Insert(gebaeude);
+            return database.ExecuteScalar<int>("select last_insert_rowid();");
+        }
+        public int AddEtage(string szEtage)
+        {
+            Etage etage = new Etage();
+            etage.Bezeichnung = szEtage;
+            database.Insert(etage);
+            return database.ExecuteScalar<int>("select last_insert_rowid();");
+        }
+        public int AddWohnung(string szWohnung)
+        {
+            Wohnung wohnung = new Wohnung();
+            wohnung.Bezeichnung = szWohnung;
+            database.Insert(wohnung);
+            return database.ExecuteScalar<int>("select last_insert_rowid();");
+        }
+        public int AddZimmer(string szZimmer)
+        {
+            Zimmer zimmer = new Zimmer();
+            zimmer.Bezeichnung = szZimmer;
+            database.Insert(zimmer);
+            return database.ExecuteScalar<int>("select last_insert_rowid();");
+        }
     }
     public class Zusatz
     {

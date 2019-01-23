@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using XCamera.Util;
 
 namespace XCameraManager
 {
@@ -20,6 +24,7 @@ namespace XCameraManager
     /// </summary>
     public partial class MainWindow : Window
     {
+        ProjectSql projectSql;   
         public MainWindow()
         {
             InitializeComponent();
@@ -28,7 +33,75 @@ namespace XCameraManager
         {
             e.CanExecute = true;
         }
+        private void NewCommand_Executed(object sender, ExecutedRoutedEventArgs e)
+        {
+            string szProjectName = new InputBox("text").ShowDialog();
+            if( !string.IsNullOrWhiteSpace(szProjectName))
+            {
+                string szFullProjectPath = System.IO.Path.Combine(Config.current.szBasedir, szProjectName);
+                // create the directory
+                if ( !Directory.Exists(szFullProjectPath))
+                {
+                    Directory.CreateDirectory(szFullProjectPath);
+                    if( projectSql != null )
+                    {
+                        // project.Close();
+                    }
+                    ProjectSql.szProjectName = szProjectName;
+                    // create the SQLite database
+                    projectSql = new ProjectSql(Config.current.szBasedir);
+                    GenerateSampleData();
+                }
+                else
+                {
+                    MessageBox.Show("Das Propjekt " + szProjectName + " existiert schon");
+                }
+            }
+            txtEditor.Text = "";
+        }
+        private void GenerateSampleData()
+        {
+            string[] gebaeude = { "Haus A","Haus B","Haus C"};
+            string[] etagen = { "Keller","Parterre","Etage 1","Etage 2"};
+            string[] wohnungen = { "Wohnung Links", "Wohnung Mitte", "Wohnung rechts" };
+            string[] zimmer = { "Bad", "Küche", "Flut", "Eltern", "Kind ", "Kind 2", "Wohnzimmer" };
+            using (Font font1 = new Font("Arial", 48, System.Drawing.FontStyle.Bold, GraphicsUnit.Point))
+            {
+                foreach (var haus in gebaeude)
+                {
+                    int hausID = projectSql.AddGebaeude(haus);
+                    foreach (var etage in etagen)
+                    {
+                        int etageID = projectSql.AddEtage(etage);
+                        foreach (var wohnung in wohnungen)
+                        {
+                            int wohnungID = projectSql.AddWohnung(wohnung);
+                            foreach (var raum in zimmer)
+                            {
+                                int raumID = projectSql.AddZimmer(raum);
+                                string szImgName = (haus + "_" + etage + "_" + wohnung + "_" + raum).Replace(" ", "_");
+                                string szFullImgName = System.IO.Path.Combine(projectSql.szProjectPath, szImgName + ".jpg");
+                                Bitmap a = new Bitmap(1024, 1024);
 
+                                using (Graphics g = Graphics.FromImage(a))
+                                {
+                                    g.FillRegion(System.Drawing.Brushes.LightGray, new Region(new RectangleF(3, 3, 1020, 1020)));
+                                    RectangleF rectF1 = new RectangleF(30, 30, 1000, 1000);
+                                    g.DrawString(szImgName, font1, System.Drawing.Brushes.Blue, rectF1); // requires font, brush etc
+                                }
+                                a.Save(szFullImgName, ImageFormat.Jpeg);
+                                int bildId = projectSql.AddBild(szImgName + ".jpg");
+                                projectSql.SetGebaeude(bildId, hausID);
+                                projectSql.SetEtage(bildId, etageID);
+                                projectSql.SetWohnung(bildId, wohnungID);
+                                projectSql.SetZimmer(bildId, raumID);
+                                projectSql.SetComment(bildId, szImgName);
+                            }
+                        }
+                    }
+                }
+            }
+        }
         private void OpenCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             
@@ -47,10 +120,7 @@ namespace XCameraManager
         {
             txtEditor.Text = "";
         }
-        private void NewCommand_Executed(object sender, ExecutedRoutedEventArgs e)
-        {
-            txtEditor.Text = "";
-        }
+        
         
     }
 

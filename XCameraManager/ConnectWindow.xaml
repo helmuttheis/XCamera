@@ -12,12 +12,13 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="155*"/>
-            <RowDefinition Height="223*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="8*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Label  Grid.Row="0" Grid.Column="0" Content="Port"  />
         <TextBox  Grid.Row="0" Grid.Column="1" x:Name="tbPort" Text="8080" />
@@ -29,7 +30,11 @@
 
         <Button  Grid.Row="3" Grid.Column="1" x:Name="btnDisconnect" Content="stop" Click="BtnDisconnect_Click"  />
 
-        <TextBlock  Grid.Row="4" Grid.Column="1" x:Name="tbLog"  />
-
+        <Label  Grid.Row="4" Grid.Column="0" Content="Verzeichnis"  />
+        
+            <TextBox Grid.Row="4" Grid.Column="1" x:Name="tbBasedir" Text=""  />
+            <Button Grid.Row="4" Grid.Column="2" x:Name="btnSelectBasedir" Content="..." Click="BtnSelectBasedir_Click"/>
+       
+        <TextBlock  Grid.Row="5" Grid.Column="1" x:Name="tbLog"  />
     </Grid>
 </Window>
