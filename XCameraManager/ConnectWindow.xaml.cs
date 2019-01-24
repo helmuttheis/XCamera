@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -13,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace XCameraManager
 {
@@ -51,18 +53,167 @@ namespace XCameraManager
 
             string szIP = cmbIP.SelectedValue.ToString();
             
-            webServer = new WebServer(SendResponse, "http://" + szIP + ":" + tbPort.Text.Trim() + "/test/");
+            webServer = new WebServer(SendResponse, "http://" + szIP + ":" + tbPort.Text.Trim() + "/xcamera/");
             webServer.Run();
             Config.current.szIP = szIP;
             Config.current.szPort = tbPort.Text.Trim();
             btnDisconnect.IsEnabled = true;
             btnConnect.IsEnabled = false;
         }
-        public static string SendResponse(HttpListenerRequest request)
+        public  wsResponse SendResponse(HttpListenerRequest request)
         {
-            return string.Format("<HTML><BODY>My web page.<br>{0}</BODY></HTML>", DateTime.Now);
-        }
+            Dictionary<string, string> postParams = new Dictionary<string, string>();
+            wsResponse swRes = new wsResponse();
 
+            string szProjectname = "";
+            string szFilename = "";
+
+            if(request.QueryString["project"] != null)
+            {
+                szProjectname = request.QueryString["project"].ToString();
+            }
+            if (request.QueryString["file"] != null)
+            {
+                szFilename = request.QueryString["file"].ToString();
+            }
+
+            swRes.ba = Encoding.UTF8.GetBytes("{}");
+            if (request.HttpMethod.Equals("POST", StringComparison.InvariantCultureIgnoreCase))
+            {
+                if (string.IsNullOrEmpty(szProjectname) || string.IsNullOrEmpty(szFilename))
+                {
+                    JsonError je = new JsonError { szMessage = "POST requires both project and file " };
+                    ShowError(je.szMessage);
+
+                    string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(je);
+                    swRes.ba = Encoding.UTF8.GetBytes(szJson);
+                    swRes.szMinetype = "text/json";
+                }
+                else
+                {
+                    try
+                    {
+                        string szFullPath = System.IO.Path.Combine(Config.current.szBasedir, szProjectname);
+                        if (!Directory.Exists(szFullPath))
+                        {
+                            Directory.CreateDirectory(szFullPath);
+                        }
+                        string szFullFilename = System.IO.Path.Combine(szFullPath, szFilename);
+                        ShowInfo("recieving " + szFullFilename);
+
+                        Byte[] bytes;
+                        using (System.IO.BinaryReader r = new System.IO.BinaryReader(request.InputStream))
+                        {
+                            // Read the data from the stream into the byte array
+                            bytes = r.ReadBytes(Convert.ToInt32(request.InputStream.Length));
+                        }
+                        File.WriteAllBytes(szFullFilename, bytes);
+                    }
+                    catch (Exception ex)
+                    {
+                        JsonError je = new JsonError { szMessage = "POST " + ex.ToString() };
+                        ShowError(je.szMessage);
+
+                        string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(je);
+                        swRes.ba = Encoding.UTF8.GetBytes(szJson);
+                        swRes.szMinetype = "text/json";
+                    }
+                }
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(szProjectname))
+                {
+                    ShowInfo("sending project list");
+                    string[] szProjects = Directory.GetDirectories(Config.current.szBasedir, "*.", SearchOption.TopDirectoryOnly);
+                    List<JsonProject> jProjects = new List<JsonProject>();
+                    foreach (var szProject in szProjects)
+                    {
+                        jProjects.Add(new JsonProject {
+                            szProjectName = System.IO.Path.GetFileNameWithoutExtension(szProject),
+                            lSize = GetDirectorySize(0, System.IO.Path.Combine(Config.current.szBasedir, szProject))
+                        });
+                    }
+
+                    string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(jProjects);
+                    swRes.ba = Encoding.UTF8.GetBytes(szJson);
+                    swRes.szMinetype = "text/json";
+                }
+                else if (!string.IsNullOrWhiteSpace(szFilename))
+                {
+                    string szFullFilename = System.IO.Path.Combine(Config.current.szBasedir, szProjectname, szFilename);
+                    ShowInfo("sending  " + szFullFilename);
+                    if (File.Exists(szFullFilename))
+                    {
+                        swRes.ba = System.IO.File.ReadAllBytes(szFullFilename);
+                        if (System.IO.Path.GetExtension(szFullFilename).Equals(".jpg", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            swRes.szMinetype = "image/jpeg";
+                        }
+                        else
+                        {
+                            swRes.szMinetype = "pplication/x-sqlite3";
+                        }
+                    }
+                    else
+                    {
+                        JsonError je = new JsonError { szMessage = "File not found " + szFullFilename };
+                        ShowError(je.szMessage);
+                        string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(je);
+                        swRes.ba = Encoding.UTF8.GetBytes(szJson);
+                        swRes.szMinetype = "text/json";
+                    }
+                }
+                else if ( !string.IsNullOrEmpty(szProjectname))
+                {
+                    ShowInfo("sending project info " + szProjectname);
+                    List<JsonProject> jProjects = new List<JsonProject>();
+                    
+                        jProjects.Add(new JsonProject
+                        {
+                            szProjectName = System.IO.Path.GetFileNameWithoutExtension(szProjectname),
+                            lSize = GetDirectorySize(0, System.IO.Path.Combine(Config.current.szBasedir, szProjectname))
+                        });
+
+
+                    string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(jProjects);
+                    swRes.ba = Encoding.UTF8.GetBytes(szJson);
+                    swRes.szMinetype = "text/json";
+                }
+            }
+
+            return swRes; 
+        }
+        private void ShowText(string szMessage)
+        {
+            Application.Current.Dispatcher.BeginInvoke(
+              DispatcherPriority.Background,
+              new Action(() => {
+                  tbLog.Text += szMessage + Environment.NewLine;
+              }));
+        }
+        private void ShowError(string szMessage)
+        {
+            ShowText("ERR " + szMessage);
+        }
+        private void ShowInfo(string szMessage)
+        {
+            ShowText("inf " + szMessage);
+        }
+        private long GetDirectorySize(long size, string directory)
+        {
+            foreach (string dir in Directory.GetDirectories(directory))
+            {
+                GetDirectorySize(size,dir);
+            }
+
+            foreach (FileInfo file in new DirectoryInfo(directory).GetFiles())
+            {
+                size += file.Length;
+            }
+
+            return size;
+        }
         private void BtnDisconnect_Click(object sender, RoutedEventArgs e)
         {
             webServer.Stop();

@@ -104,8 +104,41 @@ namespace XCameraManager
         }
         private void OpenCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.InitialDirectory = Config.current.szBasedir;
+            // Set filter for file extension and default file extension 
+            dlg.DefaultExt = ".db";
+            dlg.Filter = "SQLite Files (*.db)|*.db";
             
-            txtEditor.Text = "";
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = dlg.ShowDialog();
+            
+            // Get the selected file name and display in a TextBox 
+            if (result == true)
+            {
+                // Open document 
+                string filename = dlg.FileName;
+                txtEditor.Text = filename;
+
+                
+                ProjectSql.szProjectName = System.IO.Path.GetFileNameWithoutExtension(filename);
+                projectSql = new ProjectSql(Config.current.szBasedir);
+                List<Gebaeude> gebaeudeListe = projectSql.GetGebaeude();
+                List<Etage> etageListe = projectSql.GetEtagen();
+                List<Wohnung> wohnungiste = projectSql.GetWohnung();
+
+                List<Zimmer> zimmerListe = projectSql.GetZimmer();
+
+
+                List<Bild> bildListe = projectSql.GetBilder(gebaeudeListe[0].ID);
+                txtEditor.Text = "";
+                foreach (var bild in bildListe)
+                {
+                    txtEditor.Text += bild.Name + Environment.NewLine;
+                }
+
+            }
+
         }
         private void OpenCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {

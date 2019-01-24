@@ -217,6 +217,73 @@ namespace XCamera.Util
             database.Insert(zimmer);
             return database.ExecuteScalar<int>("select last_insert_rowid();");
         }
+        public List<Gebaeude> GetGebaeude()
+        {
+            return database.Table<Gebaeude>().ToList();
+        }
+        public List<Etage> GetEtagen()
+        {
+            return database.Table<Etage>().ToList();
+        }
+        public List<Wohnung> GetWohnung()
+        {
+            return database.Table<Wohnung>().ToList();
+        }
+        public List<Zimmer> GetZimmer()
+        {
+            return database.Table<Zimmer>().ToList();
+        }
+        public List<Bild> GetBilder(int gebaeudeId=-1, int etageId = -1,int wohnungId = -1,int zimmerId=-1)
+        {
+            string szSql = "SELECT * FROM Bild ";
+            string szWhere = "";
+            if( gebaeudeId >= 0 )
+            {
+                szSql += " LEFT JOIN BILD_GEBAEUDE on Bild.ID = BILD_GEBAEUDE.BildID ";
+                szWhere = " where ";
+            }
+            if (etageId >= 0)
+            {
+                szSql += " LEFT JOIN BILD_ETAGE on Bild.ID = BILD_ETAGE.BildID ";
+                szWhere = " where ";
+            }
+            if (wohnungId >= 0)
+            {
+                szSql += " LEFT JOIN BILD_WOHNUNG on Bild.ID = BILD_WOHNUNG.BildID ";
+                szWhere = " where ";
+            }
+            if (zimmerId >= 0)
+            {
+                szSql += " LEFT JOIN BILD_ZIMMER on Bild.ID = BILD_ZIMMER.BildID ";
+                szWhere = " where ";
+            }
+            if ( !string.IsNullOrEmpty(szWhere))
+            {
+                szSql += szWhere;
+                string szAnd = "";
+                if (gebaeudeId >= 0)
+                {
+                    szSql += " BILD_GEBAEUDE.GebaeudeID = " + gebaeudeId.ToString();
+                    szAnd = " and ";
+                }
+                if (etageId >= 0)
+                {
+                    szSql += " BILD_ETAGE.EtageID = " + etageId.ToString();
+                    szAnd = " and ";
+                }
+                if (wohnungId >= 0)
+                {
+                    szSql += " BILD_WOHNUNG.WohnungID = " + etageId.ToString();
+                    szAnd = " and ";
+                }
+                if (zimmerId >= 0)
+                {
+                    szSql += " BILD_ZIMMER.ZimmerID = " + zimmerId.ToString();
+                    szAnd = " and ";
+                }
+            }
+            return database.Query<Bild>(szSql);
+        }
     }
     public class Zusatz
     {

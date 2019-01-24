@@ -8,12 +8,19 @@ using System.Threading.Tasks;
 
 namespace XCameraManager
 {
+    public class wsResponse
+    {
+        public int iStatus { get; set; }
+        public string szMinetype{get;set;}
+        public byte[] ba { get; set; }
+
+    }
     public class WebServer
     {
         private readonly HttpListener _listener = new HttpListener();
-        private readonly Func<HttpListenerRequest, string> _responderMethod;
+        private readonly Func<HttpListenerRequest, wsResponse> _responderMethod;
 
-        public WebServer(string[] prefixes, Func<HttpListenerRequest, string> method)
+        public WebServer(string[] prefixes, Func<HttpListenerRequest, wsResponse> method)
         {
             if (!HttpListener.IsSupported)
                 throw new NotSupportedException(
@@ -35,7 +42,7 @@ namespace XCameraManager
             _listener.Start();
         }
 
-        public WebServer(Func<HttpListenerRequest, string> method, params string[] prefixes)
+        public WebServer(Func<HttpListenerRequest, wsResponse> method, params string[] prefixes)
             : this(prefixes, method) { }
 
         public void Run()
@@ -52,10 +59,10 @@ namespace XCameraManager
                             var ctx = c as HttpListenerContext;
                             try
                             {
-                                string rstr = _responderMethod(ctx.Request);
-                                byte[] buf = Encoding.UTF8.GetBytes(rstr);
-                                ctx.Response.ContentLength64 = buf.Length;
-                                ctx.Response.OutputStream.Write(buf, 0, buf.Length);
+                                wsResponse wsRes = _responderMethod(ctx.Request);
+                                ctx.Response.ContentLength64 = wsRes.ba.Length;
+                                ctx.Response.ContentType = wsRes.szMinetype;
+                                ctx.Response.OutputStream.Write(wsRes.ba, 0, wsRes.ba.Length);
                             }
                             catch { } // suppress any exceptions
                             finally
