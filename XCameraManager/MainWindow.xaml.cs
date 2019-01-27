@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using XCamera.Util;
 
 namespace XCameraManager
@@ -82,6 +83,7 @@ namespace XCameraManager
                             int wohnungID = projectSql.AddWohnung(wohnung);
                             foreach (var raum in zimmer)
                             {
+                                ToLog(haus + " " + etage + " " + wohnung + " " + raum);
                                 int raumID = projectSql.AddZimmer(raum);
                                 string szImgName = (haus + "_" + etage + "_" + wohnung + "_" + raum).Replace(" ", "_");
                                 string szFullImgName = System.IO.Path.Combine(projectSql.szProjectPath, szImgName + ".jpg");
@@ -157,8 +159,16 @@ namespace XCameraManager
         {
             txtEditor.Text = "";
         }
-        
-        
+
+        public void ToLog(string szMsg)
+        {
+            Application.Current.Dispatcher.BeginInvoke(
+              new Action(() =>
+              {
+                  lblLog.Content = szMsg;
+              }), DispatcherPriority.Background);
+            System.Windows.Forms.Application.DoEvents();
+        }
     }
 
     public class ApplicationCloseCommand : ICommand
@@ -199,8 +209,6 @@ namespace XCameraManager
             // 
             ConnectWindow connectWindow = new ConnectWindow();
             connectWindow.ShowDialog();
-            // ((MainWindow)Application.Current.MainWindow).FrameWithinGrid.Navigate(new System.Uri("ConnectPage.xaml",UriKind.RelativeOrAbsolute));
-            // connectPage.op
         }
     }
     public static class MyCommands

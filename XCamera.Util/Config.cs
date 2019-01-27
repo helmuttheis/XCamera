@@ -40,6 +40,24 @@ namespace XCamera.Util
             }
             settingsNode = xmlDoc.SelectSingleNode("//Settings");
         }
+        public string szCurProject 
+        {
+            get
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "curproject");
+                if (string.IsNullOrWhiteSpace(oneNode.InnerText))
+                {
+                    oneNode.InnerText = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                }
+                return oneNode.InnerText;
+            }
+            set
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "curproject");
+                oneNode.InnerText = value;
+                Save();
+            }
+        }
         public string szBasedir {
             get {
                 XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "basedir");

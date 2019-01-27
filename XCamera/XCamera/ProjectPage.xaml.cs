@@ -24,10 +24,16 @@ namespace XCamera
             IntrospectionExtensions.GetTypeInfo(typeof(MainPage)).Assembly,
             "XCamera.Resources.styles.css"));
 
+
+            XCamera.Util.Config.szConfigFile = System.IO.Path.GetDirectoryName(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+            XCamera.Util.Config.szConfigFile = System.IO.Path.Combine(XCamera.Util.Config.szConfigFile, "XCamera.xml");
+
             projects = Project.GetList();
             
             lstProjects.ItemsSource = projects;
-            
+
+            lstProjects.SelectedItem = projects.Find(proj => { return proj.Equals(XCamera.Util.Config.current.szCurProject); });
+
 		}
         async protected override void OnAppearing()
         {
@@ -79,7 +85,7 @@ namespace XCamera
                 string szNewProject = "";
                 if (entryProject.Text != null)
                 {
-                    entryProject.Text.Trim();
+                    szNewProject = entryProject.Text.Trim();
                 }
                 if( string.IsNullOrWhiteSpace(szNewProject))
                 {

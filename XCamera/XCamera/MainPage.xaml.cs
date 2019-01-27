@@ -28,6 +28,8 @@ namespace XCamera
             IntrospectionExtensions.GetTypeInfo(typeof(MainPage)).Assembly,
             "XCamera.Resources.styles.css"));
 
+            XCamera.Util.Config.current.szCurProject = ProjectSql.szProjectName;
+
             curProject = new Project(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
             curProjectSql = new ProjectSql(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
 

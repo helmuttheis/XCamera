@@ -11,7 +11,7 @@
         <CommandBinding Command="Open" CanExecute="OpenCommand_CanExecute" Executed="OpenCommand_Executed" />
         <CommandBinding Command="Close" CanExecute="CloseCommand_CanExecute" Executed="CloseCommand_Executed" />
     </Window.CommandBindings>
-    <DockPanel>
+    <DockPanel LastChildFill="True">
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Projekt">
                 <MenuItem Header="Neu" Command="New" />
@@ -24,9 +24,7 @@
                 <MenuItem  Header="_Verbindung" Command="local:MyCommands.ApplicationConnectCommand" />
             </MenuItem>
         </Menu>
-
-        <TextBox AcceptsReturn="True" Name="txtEditor" />
-        <Frame Name="FrameWithinGrid" >
-        </Frame>
+        <Label  DockPanel.Dock="Bottom" x:Name="lblLog" Content="xxxx"/>
+        <TextBox   AcceptsReturn="True" Name="txtEditor" Text="sssss" />
     </DockPanel>
 </Window>

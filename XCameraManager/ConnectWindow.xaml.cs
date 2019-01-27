@@ -35,7 +35,7 @@ namespace XCameraManager
                 if(addr.AddressFamily == AddressFamily.InterNetwork)
                 {
                     string szIP = addr.ToString();
-                    if( szIP.Equals(Config.current.szIP))
+                    if( szIP.Equals(XCamera.Util.Config.current.szIP))
                     {
                         sel = cmbIP.Items.Count;
                     }
@@ -44,8 +44,8 @@ namespace XCameraManager
                 
             }
             cmbIP.SelectedIndex = sel;
-            tbPort.Text = Config.current.szPort;
-            tbBasedir.Text = Config.current.szBasedir;
+            tbPort.Text = XCamera.Util.Config.current.szPort;
+            tbBasedir.Text = XCamera.Util.Config.current.szBasedir;
             btnDisconnect.IsEnabled = false;
         }
         private void BtnConnect_Click(object sender, RoutedEventArgs e)
@@ -55,8 +55,8 @@ namespace XCameraManager
             
             webServer = new WebServer(SendResponse, "http://" + szIP + ":" + tbPort.Text.Trim() + "/xcamera/");
             webServer.Run();
-            Config.current.szIP = szIP;
-            Config.current.szPort = tbPort.Text.Trim();
+            XCamera.Util.Config.current.szIP = szIP;
+            XCamera.Util.Config.current.szPort = tbPort.Text.Trim();
             btnDisconnect.IsEnabled = true;
             btnConnect.IsEnabled = false;
         }
@@ -93,7 +93,7 @@ namespace XCameraManager
                 {
                     try
                     {
-                        string szFullPath = System.IO.Path.Combine(Config.current.szBasedir, szProjectname);
+                        string szFullPath = System.IO.Path.Combine(XCamera.Util.Config.current.szBasedir, szProjectname);
                         if (!Directory.Exists(szFullPath))
                         {
                             Directory.CreateDirectory(szFullPath);
@@ -125,13 +125,13 @@ namespace XCameraManager
                 if (string.IsNullOrEmpty(szProjectname))
                 {
                     ShowInfo("sending project list");
-                    string[] szProjects = Directory.GetDirectories(Config.current.szBasedir, "*.", SearchOption.TopDirectoryOnly);
+                    string[] szProjects = Directory.GetDirectories(XCamera.Util.Config.current.szBasedir, "*.", SearchOption.TopDirectoryOnly);
                     List<JsonProject> jProjects = new List<JsonProject>();
                     foreach (var szProject in szProjects)
                     {
                         jProjects.Add(new JsonProject {
                             szProjectName = System.IO.Path.GetFileNameWithoutExtension(szProject),
-                            lSize = GetDirectorySize(0, System.IO.Path.Combine(Config.current.szBasedir, szProject))
+                            lSize = GetDirectorySize(0, System.IO.Path.Combine(XCamera.Util.Config.current.szBasedir, szProject))
                         });
                     }
 
@@ -141,7 +141,7 @@ namespace XCameraManager
                 }
                 else if (!string.IsNullOrWhiteSpace(szFilename))
                 {
-                    string szFullFilename = System.IO.Path.Combine(Config.current.szBasedir, szProjectname, szFilename);
+                    string szFullFilename = System.IO.Path.Combine(XCamera.Util.Config.current.szBasedir, szProjectname, szFilename);
                     ShowInfo("sending  " + szFullFilename);
                     if (File.Exists(szFullFilename))
                     {
@@ -172,7 +172,7 @@ namespace XCameraManager
                         jProjects.Add(new JsonProject
                         {
                             szProjectName = System.IO.Path.GetFileNameWithoutExtension(szProjectname),
-                            lSize = GetDirectorySize(0, System.IO.Path.Combine(Config.current.szBasedir, szProjectname))
+                            lSize = GetDirectorySize(0, System.IO.Path.Combine(XCamera.Util.Config.current.szBasedir, szProjectname))
                         });
 
 
@@ -242,7 +242,7 @@ namespace XCameraManager
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 tbBasedir.Text = folderDlg.SelectedPath;
-                Config.current.szBasedir = folderDlg.SelectedPath;
+                XCamera.Util.Config.current.szBasedir = folderDlg.SelectedPath;
             }
         }
     }
