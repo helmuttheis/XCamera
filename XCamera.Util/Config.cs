@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using XCamera.Util;
 
-namespace XCameraManager.xxx
+namespace XCamera.Util
 {
     public class Config
     {
@@ -23,14 +23,11 @@ namespace XCameraManager.xxx
                 return _current;
             }
         }
-        private string szConfigFile;
+        public static string szConfigFile;
         private XmlDocument xmlDoc;
         private XmlNode settingsNode;
         public Config()
         {
-            this.szConfigFile = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            this.szConfigFile = this.szConfigFile.Replace(@"\bin\Debug", "");
-            this.szConfigFile = Path.Combine(this.szConfigFile, "XcameraManmager.xml");
 
             xmlDoc = new XmlDocument();
             if( File.Exists(szConfigFile))

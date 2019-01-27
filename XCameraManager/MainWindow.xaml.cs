@@ -28,6 +28,10 @@ namespace XCameraManager
         public MainWindow()
         {
             InitializeComponent();
+            XCamera.Util.Config.szConfigFile = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            XCamera.Util.Config.szConfigFile = XCamera.Util.Config.szConfigFile.Replace(@"\bin\Debug", "");
+            XCamera.Util.Config.szConfigFile = System.IO.Path.Combine(XCamera.Util.Config.szConfigFile, "XcameraManmager.xml");
+
         }
         private void NewCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
