@@ -15,7 +15,9 @@ namespace XCamera
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class ProjectPage : ContentPage
 	{
+        private Boolean bIsRemote = false;
         private List<string> projects;
+        private List<string> remoteProjects;
 
         public ProjectPage ()
 		{
@@ -26,9 +28,11 @@ namespace XCamera
 
 
             XCamera.Util.Config.szConfigFile = System.IO.Path.GetDirectoryName(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
-            XCamera.Util.Config.szConfigFile = System.IO.Path.Combine(XCamera.Util.Config.szConfigFile, "XCamera.xml");
+            XCamera.Util.Config.szConfigFile = System.IO.Path.Combine(XCamera.Util.Config.szConfigFile, "LocalState", "XCamera.xml");
 
-            projects = Project.GetList();
+            ProjectUtil.szServer = "http://" + Config.current.szIP + ":" + Config.current.szPort + "/xcamera";
+
+            projects = ProjectUtil.GetList();
             
             lstProjects.ItemsSource = projects;
 
@@ -38,12 +42,13 @@ namespace XCamera
         async protected override void OnAppearing()
         {
             base.OnAppearing();
-            if( !string.IsNullOrWhiteSpace(Project.szProjectName))
+            if( !string.IsNullOrWhiteSpace(ProjectSql.szProjectName))
             {
-                var curProject = new Project(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+                ProjectUtil.szBasePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                var curProject = new ProjectSql();
                 if( curProject.HasDeleted())
                 {
-                    Boolean bClear = await DisplayAlert("Projekt " + Project.szProjectName, "Die gelöschten Bilder endgültig entfernen?", "Ja", "Nein");
+                    Boolean bClear = await DisplayAlert("Projekt " + ProjectSql.szProjectName, "Die gelöschten Bilder endgültig entfernen?", "Ja", "Nein");
                     if (bClear )
                     {
                         curProject.ClearDeleted();
@@ -71,6 +76,68 @@ namespace XCamera
                 }
             }
         }
+        private void BtnConnect_Clicked(object sender, EventArgs e)
+        {
+            if( bIsRemote )
+            {
+                bIsRemote = false;
+                UpdateBtnConnect();
+                projects = ProjectUtil.GetList();
+
+                lstProjects.ItemsSource = projects;
+
+                lstProjects.SelectedItem = projects.Find(proj => { return proj.Equals(XCamera.Util.Config.current.szCurProject); });
+
+                return;
+            }
+            Overlay overlay = new Overlay(grdOverlay);
+            overlay.Reset();
+            Entry entryServer = overlay.AddInput("IP Adresse", "Url", Config.current.szIP);
+            Entry entryPort = overlay.AddInput("Port", "Port",Config.current.szPort);
+            var submitButton = overlay.AddButton("verbinden");
+            overlay.AddRowDefinitions();
+            overlay.AddCancelX();
+
+            submitButton.Clicked += async (senderx, e2) =>
+            {
+                string szIp = "";
+                string szPort = "";
+                if (entryServer.Text != null)
+                {
+                    szIp = entryServer.Text.Trim();
+                }
+                if (entryPort.Text != null)
+                {
+                    szPort = entryPort.Text.Trim();
+                }
+                if (string.IsNullOrWhiteSpace(szIp))
+                {
+                    await DisplayAlert("", "Die IP Adresse darf nicht leer sein.", "Weiter");
+                }
+                else 
+                {
+                    ProjectUtil.szServer = "http://" + szIp + ":" + szPort + "/xcamera";
+                    bIsRemote = true;
+                    UpdateBtnConnect();
+
+                    remoteProjects = ProjectUtil.GetRemoteList();
+                    if( remoteProjects.Count > 0)
+                    {
+                        Config.current.szIP = szIp;
+                        Config.current.szPort = szPort;
+                    }
+
+                    lstProjects.ItemsSource = remoteProjects;
+
+                    // close the overlay
+                    overlay.Close();
+                }
+            };
+
+            overlay.Show();
+
+        }
+
         private void BtnNew_Clicked(object sender, EventArgs e)
         {
             Overlay overlay = new Overlay(grdOverlay);
@@ -91,7 +158,7 @@ namespace XCamera
                 {
                     await DisplayAlert("", "Den Projektname darf nicht leer sein.", "Weiter");
                 }
-                else if ( !Project.IsValidName(szNewProject))
+                else if ( !ProjectUtil.IsValidName(szNewProject))
                 {
                     await DisplayAlert("", "Den Projektname darf nicht mit __ beginnen.", "Weiter");
                 }
@@ -100,7 +167,7 @@ namespace XCamera
                     projects.Add(szNewProject);
                     lstProjects.ItemsSource = null;
                     lstProjects.ItemsSource = projects;
-                    Project.szProjectName = szNewProject;
+                    ProjectSql.szProjectName = szNewProject;
                     await Navigation.PushAsync(new MainPage());
                     // close the overlay
                     overlay.Close();
@@ -114,7 +181,21 @@ namespace XCamera
             overlay.Show();
             
         }
-        
+        private void DownloadProject(string szProjectName)
+        {
+            // crete the directory
+            string szDestDir = "";
+            // get the SQLite file
+            string szDbFile = "";
+
+            if (projects.Any(proj => { return proj.Equals(szProjectName); }))
+            {
+
+            }
+            else
+            {
+            }
+        }
         //void OnCancelButtonClicked(object sender, EventArgs args)
         //{
         //    overlay.IsVisible = false;
@@ -123,9 +204,30 @@ namespace XCamera
         {
             if (lstProjects.SelectedItem != null)
             {
-                Project.szProjectName = lstProjects.SelectedItem.ToString();
-                Navigation.PushAsync(new MainPage());
+                if (bIsRemote)
+                {
+                    DownloadProject(lstProjects.SelectedItem.ToString());
+                }
+                else
+                {
+                    ProjectSql.szProjectName = lstProjects.SelectedItem.ToString();
+                    Navigation.PushAsync(new MainPage());
+                }
             }
+        }
+        private void UpdateBtnConnect()
+        {
+            if( bIsRemote)
+            {
+                btnConnect.Text = "trennen";
+                btnNew.IsEnabled = false;
+            }
+            else
+            {
+                btnConnect.Text = "verbinden";
+                btnNew.IsEnabled = true;
+            }
+
         }
     }
 }

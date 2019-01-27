@@ -1,25 +1,145 @@
-﻿using SQLite;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SQLite;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace XCamera.Util
 {
+    public class ProjectUtil
+    {
+        static private HttpClient _httpClient;
+
+        public static  HttpClient httpClient
+        {
+            get {
+                if(_httpClient == null)
+                {
+                    _httpClient = new HttpClient();
+                }
+                return _httpClient;
+            }
+        }
+
+        public static string szBasePath { get; set; } = "";
+        public static string szServer { get; set; }
+
+        public static Boolean IsValidName(string szProjectName)
+        {
+            return !szProjectName.StartsWith("__");
+        }
+    
+
+        public static List<string> GetList()
+        {
+            List<string> projList = new List<string>();
+            string[] projects = Directory.GetDirectories(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+            foreach (var project in projects)
+            {
+                string szProjectName = project.Split(Path.DirectorySeparatorChar).LastOrDefault();
+                if (ProjectUtil.IsValidName(szProjectName))
+                {
+                    projList.Add(szProjectName);
+                }
+            }
+
+            return projList;
+        }
+
+        public static List<string> GetRemoteList()
+        {
+            string szJson = "";
+            List<string> projList = new List<string>();
+
+            Task.Run(async () =>
+            {
+                szJson = await httpClient.GetStringAsync(szServer);
+            }).Wait();
+            //  [{"szProjectName":"Test1","lSize":11496036},{"szProjectName":"Test2","lSize":11496036}]
+            List<JsonProject> remoteProjects = JsonConvert.DeserializeObject<List<JsonProject>>(szJson);
+            foreach (var project in remoteProjects)
+            {
+                if (ProjectUtil.IsValidName(project.szProjectName))
+                {
+                    projList.Add(project.szProjectName);
+                }
+            }
+
+            return projList;
+        }
+        public static string ProjectPath(string szProjectName)
+        {
+            string szProjectPath = Path.Combine(szBasePath, szProjectName);
+            if (!Directory.Exists(szProjectPath))
+            {
+                Directory.CreateDirectory(szProjectPath);
+            }
+            return szProjectPath;
+        }
+        public static string ProjectDbFile(string szProjectName)
+        {
+            string szProjectPath = ProjectPath( szProjectName);
+            return Path.Combine(szProjectPath, szProjectName + ".db");
+        }
+        public static void  MergeProject(string szRemoteProject, string szLocalProject)
+        {
+
+        }
+        public static async void CopyProject(string szRemoteProject, string szLocalProject)
+        {
+            // 
+            byte[] arr = await DownloadFileAsync(szServer + "?project=" + szRemoteProject + "&file=" + szRemoteProject + ".db");
+            File.WriteAllBytes(ProjectDbFile(szLocalProject), arr);
+
+            // load the DB file
+
+            // get all images
+
+        }
+        static async Task<byte[]> DownloadFileAsync(string szFileUrl)
+        {
+            // var _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
+
+            try
+            {
+                using (var httpResponse = await _httpClient.GetAsync(szFileUrl))
+                {
+                    if (httpResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        return await httpResponse.Content.ReadAsByteArrayAsync();
+                    }
+                    else
+                    {
+                        //Url is Invalid
+                        return null;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                //Handle Exception
+                return null;
+            }
+        }
+    }
     public class ProjectSql
     {
         public static string szProjectName { get; set; } = "Sample";
         public string szProjectPath { get; set; }
         public string szProjectFile { get; set; }
-        private string szBasePath { get; set; }
         public string szTempProjectPath { get; set; }
 
         readonly SQLiteConnection database;
 
-        public ProjectSql(string szBasePath)
+        public ProjectSql()
         {
-            this.szBasePath = szBasePath;
-            szProjectPath = Path.Combine(szBasePath, szProjectName);
+            szProjectPath = Path.Combine(ProjectUtil.szBasePath, szProjectName);
             if (!Directory.Exists(szProjectPath))
             {
                 Directory.CreateDirectory(szProjectPath);
@@ -42,6 +162,56 @@ namespace XCamera.Util
             database.CreateTable<Bild_Kommentar>();
             database.CreateTable<Bild>();
         }
+        public List<string> GetLevelList()
+        {
+            List<string> lstLevel = new List<string>();
+            lstLevel.Add("Gebäude");
+            lstLevel.Add("Etage");
+            lstLevel.Add("Wohnung");
+            lstLevel.Add("Zimmer");
+
+            return lstLevel;
+        }
+        public List<string> GetLevelValuesList(int iLevelId)
+        {
+
+            List<string> lstLevel = new List<string>();
+            // if (levelNode != null)
+            // {
+            //     XmlNodeList valueNodes = levelNode.SelectNodes("child::value");
+            //     foreach (XmlNode valueNode in valueNodes)
+            //     {
+            //         lstLevel.Add(valueNode.InnerText);
+            //     }
+            // }
+
+            return lstLevel;
+        }
+        public List<string> GetImages()
+        {
+            List<string> imgList = new List<string>();
+
+            return imgList;
+        }
+        public string GetImageFullName(string szImage)
+        {
+            return Path.Combine(szProjectPath, szImage);
+        }
+
+        public void Delete(string szFullImageName)
+        {
+        }
+
+        public Boolean IsDirty()
+        {
+            return false;
+        }
+        public string GetTempDir()
+        {
+            return szTempProjectPath;
+        }
+
+
         public int GetBildId(string szFullImageName)
         {
             var bildListe = database.Query<Bild>("SELECT * FROM [Bild] WHERE [Name] = '" + szFullImageName + "'");
@@ -60,6 +230,17 @@ namespace XCamera.Util
                 bildID = database.ExecuteScalar<int>("select last_insert_rowid();");
             }
             return bildID;
+        }
+        public Boolean HasDeleted()
+        {
+            return false;
+        }
+        public void ClearDeleted()
+        {
+        }
+        public Boolean IsDeleted(string szFullImageName)
+        {
+            return false;
         }
         public string GetComment(string szFullImageName)
         {

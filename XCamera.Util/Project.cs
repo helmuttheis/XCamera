@@ -6,7 +6,7 @@ using System.Xml;
 
 namespace XCamera.Util
 {
-    public class Project
+    public class ProjectUnused
     {
         public static string szProjectName { get; set; } = "Sample";
         public string szProjectPath { get; set; }
@@ -23,7 +23,7 @@ namespace XCamera.Util
 
         private Dictionary<string, List<string>> dictLevel { get; set; }
 
-        public Project(string szBasePath)
+        public ProjectUnused(string szBasePath)
         {
             this.szBasePath = szBasePath;
             szProjectPath = Path.Combine(szBasePath, szProjectName);
@@ -272,7 +272,7 @@ namespace XCamera.Util
             foreach (var project in projects)
             {
                 string szProjectName = project.Split(Path.DirectorySeparatorChar).LastOrDefault();
-                if (Project.IsValidName(szProjectName))
+                if (ProjectUnused.IsValidName(szProjectName))
                 {
                     projList.Add(szProjectName);
                 }
@@ -280,6 +280,8 @@ namespace XCamera.Util
 
             return projList;
         }
+
+
         public static Boolean IsValidName(string szProjectName)
         {
             return !szProjectName.StartsWith("__");

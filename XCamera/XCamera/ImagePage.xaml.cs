@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using XCamera.Util;
 
 namespace XCamera
 {
@@ -26,9 +27,13 @@ namespace XCamera
 
 
             images = new ObservableCollection<ImageViewModel>();
-            foreach (string szImageName in mainPage.curProject.GetImages())
+
+            List<Bild> bilder = mainPage.curProjectSql.GetBilder();
+
+            foreach (var bild in bilder)
             {
-                string szFullImageName = mainPage.curProject.GetImageFullName(szImageName);
+                string szImageName = bild.Name;
+                string szFullImageName = mainPage.curProjectSql.GetImageFullName(szImageName);
                 var memoryStream = new MemoryStream();
 
                 using (var fileStream = new FileStream(szFullImageName, FileMode.Open, FileAccess.Read))
@@ -38,7 +43,7 @@ namespace XCamera
                 memoryStream.Position = 0;
 
                 images.Add(new ImageViewModel {
-                    Comment = mainPage.curProject.GetComment(szFullImageName),
+                    Comment = mainPage.curProjectSql.GetComment(szFullImageName),
                     ImageSource = ImageSource.FromStream(() => memoryStream),
                     ImageName = szFullImageName
                 });
@@ -74,7 +79,7 @@ namespace XCamera
             {
                 images.Remove(selectedLocation);
                 
-                mainPage.curProject.Delete(selectedLocation.ImageName);
+                mainPage.curProjectSql.Delete(selectedLocation.ImageName);
             }
         }
     }

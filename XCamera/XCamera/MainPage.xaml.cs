@@ -17,7 +17,7 @@ namespace XCamera
     {
         public string szFullImageName { get; set; }
 
-        public Project curProject { get; set; }
+        // public Project curProject { get; set; }
         public ProjectSql curProjectSql { get; set; }
         public MainPage()
         {
@@ -30,8 +30,9 @@ namespace XCamera
 
             XCamera.Util.Config.current.szCurProject = ProjectSql.szProjectName;
 
-            curProject = new Project(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
-            curProjectSql = new ProjectSql(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+            //curProject = new Project(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+            ProjectUtil.szBasePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            curProjectSql = new ProjectSql();
 
             btnTakePhoto.Clicked += btnTakePhoto_Clicked;
             btnPickPhoto.Clicked += btnPickPhoto_Clicked;
@@ -50,8 +51,7 @@ namespace XCamera
                 }
                 memoryStream.Position = 0;
                 PhotoImage.Source = ImageSource.FromStream(()=> memoryStream);
-                string szComment = curProject.GetComment(szFullImageName);
-                szComment = curProjectSql.GetComment(szFullImageName);
+                string szComment = curProjectSql.GetComment(szFullImageName);
                 entryComment.Text = szComment;
             }
         }
@@ -60,8 +60,8 @@ namespace XCamera
             if ( !string.IsNullOrWhiteSpace(szFullImageName) )
             {
                 curProjectSql.SetComment(szFullImageName, entryComment.Text);
-                curProject.SetComment(szFullImageName, entryComment.Text);
-                curProject.Save();
+                // curProject.SetComment(szFullImageName, entryComment.Text);
+                // curProject.Save();
             }
         }
         
@@ -92,8 +92,8 @@ namespace XCamera
 
                     if (curPhoto != null)
                     {
-                        curProject.szTempProjectPath = Path.GetDirectoryName(curPhoto.Path);
-                        szFullImageName = Path.Combine(curProject.szProjectPath, Path.GetFileName(curPhoto.Path));
+                        curProjectSql.szTempProjectPath = Path.GetDirectoryName(curPhoto.Path);
+                        szFullImageName = Path.Combine(curProjectSql.szProjectPath, Path.GetFileName(curPhoto.Path));
 
                         File.Copy(curPhoto.Path, szFullImageName);
 
@@ -149,14 +149,14 @@ namespace XCamera
                 grdOverlay.Children.Clear();
                 lstPicker = new List<Picker>();
                 
-                var lstLevel = curProject.GetLevelList();
+                var lstLevel = curProjectSql.GetLevelList();
                 foreach (var szLevel in lstLevel)
                 {
                     Picker newPicker = overlay.AddPicker(overlay.iRow.ToString(), szLevel);
 
                     newPicker.Items.Add("---     ---");
                     newPicker.Items.Add("--- neu ---");
-                    var levelValuesList = curProject.GetLevelValuesList(overlay.iRow);
+                    var levelValuesList = curProjectSql.GetLevelValuesList(overlay.iRow);
                     foreach(var levelValue in levelValuesList)
                     {
                         newPicker.Items.Add(levelValue);
@@ -190,8 +190,6 @@ namespace XCamera
                 submitButton.Clicked += (senderx, e2) =>
                 {
                     curProjectSql.SetComment(szFullImageName, kommentarEntry.Text);
-                    curProject.SetComment(szFullImageName, kommentarEntry.Text);
-                    curProject.Save();
                     overlay.Close();
                 };                
 

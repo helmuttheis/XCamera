@@ -82,7 +82,6 @@
       <DependentUpon>ConnectWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="InputBox.cs" />
-    <Compile Include="JsonObjs.cs" />
     <Compile Include="WebServer.cs" />
     <Page Include="ConnectWindow.xaml">
       <SubType>Designer</SubType>

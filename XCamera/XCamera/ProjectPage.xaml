@@ -22,7 +22,8 @@
                     </ListView.ItemTemplate>
                 </ListView>
 
-                <Button x:Name="btnNew" Clicked="BtnNew_Clicked" Text="neu"/>
+                <Button x:Name="btnConnect" Clicked="BtnConnect_Clicked" Text="verbinden"/>
+                    <Button x:Name="btnNew" Clicked="BtnNew_Clicked" Text="neu"/>
                 </StackLayout>
             </Grid>
             <!-- Overlay -->
