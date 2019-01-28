@@ -24,7 +24,62 @@
                 <MenuItem  Header="_Verbindung" Command="local:MyCommands.ApplicationConnectCommand" />
             </MenuItem>
         </Menu>
-        <Label  DockPanel.Dock="Bottom" x:Name="lblLog" Content="xxxx"/>
-        <TextBox   AcceptsReturn="True" Name="txtEditor" Text="sssss" />
+        <Label  DockPanel.Dock="Bottom" x:Name="lblLog" Content=""/>
+        <StackPanel x:Name="spProject" IsEnabled="False" Orientation="Horizontal">
+            <Grid x:Name="grdOverlay"
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Top">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="40"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Grid.Row="0" Content="Gebäude"/>
+                <ComboBox Grid.Column="1" Grid.Row="0" x:Name="cmbGebaeude"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False">
+                    <ComboBoxItem>robot</ComboBoxItem>
+                    <ComboBoxItem>Robot</ComboBoxItem>
+                </ComboBox>
+                <Label Grid.Column="0" Grid.Row="1" Content="Etage"/>
+                <ComboBox Grid.Column="1" Grid.Row="1" x:Name="cmbEtage"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False">
+                    <ComboBoxItem>robot</ComboBoxItem>
+                    <ComboBoxItem>Robot</ComboBoxItem>
+                </ComboBox>
+
+                <Label Grid.Column="0" Grid.Row="2" Content="Wohnung"/>
+                <ComboBox Grid.Column="1" Grid.Row="2" x:Name="cmbWohnung"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False">
+                    <ComboBoxItem>robot</ComboBoxItem>
+                    <ComboBoxItem>Robot</ComboBoxItem>
+                </ComboBox>
+
+                <Label Grid.Column="0" Grid.Row="3" Content="Zimmer"/>
+                <ComboBox Grid.Column="1" Grid.Row="3" x:Name="cmbZimmer"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False">
+                    <ComboBoxItem>robot</ComboBoxItem>
+                    <ComboBoxItem>Robot</ComboBoxItem>
+                </ComboBox>
+
+                <Button Grid.Column="1" Grid.Row="5"  x:Name="btnSearch" Content="suchen" Click="BtnSearch_Click" />
+            </Grid>
+            <ListView x:Name="lvBilder" Width="Auto" SelectionChanged="LvBilder_SelectionChanged">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{Binding Bild}" />
+                            <TextBlock Text="{Binding Kommentar}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+
+            </ListView>
+            <Image x:Name="imgBild"/>
+        </StackPanel>
     </DockPanel>
 </Window>

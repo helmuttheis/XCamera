@@ -414,21 +414,37 @@ namespace XCamera.Util
             database.Insert(zimmer);
             return database.ExecuteScalar<int>("select last_insert_rowid();");
         }
-        public List<Gebaeude> GetGebaeude()
+        public List<Gebaeude> GetGebaeudeListe()
         {
             return database.Table<Gebaeude>().ToList();
         }
-        public List<Etage> GetEtagen()
+        public List<Etage> GetEtagenListe()
         {
             return database.Table<Etage>().ToList();
         }
-        public List<Wohnung> GetWohnung()
+        public List<Wohnung> GetWohnungListe()
         {
             return database.Table<Wohnung>().ToList();
         }
-        public List<Zimmer> GetZimmer()
+        public List<Zimmer> GetZimmerListe()
         {
             return database.Table<Zimmer>().ToList();
+        }
+        public Gebaeude GetGebaeude(string szBezeichnung)
+        {
+            return database.Table<Gebaeude>().Where(x => x.Bezeichnung.Equals(szBezeichnung)).SingleOrDefault();
+        }
+        public Etage GetEtage(string szBezeichnung)
+        {
+            return database.Table<Etage>().Where(x => x.Bezeichnung.Equals(szBezeichnung)).SingleOrDefault();
+        }
+        public Wohnung GetWohnun(string szBezeichnung)
+        {
+            return database.Table<Wohnung>().Where(x => x.Bezeichnung.Equals(szBezeichnung)).SingleOrDefault();
+        }
+        public Zimmer GetZimmer(string szBezeichnung)
+        {
+            return database.Table<Zimmer>().Where(x => x.Bezeichnung.Equals(szBezeichnung)).SingleOrDefault();
         }
         public List<Bild> GetBilder(int gebaeudeId=-1, int etageId = -1,int wohnungId = -1,int zimmerId=-1)
         {
@@ -460,22 +476,22 @@ namespace XCamera.Util
                 string szAnd = "";
                 if (gebaeudeId >= 0)
                 {
-                    szSql += " BILD_GEBAEUDE.GebaeudeID = " + gebaeudeId.ToString();
+                    szSql += szAnd + " BILD_GEBAEUDE.GebaeudeID = " + gebaeudeId.ToString();
                     szAnd = " and ";
                 }
                 if (etageId >= 0)
                 {
-                    szSql += " BILD_ETAGE.EtageID = " + etageId.ToString();
+                    szSql += szAnd + " BILD_ETAGE.EtageID = " + etageId.ToString();
                     szAnd = " and ";
                 }
                 if (wohnungId >= 0)
                 {
-                    szSql += " BILD_WOHNUNG.WohnungID = " + etageId.ToString();
+                    szSql += szAnd + " BILD_WOHNUNG.WohnungID = " + etageId.ToString();
                     szAnd = " and ";
                 }
                 if (zimmerId >= 0)
                 {
-                    szSql += " BILD_ZIMMER.ZimmerID = " + zimmerId.ToString();
+                    szSql += szAnd + " BILD_ZIMMER.ZimmerID = " + zimmerId.ToString();
                     szAnd = " and ";
                 }
             }
@@ -487,6 +503,10 @@ namespace XCamera.Util
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
         public string Bezeichnung { get; set; }
+        public override string ToString()
+        {
+            return Bezeichnung;
+        }
     }
     public class Bild_Zusatz
     {
@@ -500,6 +520,11 @@ namespace XCamera.Util
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
         public string Bezeichnung { get; set; }
+
+        public  override string ToString()
+        {
+            return Bezeichnung;
+        }
     }
     public class Bild_Gebaeude
     {
@@ -513,6 +538,10 @@ namespace XCamera.Util
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
         public string Bezeichnung { get; set; }
+        public override string ToString()
+        {
+            return Bezeichnung;
+        }
     }
     public class Bild_Etage
     {
@@ -526,6 +555,10 @@ namespace XCamera.Util
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
         public string Bezeichnung { get; set; }
+        public override string ToString()
+        {
+            return Bezeichnung;
+        }
     }
     public class Bild_Wohnung
     {
@@ -538,6 +571,10 @@ namespace XCamera.Util
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
         public string Bezeichnung { get; set; }
+        public override string ToString()
+        {
+            return Bezeichnung;
+        }
     }
     public class Bild_Zimmer
     {

@@ -33,6 +33,33 @@ namespace XCameraManager
             XCamera.Util.Config.szConfigFile = XCamera.Util.Config.szConfigFile.Replace(@"\bin\Debug", "");
             XCamera.Util.Config.szConfigFile = System.IO.Path.Combine(XCamera.Util.Config.szConfigFile, "XcameraManmager.xml");
 
+            cmbGebaeude.SelectionChanged += (se, ev) =>
+            {
+                Gebaeude gebaeude = cmbGebaeude.SelectedItem as Gebaeude;
+
+                if (gebaeude == null)
+                {
+                }
+            };
+            cmbGebaeude.PreviewKeyDown += (se, ev) =>
+            {
+                if (ev.Key == Key.Enter || ev.Key == Key.Return || ev.Key == Key.Tab)
+                {
+                    Gebaeude gebaeude = cmbGebaeude.SelectedItem as Gebaeude;
+
+                    if (gebaeude == null)
+                    {
+                        // add the new value
+                        projectSql.AddGebaeude(cmbGebaeude.Text.ToString());
+                        gebaeude = projectSql.GetGebaeude(cmbGebaeude.Text.ToString());
+                        cmbGebaeude.Items.Add(gebaeude);
+                        cmbGebaeude.SelectedItem = gebaeude;
+                    }
+                }
+                return;
+            };
+
+
         }
         private void NewCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -63,29 +90,47 @@ namespace XCameraManager
                     MessageBox.Show("Das Propjekt " + szProjectName + " existiert schon");
                 }
             }
-            txtEditor.Text = "";
+            
         }
         private void GenerateSampleData()
         {
-            string[] gebaeude = { "Haus A","Haus B","Haus C"};
-            string[] etagen = { "Keller","Parterre","Etage 1","Etage 2"};
-            string[] wohnungen = { "Wohnung Links", "Wohnung Mitte", "Wohnung rechts" };
-            string[] zimmer = { "Bad", "Küche", "Flut", "Eltern", "Kind ", "Kind 2", "Wohnzimmer" };
+            Dictionary<string,int> gebaeude = new Dictionary<string, int> { {"Haus A", -1 },{ "Haus B", -1 },{ "Haus C", -1 } };
+            Dictionary<string, int> etagen = new Dictionary<string, int> { { "Keller", -1 }, { "Parterre", -1 }, { "Etage 1", -1 }, { "Etage 2", -1 } };
+            Dictionary<string, int> wohnungen = new Dictionary<string, int> { { "Wohnung Links", -1 }, { "Wohnung Mitte", -1 },{ "Wohnung rechts", - 1 } };
+            Dictionary<string, int> zimmer = new Dictionary<string, int> { { "Bad", -1 }, { "Küche", -1 }, { "Flut", -1 }, { "Eltern", -1 }, { "Kind ", -1 }, { "Kind 2", -1 }, { "Wohnzimmer", -1 } };
+
+            List<string> keys = new List<string>(gebaeude.Keys);
+            foreach (string key in keys)
+            {
+                gebaeude[key] = projectSql.AddGebaeude(key);
+            }
+            keys = new List<string>(etagen.Keys);
+            foreach (string key in keys)
+            {
+                etagen[key] = projectSql.AddEtage(key);
+            }
+            keys = new List<string>(wohnungen.Keys);
+            foreach (string key in keys)
+            {
+                wohnungen[key] = projectSql.AddWohnung(key);
+            }
+            keys = new List<string>(zimmer.Keys);
+            foreach (string key in keys)
+            {
+                zimmer[key] = projectSql.AddZimmer(key);
+            }
+            
             using (Font font1 = new Font("Arial", 48, System.Drawing.FontStyle.Bold, GraphicsUnit.Point))
             {
-                foreach (var haus in gebaeude)
+                foreach (var haus in gebaeude.Keys)
                 {
-                    int hausID = projectSql.AddGebaeude(haus);
-                    foreach (var etage in etagen)
+                    foreach (var etage in etagen.Keys)
                     {
-                        int etageID = projectSql.AddEtage(etage);
-                        foreach (var wohnung in wohnungen)
+                        foreach (var wohnung in wohnungen.Keys)
                         {
-                            int wohnungID = projectSql.AddWohnung(wohnung);
-                            foreach (var raum in zimmer)
+                            foreach (var raum in zimmer.Keys)
                             {
                                 ToLog(haus + " " + etage + " " + wohnung + " " + raum);
-                                int raumID = projectSql.AddZimmer(raum);
                                 string szImgName = (haus + "_" + etage + "_" + wohnung + "_" + raum).Replace(" ", "_");
                                 string szFullImgName = System.IO.Path.Combine(projectSql.szProjectPath, szImgName + ".jpg");
                                 Bitmap a = new Bitmap(1024, 1024);
@@ -98,10 +143,10 @@ namespace XCameraManager
                                 }
                                 a.Save(szFullImgName, ImageFormat.Jpeg);
                                 int bildId = projectSql.AddBild(szImgName + ".jpg");
-                                projectSql.SetGebaeude(bildId, hausID);
-                                projectSql.SetEtage(bildId, etageID);
-                                projectSql.SetWohnung(bildId, wohnungID);
-                                projectSql.SetZimmer(bildId, raumID);
+                                projectSql.SetGebaeude(bildId, gebaeude[haus]);
+                                projectSql.SetEtage(bildId, etagen[etage]);
+                                projectSql.SetWohnung(bildId, wohnungen[wohnung]);
+                                projectSql.SetZimmer(bildId, zimmer[raum]);
                                 projectSql.SetComment(bildId, szImgName);
                             }
                         }
@@ -125,28 +170,64 @@ namespace XCameraManager
             {
                 // Open document 
                 string filename = dlg.FileName;
-                txtEditor.Text = filename;
-
+                
                 ProjectUtil.szBasePath = Config.current.szBasedir;
                // ProjectSql.szProjectName = System.IO.Path.GetFileNameWithoutExtension(filename);
                 projectSql = new ProjectSql(System.IO.Path.GetFileNameWithoutExtension(filename));
-                List<Gebaeude> gebaeudeListe = projectSql.GetGebaeude();
-                List<Etage> etageListe = projectSql.GetEtagen();
-                List<Wohnung> wohnungiste = projectSql.GetWohnung();
-
-                List<Zimmer> zimmerListe = projectSql.GetZimmer();
-
-
-                List<Bild> bildListe = projectSql.GetBilder(gebaeudeListe[0].ID);
-                txtEditor.Text = "";
-                foreach (var bild in bildListe)
+                List<Gebaeude> gebaeudeListe = projectSql.GetGebaeudeListe();
+                cmbGebaeude.Items.Clear();
+                foreach(var gebaeude in gebaeudeListe)
                 {
-                    txtEditor.Text += bild.Name + Environment.NewLine;
+                    cmbGebaeude.Items.Add(gebaeude);
+                }
+                List<Etage> etageListe = projectSql.GetEtagenListe();
+                cmbEtage.Items.Clear();
+                foreach (var etage in etageListe)
+                {
+                    cmbEtage.Items.Add(etage);
+                }
+                List<Wohnung> wohnungListe = projectSql.GetWohnungListe();
+                cmbWohnung.Items.Clear();
+                foreach (var wohnung in wohnungListe)
+                {
+                    cmbWohnung.Items.Add(wohnung);
                 }
 
+                List<Zimmer> zimmerListe = projectSql.GetZimmerListe();
+                cmbZimmer.Items.Clear();
+                foreach (var zimmer in zimmerListe)
+                {
+                    cmbZimmer.Items.Add(zimmer);
+                }
+
+                List<Bild> bildListe = projectSql.GetBilder(gebaeudeListe[0].ID);
+                
+                spProject.IsEnabled = true;
             }
 
         }
+        private void BtnSearch_Click(object sender, RoutedEventArgs e)
+        {
+            Gebaeude gebaude = cmbGebaeude.SelectedItem as Gebaeude;
+            Etage etage = cmbEtage.SelectedItem as Etage;
+            Wohnung wohnung = cmbWohnung.SelectedItem as Wohnung;
+            Zimmer zimmer = cmbZimmer.SelectedItem as Zimmer;
+
+            int gebaeudeId = gebaude !=null? gebaude .ID :  - 1;
+            int etageId = etage != null ? etage.ID : -1;
+            int wohnungId = wohnung != null ? wohnung.ID : -1;
+            int zimmerId = zimmer != null ? zimmer.ID : -1;
+
+            List<BildMitKommentar> bmk = new List<BildMitKommentar>();
+            List<Bild> bildListe = projectSql.GetBilder(gebaeudeId, etageId, wohnungId, zimmerId);
+            foreach (var bild in bildListe)
+            {
+                bmk.Add(new BildMitKommentar { Bild = bild.Name, Kommentar = projectSql.GetComment(bild.ID) });
+            }
+            lvBilder.ItemsSource = bmk;
+        }
+
+
         private void OpenCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -158,7 +239,8 @@ namespace XCameraManager
 
         private void CloseCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            txtEditor.Text = "";
+            // clear the cmb
+            spProject.IsEnabled = false;
         }
 
         public void ToLog(string szMsg)
@@ -170,8 +252,22 @@ namespace XCameraManager
               }), DispatcherPriority.Background);
             System.Windows.Forms.Application.DoEvents();
         }
-    }
 
+        private void LvBilder_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            BildMitKommentar bmk = lvBilder.SelectedItem as BildMitKommentar;
+            if(bmk != null  )
+            {
+                imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.Bild)));
+            }
+        }
+    }
+    public class BildMitKommentar
+    {
+        public string Bild { get; set; }
+        public string Kommentar { get; set; }
+
+    }
     public class ApplicationCloseCommand : ICommand
     {
         public event EventHandler CanExecuteChanged
