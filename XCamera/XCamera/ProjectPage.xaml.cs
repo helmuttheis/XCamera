@@ -26,9 +26,9 @@ namespace XCamera
             IntrospectionExtensions.GetTypeInfo(typeof(MainPage)).Assembly,
             "XCamera.Resources.styles.css"));
 
-
             XCamera.Util.Config.szConfigFile = System.IO.Path.GetDirectoryName(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
             XCamera.Util.Config.szConfigFile = System.IO.Path.Combine(XCamera.Util.Config.szConfigFile, "LocalState", "XCamera.xml");
+            Logging.szLogFile = System.IO.Path.Combine(XCamera.Util.Config.szConfigFile, "LocalState", "XCamera.log");
 
             ProjectUtil.szServer = "http://" + Config.current.szIP + ":" + Config.current.szPort + "/xcamera";
 
@@ -42,10 +42,11 @@ namespace XCamera
         async protected override void OnAppearing()
         {
             base.OnAppearing();
-            if( !string.IsNullOrWhiteSpace(ProjectSql.szProjectName))
+#if false
+            if curProject != null )//u( !string.IsNullOrWhiteSpace(ProjectSql.szProjectName))
             {
-                ProjectUtil.szBasePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                var curProject = new ProjectSql();
+               // ProjectUtil.szBasePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+               // var curProject = new ProjectSql();
                 if( curProject.HasDeleted())
                 {
                     Boolean bClear = await DisplayAlert("Projekt " + ProjectSql.szProjectName, "Die gelöschten Bilder endgültig entfernen?", "Ja", "Nein");
@@ -75,6 +76,7 @@ namespace XCamera
                     }
                 }
             }
+#endif
         }
         private void BtnConnect_Clicked(object sender, EventArgs e)
         {
@@ -167,7 +169,7 @@ namespace XCamera
                     projects.Add(szNewProject);
                     lstProjects.ItemsSource = null;
                     lstProjects.ItemsSource = projects;
-                    ProjectSql.szProjectName = szNewProject;
+                    // ProjectSql.szProjectName = szNewProject;
                     await Navigation.PushAsync(new MainPage());
                     // close the overlay
                     overlay.Close();
@@ -210,7 +212,7 @@ namespace XCamera
                 }
                 else
                 {
-                    ProjectSql.szProjectName = lstProjects.SelectedItem.ToString();
+                    XCamera.Util.Config.current.szCurProject = lstProjects.SelectedItem.ToString();
                     Navigation.PushAsync(new MainPage());
                 }
             }

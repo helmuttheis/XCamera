@@ -3,6 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="XCamera.App">
     <Application.Resources>
-
+        <ResourceDictionary>
+            <Style TargetType="Button">
+                <Setter Property="CornerRadius" Value="3"/>
+            </Style>
+            <Style TargetType="Picker">
+                <Setter Property="MinimumWidthRequest" Value="300"/>
+            </Style>
+            <Style TargetType="Entry">
+                <Setter Property="WidthRequest" Value="200"/>
+            </Style>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

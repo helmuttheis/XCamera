@@ -26,19 +26,18 @@ stacklayout {
 #grdOverlay {
     background-color: white;
     margin:25;
-    padding:25;
+    padding:20,5,5,10;
 }
 #OverlayCancelX {
-    color: red;
-    background-color: darkblue;
+    color: black;
+    background-color: lightgray;
 }
 
 #viewOverlay {
-    margin: 5;
     background-color: lightskyblue;
 }
 #viewOverlay Label {
-    height: 12;
+    height: 24;
     background-color: white;
 }
 #viewOverlay  Picker {

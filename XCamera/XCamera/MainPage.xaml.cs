@@ -28,11 +28,11 @@ namespace XCamera
             IntrospectionExtensions.GetTypeInfo(typeof(MainPage)).Assembly,
             "XCamera.Resources.styles.css"));
 
-            XCamera.Util.Config.current.szCurProject = ProjectSql.szProjectName;
+           // XCamera.Util.Config.current.szCurProject = ProjectSql.szProjectName;
 
             //curProject = new Project(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
             ProjectUtil.szBasePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            curProjectSql = new ProjectSql();
+            curProjectSql = new ProjectSql(XCamera.Util.Config.current.szCurProject);
 
             btnTakePhoto.Clicked += btnTakePhoto_Clicked;
             btnPickPhoto.Clicked += btnPickPhoto_Clicked;

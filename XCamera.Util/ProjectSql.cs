@@ -93,13 +93,28 @@ namespace XCamera.Util
         }
         public static async void CopyProject(string szRemoteProject, string szLocalProject)
         {
-            // 
-            byte[] arr = await DownloadFileAsync(szServer + "?project=" + szRemoteProject + "&file=" + szRemoteProject + ".db");
-            File.WriteAllBytes(ProjectDbFile(szLocalProject), arr);
+            try
+            {
+                byte[] arr = await DownloadFileAsync(szServer + "?project=" + szRemoteProject + "&file=" + szRemoteProject + ".db");
+                File.WriteAllBytes(ProjectDbFile(szLocalProject), arr);
 
-            // load the DB file
+                // load the DB file
+                ProjectSql tmpProject = new ProjectSql(szLocalProject);
+                // get all images
+                List<Bild> bilder = tmpProject.GetBilder();
+                foreach (var bild in bilder)
+                {
+                    string szImageName = bild.Name;
+                    string szFullImageName = tmpProject.GetImageFullName(szImageName);
+                    arr = await DownloadFileAsync(szServer + "?project=" + szRemoteProject + "&file=" + szImageName);
+                    File.WriteAllBytes(szFullImageName, arr);
+                }
+            }
+            catch (Exception ex)
+            {
 
-            // get all images
+                throw;
+            }
 
         }
         static async Task<byte[]> DownloadFileAsync(string szFileUrl)
@@ -130,15 +145,16 @@ namespace XCamera.Util
     }
     public class ProjectSql
     {
-        public static string szProjectName { get; set; } = "Sample";
+        public string szProjectName { get; set; } = "Sample";
         public string szProjectPath { get; set; }
         public string szProjectFile { get; set; }
         public string szTempProjectPath { get; set; }
 
         readonly SQLiteConnection database;
 
-        public ProjectSql()
+        public ProjectSql(string szProjectNameToLoad)
         {
+            this.szProjectName = szProjectNameToLoad;
             szProjectPath = Path.Combine(ProjectUtil.szBasePath, szProjectName);
             if (!Directory.Exists(szProjectPath))
             {

@@ -56,8 +56,8 @@ namespace XCamera
                 entry.Text = szDefaultValue;
             }
 
-            grdOverlay.Children.Add(label, 0 + 1, iRow + 1);
-            grdOverlay.Children.Add(entry, 1 + 1, iRow + 1);
+            grdOverlay.Children.Add(label, 0, iRow + 1);
+            grdOverlay.Children.Add(entry, 1, iRow + 1);
             iRow++;
             return entry;
         }
@@ -68,8 +68,8 @@ namespace XCamera
             picker.ClassId = "level";
 
             picker.StyleId = szId;
-            grdOverlay.Children.Add(label, 0 + 1, iRow + 1);
-            grdOverlay.Children.Add(picker, 1 + 1, iRow + 1);
+            grdOverlay.Children.Add(label, 0, iRow + 1);
+            grdOverlay.Children.Add(picker, 1, iRow + 1);
             iRow++;
             return picker;
         }
@@ -82,9 +82,10 @@ namespace XCamera
         }
         public Button AddButton( string szLabel)
         {
-            var button = new Button { Text = szLabel };
+            var button = new Button { Text = szLabel, Margin = new Thickness(0,0,15,0) };
             
-            grdOverlay.Children.Add(button, 1+1, iRow+1);
+            grdOverlay.Children.Add(button, 0, iRow+1);
+            Grid.SetColumnSpan(button, 3);
             iRow++;
             return button;
         }
@@ -92,7 +93,7 @@ namespace XCamera
         {
             var label = new Label { Text = szLabel };
 
-            grdOverlay.Children.Add(label, 0+1, iRow+1);
+            grdOverlay.Children.Add(label, 0, iRow+1);
             iRow++;
 
         }
@@ -100,7 +101,7 @@ namespace XCamera
         {
             var button = new Button { Text = "X" };
             button.StyleId = "OverlayCancelX";
-            grdOverlay.Children.Add(button,3,0);
+            grdOverlay.Children.Add(button,2,0);
             button.Clicked += (senderx, e2) =>
             {
                 ((ContentView)grdOverlay.Parent).IsVisible = false;

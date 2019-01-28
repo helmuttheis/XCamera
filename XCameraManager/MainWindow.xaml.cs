@@ -53,9 +53,9 @@ namespace XCameraManager
                         // project.Close();
                     }
                     ProjectUtil.szBasePath = Config.current.szBasedir;
-                    ProjectSql.szProjectName = szProjectName;
+                     //ProjectSql.szProjectName = szProjectName;
                     // create the SQLite database
-                    projectSql = new ProjectSql();
+                    projectSql = new ProjectSql(szProjectName);
                     GenerateSampleData();
                 }
                 else
@@ -128,8 +128,8 @@ namespace XCameraManager
                 txtEditor.Text = filename;
 
                 ProjectUtil.szBasePath = Config.current.szBasedir;
-                ProjectSql.szProjectName = System.IO.Path.GetFileNameWithoutExtension(filename);
-                projectSql = new ProjectSql();
+               // ProjectSql.szProjectName = System.IO.Path.GetFileNameWithoutExtension(filename);
+                projectSql = new ProjectSql(System.IO.Path.GetFileNameWithoutExtension(filename));
                 List<Gebaeude> gebaeudeListe = projectSql.GetGebaeude();
                 List<Etage> etageListe = projectSql.GetEtagen();
                 List<Wohnung> wohnungiste = projectSql.GetWohnung();

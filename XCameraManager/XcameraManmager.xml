@@ -1,5 +1,5 @@
 <Settings>
-  <ip>192.168.2.115</ip>
+  <ip>192.168.2.107</ip>
   <port>8080</port>
-  <basedir>E:\tmp\xcamera</basedir>
+  <basedir>D:\tmp\XCamera</basedir>
 </Settings>
