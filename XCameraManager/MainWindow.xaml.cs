@@ -174,27 +174,27 @@ namespace XCameraManager
                 ProjectUtil.szBasePath = Config.current.szBasedir;
                // ProjectSql.szProjectName = System.IO.Path.GetFileNameWithoutExtension(filename);
                 projectSql = new ProjectSql(System.IO.Path.GetFileNameWithoutExtension(filename));
-                List<Gebaeude> gebaeudeListe = projectSql.GetGebaeudeListe();
                 cmbGebaeude.Items.Clear();
+                List<Gebaeude> gebaeudeListe = projectSql.GetGebaeudeListe();
                 foreach(var gebaeude in gebaeudeListe)
                 {
                     cmbGebaeude.Items.Add(gebaeude);
                 }
-                List<Etage> etageListe = projectSql.GetEtagenListe();
                 cmbEtage.Items.Clear();
+                List<Etage> etageListe = projectSql.GetEtagenListe();
                 foreach (var etage in etageListe)
                 {
                     cmbEtage.Items.Add(etage);
                 }
-                List<Wohnung> wohnungListe = projectSql.GetWohnungListe();
                 cmbWohnung.Items.Clear();
+                List<Wohnung> wohnungListe = projectSql.GetWohnungListe();
                 foreach (var wohnung in wohnungListe)
                 {
                     cmbWohnung.Items.Add(wohnung);
                 }
 
-                List<Zimmer> zimmerListe = projectSql.GetZimmerListe();
                 cmbZimmer.Items.Clear();
+                List<Zimmer> zimmerListe = projectSql.GetZimmerListe();
                 foreach (var zimmer in zimmerListe)
                 {
                     cmbZimmer.Items.Add(zimmer);
@@ -222,9 +222,10 @@ namespace XCameraManager
             List<Bild> bildListe = projectSql.GetBilder(gebaeudeId, etageId, wohnungId, zimmerId);
             foreach (var bild in bildListe)
             {
-                bmk.Add(new BildMitKommentar { Bild = bild.Name, Kommentar = projectSql.GetComment(bild.ID) });
+                bmk.Add(new BildMitKommentar { Bild = bild.Name, Kommentar = projectSql.GetKommentar(bild.ID) });
             }
             lvBilder.ItemsSource = bmk;
+            imgBild.Source = null;
         }
 
 

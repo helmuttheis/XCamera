@@ -22,7 +22,7 @@ namespace XCamera
         public ImagePage (MainPage mainPage)
 		{
             this.mainPage = mainPage;
-            mainPage.szFullImageName = "";
+            mainPage.szImageName = "";
             InitializeComponent ();
 
 
@@ -43,9 +43,9 @@ namespace XCamera
                 memoryStream.Position = 0;
 
                 images.Add(new ImageViewModel {
-                    Comment = mainPage.curProjectSql.GetComment(szFullImageName),
+                    Comment = mainPage.curProjectSql.GetKommentar(szImageName),
                     ImageSource = ImageSource.FromStream(() => memoryStream),
-                    ImageName = szFullImageName
+                    ImageName = szImageName
                 });
             }
             lstView.ItemsSource = images;
@@ -66,7 +66,7 @@ namespace XCamera
         {
             if (lstView.SelectedItem != null)
             {
-                mainPage.szFullImageName = ((ImageViewModel)lstView.SelectedItem).ImageName;
+                mainPage.szImageName = ((ImageViewModel)lstView.SelectedItem).ImageName;
                 Navigation.PopModalAsync();
             }
         }

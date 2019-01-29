@@ -79,7 +79,7 @@
                 </ListView.ItemTemplate>
 
             </ListView>
-            <Image x:Name="imgBild"/>
+            <Image x:Name="imgBild" Width="Auto" Height="Auto"/>
         </StackPanel>
     </DockPanel>
 </Window>

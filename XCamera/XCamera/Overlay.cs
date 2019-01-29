@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Xamarin.Forms;
+using XCamera.Util;
 
 namespace XCamera
 {
@@ -61,18 +62,56 @@ namespace XCamera
             iRow++;
             return entry;
         }
-        public Picker AddPicker(string szId, string szLabel)
+        
+        public Picker AddPicker(string szId, string szLabel, Boolean bEditable=false, Action<Picker,string> addItem =null)
         {
             var label = new Label { Text = szLabel };
-            var picker = new Picker { };
+            var picker = new Picker {  };
+            var entry = new Entry
+            {
+                IsVisible = false
+            };
+            var button = new Button { Text = "+", IsVisible = bEditable };
+
+            entry.Completed += (sender, e) => {
+                entry.IsVisible = false;
+                picker.IsVisible = true;
+                button.IsEnabled = true;
+
+                // get the new entry
+                string szEntry = entry.Text.Trim();
+                // add it to the list
+                if (!string.IsNullOrWhiteSpace(szEntry))
+                {
+                    addItem?.Invoke(picker, szEntry);
+                }
+            };
             picker.ClassId = "level";
 
             picker.StyleId = szId;
             grdOverlay.Children.Add(label, 0, iRow + 1);
             grdOverlay.Children.Add(picker, 1, iRow + 1);
+            grdOverlay.Children.Add(entry, 1, iRow + 1);
+            if ( bEditable)
+            {
+                
+                button.Clicked += (s, e) => {
+                    entry.IsVisible = true;
+                    picker.IsVisible = false;
+                    button.IsEnabled = false;
+                    entry.Focus();
+                };
+                grdOverlay.Children.Add(button, 2, iRow + 1);
+            }
             iRow++;
             return picker;
         }
+
+        private void Entry_Completed(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         public void FillPicker(Picker picker, Dictionary<string,string> dict)
         {
             foreach (string val in dict.Keys)
