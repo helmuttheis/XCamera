@@ -73,6 +73,18 @@ namespace XCamera.Util
 
             return projList;
         }
+        public static Boolean DownloadFile(string szProjetName, string szFileName, string szDestFile)
+        {
+            Boolean bRet = false;
+            byte[] byteArr;
+            Task.Run(async () =>
+            {
+                byteArr = await httpClient.GetByteArrayAsync(szServer + "?project=" + szProjetName + "&file=" + szFileName);
+            }).Wait();
+            
+
+            return bRet;
+        }
         public static string ProjectPath(string szProjectName)
         {
             string szProjectPath = Path.Combine(szBasePath, szProjectName);
@@ -145,6 +157,20 @@ namespace XCamera.Util
     }
     public class ProjectSql
     {
+        public static string BuildProjectPath(string szProjectNameToLoad)
+        {
+            string szProjectPath = Path.Combine(ProjectUtil.szBasePath, szProjectNameToLoad);
+            if (!Directory.Exists(szProjectPath))
+            {
+                Directory.CreateDirectory(szProjectPath);
+            }
+            return szProjectPath;
+        }
+        public static string BuildDbPath(string szProjectNameToLoad)
+        {
+            string szProjectPath = BuildProjectPath(szProjectNameToLoad);
+            return Path.Combine(szProjectPath, szProjectNameToLoad + ".db");
+        }
         public string szProjectName { get; set; } = "Sample";
         public string szProjectPath { get; set; }
         public string szProjectFile { get; set; }
@@ -231,6 +257,7 @@ namespace XCamera.Util
             BildInfo bi = new BildInfo();
             bi.BildName = szImageName;
             bi.BildId = GetBildId(szImageName);
+            bi.bBildIdFound = bBildIdFound;
 
             GetGebaeudeForBild(bi.BildId, bi);
             GetWohnungForBild(bi.BildId, bi);
@@ -304,7 +331,7 @@ namespace XCamera.Util
                 if (bi != null)
                 {
                     bi.KommentarId = ret.KommentarID;
-                    bi.KommentarBezeichnung = GetKommentar(ret.KommentarID);
+                    bi.KommentarBezeichnung = GetKommentar(ret.BildID);
                 }
                 return ret.KommentarID;
             }
@@ -312,17 +339,19 @@ namespace XCamera.Util
         }
 
 
-
+        public Boolean bBildIdFound = false;
         public int GetBildId(string szImageName)
         {
             var bildListe = database.Query<Bild>("SELECT * FROM [Bild] WHERE [Name] = '" + szImageName + "'");
             int bildID;
             if (bildListe.Count > 0)
             {
+                bBildIdFound = true;
                 bildID = bildListe[0].ID;
             }
             else
             {
+                bBildIdFound = false;
                 Bild bild = new Bild
                 {
                     Name = szImageName
@@ -667,6 +696,7 @@ namespace XCamera.Util
     {
         public int BildId { get; set; }
         public string BildName { get; set; }
+        public Boolean bBildIdFound { get; set; }
         public int GebaeudeId { get; set; }
         public string GebaeudeBezeichnung { get; set; }
         public int EtageId { get; set; }

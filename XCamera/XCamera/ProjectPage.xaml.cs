@@ -26,9 +26,15 @@ namespace XCamera
             IntrospectionExtensions.GetTypeInfo(typeof(MainPage)).Assembly,
             "XCamera.Resources.styles.css"));
 
-            XCamera.Util.Config.szConfigFile = System.IO.Path.GetDirectoryName(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
-            XCamera.Util.Config.szConfigFile = System.IO.Path.Combine(XCamera.Util.Config.szConfigFile, "LocalState", "XCamera.xml");
-            Logging.szLogFile = System.IO.Path.Combine(XCamera.Util.Config.szConfigFile, "LocalState", "XCamera.log");
+            string szTemp = System.IO.Path.GetDirectoryName(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+
+            if (Device.RuntimePlatform != Device.Android)
+            {
+                szTemp = System.IO.Path.Combine(szTemp, "LocalState");
+            }
+            Logging.szLogFile = System.IO.Path.Combine(szTemp, "XCamera.log");
+            XCamera.Util.Config.szConfigFile = System.IO.Path.Combine(szTemp,  "XCamera.xml");
+            ProjectUtil.szBasePath = szTemp;
 
             ProjectUtil.szServer = "http://" + Config.current.szIP + ":" + Config.current.szPort + "/xcamera";
 
@@ -121,10 +127,19 @@ namespace XCamera
                     ProjectUtil.szServer = "http://" + szIp + ":" + szPort + "/xcamera";
                     bIsRemote = true;
                     UpdateBtnConnect();
-
-                    remoteProjects = ProjectUtil.GetRemoteList();
+                    remoteProjects = new List<string>();
+                    try
+                    {
+                        remoteProjects = ProjectUtil.GetRemoteList();
+                    }
+                    catch (Exception ex)
+                    {
+                        // could not connect 
+                        lblStatus.Text = "Keine Verbidung mit " + ProjectUtil.szServer;
+                    }
                     if( remoteProjects.Count > 0)
                     {
+                        lblStatus.Text = "Verbidung mit " + ProjectUtil.szServer;
                         Config.current.szIP = szIp;
                         Config.current.szPort = szPort;
                     }
@@ -169,7 +184,7 @@ namespace XCamera
                     projects.Add(szNewProject);
                     lstProjects.ItemsSource = null;
                     lstProjects.ItemsSource = projects;
-                    // ProjectSql.szProjectName = szNewProject;
+                    XCamera.Util.Config.current.szCurProject = szNewProject;
                     await Navigation.PushAsync(new MainPage());
                     // close the overlay
                     overlay.Close();
@@ -185,7 +200,7 @@ namespace XCamera
         }
         private void DownloadProject(string szProjectName)
         {
-            // crete the directory
+            // create the directory
             string szDestDir = "";
             // get the SQLite file
             string szDbFile = "";
@@ -196,6 +211,8 @@ namespace XCamera
             }
             else
             {
+                szDbFile = ProjectSql.BuildDbPath(szProjectName);
+                ProjectUtil.DownloadFile(szProjectName, szProjectName + ".db", szDbFile);
             }
         }
         //void OnCancelButtonClicked(object sender, EventArgs args)

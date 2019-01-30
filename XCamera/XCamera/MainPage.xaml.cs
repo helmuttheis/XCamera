@@ -27,7 +27,7 @@ namespace XCamera
             IntrospectionExtensions.GetTypeInfo(typeof(MainPage)).Assembly,
             "XCamera.Resources.styles.css"));
 
-            ProjectUtil.szBasePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            
             curProjectSql = new ProjectSql(XCamera.Util.Config.current.szCurProject);
 
             btnTakePhoto.Clicked += btnTakePhoto_Clicked;
@@ -103,7 +103,7 @@ namespace XCamera
                         }
                         memoryStream.Position = 0;
                         PhotoImage.Source = ImageSource.FromStream(() => memoryStream);
-
+                        ShowMetadata();
                     }
                 }
                 else
@@ -137,19 +137,29 @@ namespace XCamera
         }
         List< Picker> lstPicker;
         Entry kommentarEntry;
-        private void EntryComment_Focused(object sender, FocusEventArgs e)
+        BildInfo lastBi;
+        private void ShowMetadata()
         {
             Overlay overlay = new Overlay(grdOverlay);
-            if (lstPicker == null)
+            // if (lstPicker == null)
             {
                 BildInfo bi = curProjectSql.GetBildInfo(szImageName);
-
+                if (lastBi != null)
+                {
+                    if (!bi.bBildIdFound)
+                    {
+                        bi.GebaeudeId = lastBi.GebaeudeId;
+                        bi.EtageId = lastBi.EtageId;
+                        bi.WohnungId = lastBi.WohnungId;
+                        bi.ZimmerId = lastBi.ZimmerId;
+                    }
+                }
                 List<Gebaeude> gebaeudeListe = curProjectSql.GetGebaeudeListe();
                 overlay.Reset();
                 grdOverlay.Children.Clear();
-                Picker pGebaeude = overlay.AddPicker(overlay.iRow.ToString(), "Gebäude",true, (picker,szEntry)=> {
+                Picker pGebaeude = overlay.AddPicker(overlay.iRow.ToString(), "Gebäude", true, (picker, szEntry) => {
                     Gebaeude newGebaeude = curProjectSql.EnsureGebaeude(szEntry);
-                    if(  !gebaeudeListe.Any( g => g.ID == newGebaeude.ID) )
+                    if (!gebaeudeListe.Any(g => g.ID == newGebaeude.ID))
                     {
                         gebaeudeListe.Add(newGebaeude);
                         picker.ItemsSource = null;
@@ -159,7 +169,7 @@ namespace XCamera
                 });
                 pGebaeude.ItemsSource = gebaeudeListe.OrderBy(o => o.Bezeichnung).ToList();
                 pGebaeude.ItemDisplayBinding = new Binding("Bezeichnung");
-                pGebaeude.SelectedItem = gebaeudeListe.Find(x => x.ID == bi.GebaeudeId );
+                pGebaeude.SelectedItem = gebaeudeListe.Find(x => x.ID == bi.GebaeudeId);
 
                 List<Etage> etageListe = curProjectSql.GetEtagenListe();
                 Picker pEtage = overlay.AddPicker(overlay.iRow.ToString(), "Etage", true, (picker, szEntry) => {
@@ -207,7 +217,7 @@ namespace XCamera
                 pZimmer.SelectedItem = zimmerListe.Find(x => x.ID == bi.ZimmerId);
 
                 kommentarEntry = overlay.AddInput("", "", bi.KommentarBezeichnung);
-                var submitButton = overlay.AddButton("speichern" );
+                var submitButton = overlay.AddButton("speichern");
                 submitButton.Clicked += (senderx, e2) =>
                 {
                     var selGebaeude = pGebaeude.SelectedItem as Gebaeude;
@@ -221,19 +231,19 @@ namespace XCamera
                     curProjectSql.SetZimmer(bi.BildId, selZimmer != null ? selZimmer.ID : -1);
 
                     curProjectSql.SetComment(szImageName, kommentarEntry.Text);
+
+                    lastBi = curProjectSql.GetBildInfo(szImageName);
                     overlay.Close();
-                };                
+                };
 
                 overlay.AddCancelX();
             }
-            else
-            {
-                // set the selected items in the pickers
-
-                // set the comment
-                kommentarEntry.Text = curProjectSql.GetKommentar(szImageName);
-            }
+            
             overlay.Show();
+        }
+        private void EntryComment_Focused(object sender, FocusEventArgs e)
+        {
+            ShowMetadata();
         }
 
         private void NewPicker_SelectedIndexChanged(object sender, EventArgs e)

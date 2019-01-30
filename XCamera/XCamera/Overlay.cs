@@ -27,6 +27,10 @@ namespace XCamera
         {
             ((ContentView)grdOverlay.Parent).IsVisible = true;
         }
+        public Boolean bIsVisible()
+        {
+            return ((ContentView)grdOverlay.Parent).IsVisible;
+        }
         // public static void ShowWait(ContentView overlay, Grid grdOverlay,string szMessage)
         // {
         //     grdOverlay.Children.Clear();

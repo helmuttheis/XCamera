@@ -34,19 +34,24 @@ namespace XCamera
             {
                 string szImageName = bild.Name;
                 string szFullImageName = mainPage.curProjectSql.GetImageFullName(szImageName);
-                var memoryStream = new MemoryStream();
 
-                using (var fileStream = new FileStream(szFullImageName, FileMode.Open, FileAccess.Read))
+                if (File.Exists(szFullImageName))
                 {
-                    fileStream.CopyTo(memoryStream);
-                }
-                memoryStream.Position = 0;
+                    var memoryStream = new MemoryStream();
 
-                images.Add(new ImageViewModel {
-                    Comment = mainPage.curProjectSql.GetKommentar(szImageName),
-                    ImageSource = ImageSource.FromStream(() => memoryStream),
-                    ImageName = szImageName
-                });
+                    using (var fileStream = new FileStream(szFullImageName, FileMode.Open, FileAccess.Read))
+                    {
+                        fileStream.CopyTo(memoryStream);
+                    }
+                    memoryStream.Position = 0;
+
+                    images.Add(new ImageViewModel
+                    {
+                        Comment = mainPage.curProjectSql.GetKommentar(szImageName),
+                        ImageSource = ImageSource.FromStream(() => memoryStream),
+                        ImageName = szImageName
+                    });
+                }
             }
             lstView.ItemsSource = images;
         }
