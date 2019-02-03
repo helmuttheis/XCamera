@@ -17,7 +17,7 @@ namespace XCamera
     {
         // public string szFullImageName { get; set; }
         public string szImageName { get; set; }
-
+        public Boolean bShowMetadata { get; set; } = false;
 
         public ProjectSql curProjectSql { get; set; }
         public MainPage()
@@ -26,13 +26,11 @@ namespace XCamera
             this.Resources.Add(StyleSheet.FromAssemblyResource(
             IntrospectionExtensions.GetTypeInfo(typeof(MainPage)).Assembly,
             "XCamera.Resources.styles.css"));
-
             
             curProjectSql = new ProjectSql(XCamera.Util.Config.current.szCurProject);
 
             btnTakePhoto.Clicked += btnTakePhoto_Clicked;
             btnPickPhoto.Clicked += btnPickPhoto_Clicked;
-            btnSaveComment.Clicked += BtnSaveComment_Clicked;
         }
         protected override void OnAppearing()
         {
@@ -49,14 +47,12 @@ namespace XCamera
                 memoryStream.Position = 0;
                 PhotoImage.Source = ImageSource.FromStream(()=> memoryStream);
                 string szComment = curProjectSql.GetKommentar(szImageName);
-                entryComment.Text = szComment;
-            }
-        }
-        private void BtnSaveComment_Clicked(object sender, EventArgs e)
-        {
-            if ( !string.IsNullOrWhiteSpace(szImageName) )
-            {
-                curProjectSql.SetComment(szImageName, entryComment.Text);
+                
+                if( this.bShowMetadata )
+                {
+                    ShowMetadata();
+                    this.bShowMetadata = false;
+                }
             }
         }
         
@@ -120,18 +116,8 @@ namespace XCamera
         }
         private async void btnPickPhoto_Clicked(object sender, EventArgs e)
         {
-
             ImagePage imagePage = new ImagePage(this);
             await Navigation.PushModalAsync(imagePage);
-            // await DisplayAlert("Image selected", imagePage.szImageName, "OK");
-
-         // if (curPhoto != null)
-         // {
-         //     var stream = curPhoto.GetStream();
-         //     PhotoImage.Source = ImageSource.FromStream(() => { return stream; });
-         //     string szComment = curProject.GetComment(curPhoto.Path);
-         //     entryComment.Text = szComment;
-         // }
         }
         List< Picker> lstPicker;
         Entry kommentarEntry;
@@ -247,6 +233,11 @@ namespace XCamera
         private void NewPicker_SelectedIndexChanged(object sender, EventArgs e)
         {
             throw new NotImplementedException();
+        }
+
+        private void TapGestureRecognizer_Tapped(object sender, EventArgs e)
+        {
+            ShowMetadata();
         }
     }
 }

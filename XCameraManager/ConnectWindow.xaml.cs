@@ -60,7 +60,7 @@ namespace XCameraManager
             XCamera.Util.Config.current.szPort = tbPort.Text.Trim();
             btnDisconnect.IsEnabled = true;
             btnConnect.IsEnabled = false;
-            ShowInfo("Server wurde erfolgreich gestartet ...");
+            ShowInfo("Server wurde erfolgreich gestartet.");
         }
         public  wsResponse SendResponse(HttpListenerRequest request)
         {

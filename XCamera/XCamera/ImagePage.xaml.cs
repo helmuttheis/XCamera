@@ -75,6 +75,7 @@ namespace XCamera
             if (lstView.SelectedItem != null)
             {
                 mainPage.szImageName = ((ImageViewModel)lstView.SelectedItem).ImageName;
+                mainPage.bShowMetadata = true;
                 Navigation.PopModalAsync();
             }
         }
