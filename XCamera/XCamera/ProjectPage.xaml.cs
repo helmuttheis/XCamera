@@ -296,7 +296,21 @@ namespace XCamera
             }
 
         }
-
+        private void DeleteProject(string szProjectName)
+        {
+            string szDelRet = ProjectSql.Delete(szProjectName);
+            if (string.IsNullOrWhiteSpace(szDelRet))
+            {
+                lblStatus.Text = "";
+                projects.Remove(szProjectName);
+                lstProjects.ItemsSource = null;
+                lstProjects.ItemsSource = projects;
+            }
+            else
+            {
+                lblStatus.Text = szDelRet;
+            }
+        }
         private void BtnDelete_Clicked(object sender, EventArgs e)
         {
             if (bIsRemote)
@@ -305,21 +319,23 @@ namespace XCamera
             }
             else
             {
+                string szProjectName = (sender as Button).CommandParameter.ToString();
 
-                string szProject = (sender as Button).CommandParameter.ToString();
-
-                string szDelRet = ProjectSql.Delete(szProject);
-                if (string.IsNullOrWhiteSpace(szDelRet))
-                {
-                    lblStatus.Text = "";
-                    projects.Remove(szProject);
-                    lstProjects.ItemsSource = null;
-                    lstProjects.ItemsSource = projects;
-                }
-                else
-                {
-                    lblStatus.Text = szDelRet;
-                }
+                Overlay overlay = new Overlay(grdOverlay);
+                overlay.ShowQuestion("Soll das Projekt " + szProjectName + " gelöscht werden?", () => {
+                    ProjectSql tmpProject = new ProjectSql(szProjectName);
+                    if(tmpProject.GetBilderChanged().Count > 0 )
+                    {
+                        overlay.ShowQuestion("Das Projekt " + szProjectName + " wurde nicht nicht gesichert." + Environment.NewLine +"Soll es trotzdem gelöscht werden?", () =>
+                        {
+                            DeleteProject(szProjectName);
+                        });
+                    }
+                    else
+                    {
+                        DeleteProject(szProjectName);
+                    }
+                });
             }
         }
     }

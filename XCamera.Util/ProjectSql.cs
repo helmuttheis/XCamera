@@ -119,7 +119,7 @@ namespace XCamera.Util
             database.CreateTable<Bild>();
         }
         
-        public string[] List()
+        public string[] ListAllFiles()
         {
             return Directory.GetFiles(this.szProjectPath, "*.*");
             

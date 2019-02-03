@@ -31,6 +31,20 @@ namespace XCamera
         {
             return ((ContentView)grdOverlay.Parent).IsVisible;
         }
+        public void ShowQuestion(string szQuestion , Action onYes)
+        {
+            Reset();
+
+            AddLabel(szQuestion);
+            Button btnYes = AddButton("Ja");
+            AddCancelX();
+            btnYes.Clicked += (s, e) => {
+                ((ContentView)grdOverlay.Parent).IsVisible = false;
+                onYes();
+            };
+            ((ContentView)grdOverlay.Parent).IsVisible = true;
+
+        }
         // public static void ShowWait(ContentView overlay, Grid grdOverlay,string szMessage)
         // {
         //     grdOverlay.Children.Clear();
