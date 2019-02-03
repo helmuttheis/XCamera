@@ -102,13 +102,19 @@ namespace XCameraManager
                         string szFullFilename = System.IO.Path.Combine(szFullPath, szFilename);
                         ShowInfo("recieving " + szFullFilename);
 
-                        Byte[] bytes;
-                        using (System.IO.BinaryReader r = new System.IO.BinaryReader(request.InputStream))
+                        using (FileStream fs = new FileStream(szFullFilename,FileMode.Create, FileAccess.Write))
                         {
-                            // Read the data from the stream into the byte array
-                            bytes = r.ReadBytes(Convert.ToInt32(request.InputStream.Length));
+                            request.InputStream.CopyTo(fs);
                         }
-                        File.WriteAllBytes(szFullFilename, bytes);
+                        request.InputStream.Close();
+                      //  Byte[] bytes;
+                      //  
+                      //  using (System.IO.BinaryReader r = new System.IO.BinaryReader(request.InputStream))
+                      //  {
+                      //      // Read the data from the stream into the byte array
+                      //      bytes = r.ReadBytes(Convert.ToInt32(request.InputStream.Length));
+                      //  }
+                      //  File.WriteAllBytes(szFullFilename, bytes);
                     }
                     catch (Exception ex)
                     {

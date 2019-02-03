@@ -222,7 +222,9 @@ namespace XCameraManager
             List<Bild> bildListe = projectSql.GetBilder(gebaeudeId, etageId, wohnungId, zimmerId);
             foreach (var bild in bildListe)
             {
-                bmk.Add(new BildMitKommentar { Bild = bild.Name, Kommentar = projectSql.GetKommentar(bild.ID) });
+                bmk.Add(new BildMitKommentar {
+                    Bild = System.IO.Path.GetFileName( bild.Name),
+                    Kommentar = projectSql.GetKommentar(bild.ID) });
             }
             lvBilder.ItemsSource = bmk;
             imgBild.Source = null;
