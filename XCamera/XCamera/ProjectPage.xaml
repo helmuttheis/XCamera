@@ -2,7 +2,13 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="XCamera.ProjectPage"
+             xmlns:local="clr-namespace:XCamera"
              NavigationPage.HasNavigationBar="false">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:FlagToBoolean x:Key="bVisible" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <ContentPage.Content>
         <AbsoluteLayout>
             <Grid AbsoluteLayout.LayoutBounds="0, 0, 1, 1"
@@ -17,7 +23,11 @@
                             <ViewCell>
                                 <StackLayout class="projectViewCell" Orientation="Horizontal" HorizontalOptions="Fill" BackgroundColor="Olive">
                                     <Label Text = "{Binding .}" FontSize="24" HorizontalOptions="End" AbsoluteLayout.LayoutBounds="0.25, 0.25, 400, 40"/>
-                                </StackLayout>
+                                        <Button Text="senden" x:Name="btnSend" Clicked="BtnSend_Clicked" CommandParameter="{Binding .}" 
+                                                IsVisible="{Binding .,Converter={StaticResource bVisible}}"/>
+                                        <Button Text="löschen" x:Name="btnDelete" Clicked="BtnDelete_Clicked" CommandParameter="{Binding .}" 
+                                                IsVisible="{Binding .,Converter={StaticResource bVisible}}"/>
+                                    </StackLayout>
                             </ViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>

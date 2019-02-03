@@ -39,7 +39,7 @@ namespace XCamera.Util
         public static List<string> GetList()
         {
             List<string> projList = new List<string>();
-            string[] projects = Directory.GetDirectories(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+            string[] projects = Directory.GetDirectories(ProjectUtil.szBasePath);
             foreach (var project in projects)
             {
                 string szProjectName = project.Split(Path.DirectorySeparatorChar).LastOrDefault();
@@ -76,15 +76,41 @@ namespace XCamera.Util
         public static Boolean DownloadFile(string szProjetName, string szFileName, string szDestFile)
         {
             Boolean bRet = false;
-            byte[] byteArr;
+            byte[] byteArr =null;
             Task.Run(async () =>
             {
                 byteArr = await httpClient.GetByteArrayAsync(szServer + "?project=" + szProjetName + "&file=" + szFileName);
             }).Wait();
-            
+            File.WriteAllBytes(szDestFile, byteArr);
 
             return bRet;
         }
+        public static Boolean SendFile(string szProjectName, string szFileName)
+        {
+            Boolean bRet = false;
+            byte[] byteArr = null;
+            HttpResponseMessage response = null;
+
+            try
+            {
+                Task.Run(async () =>
+                {
+                    string szSourceFile =  Path.Combine( ProjectPath(szProjectName), szFileName);
+
+                    byteArr = File.ReadAllBytes(szSourceFile);
+                    HttpContent httpContent = new ByteArrayContent(byteArr);
+                    response = await httpClient.PostAsync(szServer + "?project=" + szProjectName + "&file=" + szFileName, httpContent);
+                }).Wait();
+
+            }
+            catch (Exception ex)
+            {
+                Logging.AddError("SendFile " + ex.ToString());
+            }
+
+            return bRet;
+        }
+
         public static string ProjectPath(string szProjectName)
         {
             string szProjectPath = Path.Combine(szBasePath, szProjectName);
@@ -171,6 +197,40 @@ namespace XCamera.Util
             string szProjectPath = BuildProjectPath(szProjectNameToLoad);
             return Path.Combine(szProjectPath, szProjectNameToLoad + ".db");
         }
+        public static string Delete(string szProjectNameToDelete)
+        {
+            string szRet = "";
+            string szProjectPath = BuildProjectPath(szProjectNameToDelete);
+            string[] dateien = Directory.GetFiles(szProjectPath, "*.*");
+            foreach (var datei in dateien)
+            {
+                try
+                {
+                    File.Delete(datei);
+                }
+                catch (Exception)
+                {
+                    szRet += "Kann " + Path.GetFileName(datei) + " nicht löschen." + Environment.NewLine;
+                }
+            }
+            try
+            {
+                Directory.Delete(szProjectPath, true);
+            }
+            catch (Exception)
+            {
+                szRet += "Kann " + szProjectPath + " nicht löschen." + Environment.NewLine;
+            }
+
+            return szRet;
+        }
+        public static string[] GetImages(string szProjectName)
+        {
+            string szProjectPath = BuildProjectPath(szProjectName);
+            return Directory.GetFiles(szProjectPath, "*.jpg");
+        }
+
+
         public string szProjectName { get; set; } = "Sample";
         public string szProjectPath { get; set; }
         public string szProjectFile { get; set; }
@@ -204,7 +264,13 @@ namespace XCamera.Util
             database.CreateTable<Bild_Kommentar>();
             database.CreateTable<Bild>();
         }
-        public List<string> GetLevelList()
+        
+        public string[] List()
+        {
+            return Directory.GetFiles(this.szProjectPath, "*.*");
+            
+        }
+        public List<string> GetLevelListxx()
         {
             List<string> lstLevel = new List<string>();
             lstLevel.Add("Gebäude");
@@ -240,7 +306,7 @@ namespace XCamera.Util
             return Path.Combine(szProjectPath, szImage);
         }
 
-        public void Delete(string szImageName)
+        public void DeleteImage(string szImageName)
         {
         }
 

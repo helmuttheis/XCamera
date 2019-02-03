@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -26,18 +28,14 @@ namespace XCamera
             IntrospectionExtensions.GetTypeInfo(typeof(MainPage)).Assembly,
             "XCamera.Resources.styles.css"));
 
-            string szTemp = System.IO.Path.GetDirectoryName(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
-
-            if (Device.RuntimePlatform != Device.Android)
-            {
-                szTemp = System.IO.Path.Combine(szTemp, "LocalState");
-            }
+            string szTemp = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             Logging.szLogFile = System.IO.Path.Combine(szTemp, "XCamera.log");
             XCamera.Util.Config.szConfigFile = System.IO.Path.Combine(szTemp,  "XCamera.xml");
             ProjectUtil.szBasePath = szTemp;
 
             ProjectUtil.szServer = "http://" + Config.current.szIP + ":" + Config.current.szPort + "/xcamera";
 
+            lstProjects.StyleId = bIsRemote.ToString();
             projects = ProjectUtil.GetList();
             
             lstProjects.ItemsSource = projects;
@@ -86,14 +84,16 @@ namespace XCamera
         }
         private void BtnConnect_Clicked(object sender, EventArgs e)
         {
-            if( bIsRemote )
+            
+            if ( bIsRemote )
             {
                 bIsRemote = false;
+                FlagToBoolean.bVisible = !bIsRemote;
                 UpdateBtnConnect();
                 projects = ProjectUtil.GetList();
+                lstProjects.StyleId = bIsRemote.ToString();
 
                 lstProjects.ItemsSource = projects;
-
                 lstProjects.SelectedItem = projects.Find(proj => { return proj.Equals(XCamera.Util.Config.current.szCurProject); });
 
                 return;
@@ -126,6 +126,9 @@ namespace XCamera
                 {
                     ProjectUtil.szServer = "http://" + szIp + ":" + szPort + "/xcamera";
                     bIsRemote = true;
+                    FlagToBoolean.bVisible = !bIsRemote;
+
+                    lstProjects.StyleId = bIsRemote.ToString();
                     UpdateBtnConnect();
                     remoteProjects = new List<string>();
                     try
@@ -213,8 +216,37 @@ namespace XCamera
             {
                 szDbFile = ProjectSql.BuildDbPath(szProjectName);
                 ProjectUtil.DownloadFile(szProjectName, szProjectName + ".db", szDbFile);
+                projects.Add(szProjectName);
+                lstProjects.ItemsSource = null;
+                lstProjects.ItemsSource = projects;
+                XCamera.Util.Config.current.szCurProject = szProjectName;
+                new ProjectSql(XCamera.Util.Config.current.szCurProject);
             }
         }
+        private void SendProject(string szProjectName)
+        {
+            // create the directory
+            string szDestDir = "";
+            // get the SQLite file
+            string szDbFile = "";
+
+            if (projects.Any(proj => { return proj.Equals(szProjectName); }))
+            {
+                // connect with server
+
+
+                szDbFile = ProjectSql.BuildDbPath(szProjectName);
+                ProjectUtil.SendFile(szProjectName, szProjectName + ".db");
+                // send all images
+                string[] imgList = ProjectSql.GetImages(szProjectName);
+                foreach(var img in imgList)
+                {
+                    ProjectUtil.SendFile(szProjectName, Path.GetFileName(img));
+                }
+            }
+        }
+
+        
         //void OnCancelButtonClicked(object sender, EventArgs args)
         //{
         //    overlay.IsVisible = false;
@@ -246,7 +278,63 @@ namespace XCamera
                 btnConnect.Text = "verbinden";
                 btnNew.IsEnabled = true;
             }
+        }
 
+        private void BtnSend_Clicked(object sender, EventArgs e)
+        {
+            if (bIsRemote)
+            {
+
+            }
+            else
+            {
+
+                string szProject = (sender as Button).CommandParameter.ToString();
+
+                SendProject(szProject);
+            }
+
+        }
+
+        private void BtnDelete_Clicked(object sender, EventArgs e)
+        {
+            if (bIsRemote)
+            {
+
+            }
+            else
+            {
+
+                string szProject = (sender as Button).CommandParameter.ToString();
+
+                string szDelRet = ProjectSql.Delete(szProject);
+                if (string.IsNullOrWhiteSpace(szDelRet))
+                {
+                    lblStatus.Text = "";
+                    projects.Remove(szProject);
+                    lstProjects.ItemsSource = null;
+                    lstProjects.ItemsSource = projects;
+                }
+                else
+                {
+                    lblStatus.Text = szDelRet;
+                }
+            }
+        }
+    }
+    class FlagToBoolean : IValueConverter
+    {
+        public static Boolean bVisible = true;
+        public object Convert(object value, Type targetType,
+                              object parameter, CultureInfo culture)
+        {
+            return bVisible ;
+        }
+
+        public object ConvertBack(object value, Type targetType,
+                                  object parameter, CultureInfo culture)
+        {
+            return bVisible;
         }
     }
 }

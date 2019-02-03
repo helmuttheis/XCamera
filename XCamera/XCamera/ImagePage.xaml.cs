@@ -32,25 +32,28 @@ namespace XCamera
 
             foreach (var bild in bilder)
             {
-                string szImageName = bild.Name;
-                string szFullImageName = mainPage.curProjectSql.GetImageFullName(szImageName);
-
-                if (File.Exists(szFullImageName))
+                if (!string.IsNullOrEmpty(bild.Name))
                 {
-                    var memoryStream = new MemoryStream();
+                    string szImageName = bild.Name;
+                    string szFullImageName = mainPage.curProjectSql.GetImageFullName(szImageName);
 
-                    using (var fileStream = new FileStream(szFullImageName, FileMode.Open, FileAccess.Read))
+                    if (File.Exists(szFullImageName))
                     {
-                        fileStream.CopyTo(memoryStream);
+                        var memoryStream = new MemoryStream();
+
+                        using (var fileStream = new FileStream(szFullImageName, FileMode.Open, FileAccess.Read))
+                        {
+                            fileStream.CopyTo(memoryStream);
+                        }
+                        memoryStream.Position = 0;
+
+                        images.Add(new ImageViewModel
+                        {
+                            Comment = mainPage.curProjectSql.GetKommentar(szImageName),
+                            ImageSource = ImageSource.FromStream(() => memoryStream),
+                            ImageName = szImageName
+                        });
                     }
-                    memoryStream.Position = 0;
-
-                    images.Add(new ImageViewModel
-                    {
-                        Comment = mainPage.curProjectSql.GetKommentar(szImageName),
-                        ImageSource = ImageSource.FromStream(() => memoryStream),
-                        ImageName = szImageName
-                    });
                 }
             }
             lstView.ItemsSource = images;
@@ -84,7 +87,7 @@ namespace XCamera
             {
                 images.Remove(selectedLocation);
                 
-                mainPage.curProjectSql.Delete(selectedLocation.ImageName);
+                mainPage.curProjectSql.DeleteImage(selectedLocation.ImageName);
             }
         }
     }
