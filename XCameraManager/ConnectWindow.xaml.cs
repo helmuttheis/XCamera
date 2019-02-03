@@ -60,6 +60,7 @@ namespace XCameraManager
             XCamera.Util.Config.current.szPort = tbPort.Text.Trim();
             btnDisconnect.IsEnabled = true;
             btnConnect.IsEnabled = false;
+            ShowInfo("Server wurde erfolgreich gestartet ...");
         }
         public  wsResponse SendResponse(HttpListenerRequest request)
         {
@@ -68,8 +69,9 @@ namespace XCameraManager
 
             string szProjectname = "";
             string szFilename = "";
+            string szHasJson = "";
 
-            if(request.QueryString["project"] != null)
+            if (request.QueryString["project"] != null)
             {
                 szProjectname = request.QueryString["project"].ToString();
             }
@@ -77,11 +79,24 @@ namespace XCameraManager
             {
                 szFilename = request.QueryString["file"].ToString();
             }
+            if (request.QueryString["json"] != null)
+            {
+                szHasJson = request.QueryString["json"].ToString();
+            }
 
             swRes.ba = Encoding.UTF8.GetBytes("{}");
             if (request.HttpMethod.Equals("POST", StringComparison.InvariantCultureIgnoreCase))
             {
-                if (string.IsNullOrEmpty(szProjectname) || string.IsNullOrEmpty(szFilename))
+                if (string.IsNullOrEmpty(szProjectname) )
+                {
+                    JsonError je = new JsonError { szMessage = "POST requires a project " };
+                    ShowError(je.szMessage);
+
+                    string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(je);
+                    swRes.ba = Encoding.UTF8.GetBytes(szJson);
+                    swRes.szMinetype = "text/json";
+                }
+                else if (string.IsNullOrEmpty(szHasJson) &&  string.IsNullOrEmpty(szFilename))
                 {
                     JsonError je = new JsonError { szMessage = "POST requires both project and file " };
                     ShowError(je.szMessage);
@@ -89,6 +104,56 @@ namespace XCameraManager
                     string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(je);
                     swRes.ba = Encoding.UTF8.GetBytes(szJson);
                     swRes.szMinetype = "text/json";
+                }
+                else if (!string.IsNullOrEmpty(szHasJson) )
+                {
+                    string szJson = "";
+                    System.Text.Encoding encoding = request.ContentEncoding;
+                    using (StreamReader sr= new StreamReader(request.InputStream, encoding))
+                    {
+                        szJson = sr.ReadToEnd();
+                    }
+                    request.InputStream.Close();
+                    try
+                    {
+                        BildInfo bi = Newtonsoft.Json.JsonConvert.DeserializeObject<BildInfo>(szJson);
+                        ProjectSql tmpProject = new ProjectSql(szProjectname);
+
+                        Gebaeude gebauede = tmpProject.EnsureGebaeude(bi.GebaeudeBezeichnung);
+                        Etage etage = tmpProject.EnsureEtage(bi.EtageBezeichnung);
+                        Wohnung wohnung = tmpProject.EnsureWohnung(bi.WohnungBezeichnung);
+                        Zimmer zimmer = tmpProject.EnsureZimmer(bi.ZimmerBezeichnung);
+                        if( gebauede != null )
+                        {
+                            tmpProject.SetGebaeude(bi.BildId, gebauede.ID);
+                        }
+                        if (etage != null)
+                        {
+                            tmpProject.SetEtage(bi.BildId, etage.ID);
+                        }
+                        if (wohnung != null)
+                        {
+                            tmpProject.SetWohnung(bi.BildId, wohnung.ID);
+                        }
+                        if (zimmer != null)
+                        {
+                            tmpProject.SetZimmer(bi.BildId, zimmer.ID);
+                        }
+                        tmpProject.SetComment(bi.BildId, bi.KommentarBezeichnung);
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        JsonError je = new JsonError { szMessage = "POST " + ex.ToString() };
+                        ShowError(je.szMessage);
+
+                        string szErrJson = Newtonsoft.Json.JsonConvert.SerializeObject(je);
+                        swRes.ba = Encoding.UTF8.GetBytes(szErrJson);
+                        swRes.szMinetype = "text/json";
+
+                    }
+
                 }
                 else
                 {
@@ -107,14 +172,6 @@ namespace XCameraManager
                             request.InputStream.CopyTo(fs);
                         }
                         request.InputStream.Close();
-                      //  Byte[] bytes;
-                      //  
-                      //  using (System.IO.BinaryReader r = new System.IO.BinaryReader(request.InputStream))
-                      //  {
-                      //      // Read the data from the stream into the byte array
-                      //      bytes = r.ReadBytes(Convert.ToInt32(request.InputStream.Length));
-                      //  }
-                      //  File.WriteAllBytes(szFullFilename, bytes);
                     }
                     catch (Exception ex)
                     {
@@ -201,11 +258,11 @@ namespace XCameraManager
         }
         private void ShowError(string szMessage)
         {
-            ShowText("ERR " + szMessage);
+            ShowText("ERR  " + szMessage);
         }
         private void ShowInfo(string szMessage)
         {
-            ShowText("inf " + szMessage);
+            ShowText("INFO " + szMessage);
         }
         private long GetDirectorySize(long size, string directory)
         {
@@ -221,9 +278,20 @@ namespace XCameraManager
 
             return size;
         }
+        protected override void OnClosed(EventArgs e)
+        {
+            try
+            {
+                webServer.Stop();
+
+            }
+            catch (Exception)
+            {
+            }
+            base.OnClosed(e);
+        }
         private void BtnDisconnect_Click(object sender, RoutedEventArgs e)
         {
-            webServer.Stop();
             this.Close();
         }
         private IPAddress[] LocalIPAddress()

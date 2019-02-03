@@ -36,7 +36,7 @@ namespace XCamera
             ProjectUtil.szServer = "http://" + Config.current.szIP + ":" + Config.current.szPort + "/xcamera";
 
             lstProjects.StyleId = bIsRemote.ToString();
-            projects = ProjectUtil.GetList();
+            projects = ProjectUtil.GetProjectList();
             
             lstProjects.ItemsSource = projects;
 
@@ -90,7 +90,7 @@ namespace XCamera
                 bIsRemote = false;
                 FlagToBoolean.bVisible = !bIsRemote;
                 UpdateBtnConnect();
-                projects = ProjectUtil.GetList();
+                projects = ProjectUtil.GetProjectList();
                 lstProjects.StyleId = bIsRemote.ToString();
 
                 lstProjects.ItemsSource = projects;
@@ -133,7 +133,7 @@ namespace XCamera
                     remoteProjects = new List<string>();
                     try
                     {
-                        remoteProjects = ProjectUtil.GetRemoteList();
+                        remoteProjects = ProjectUtil.GetRemoteProjectList();
                     }
                     catch (Exception ex)
                     {
@@ -203,8 +203,6 @@ namespace XCamera
         }
         private void DownloadProject(string szProjectName)
         {
-            // create the directory
-            string szDestDir = "";
             // get the SQLite file
             string szDbFile = "";
 
@@ -225,32 +223,35 @@ namespace XCamera
         }
         private void SendProject(string szProjectName)
         {
-            // create the directory
-            string szDestDir = "";
             // get the SQLite file
             string szDbFile = "";
 
             if (projects.Any(proj => { return proj.Equals(szProjectName); }))
             {
-                // connect with server
+                // ToDo: open the overlay with the server settings
+                // here we expect the current settings to be correct.
 
+                ProjectSql tmpProject = new ProjectSql(szProjectName);
+                List<Bild> bilder =  tmpProject.GetBilderChanged();
 
-                szDbFile = ProjectSql.BuildDbPath(szProjectName);
-                ProjectUtil.SendFile(szProjectName, szProjectName + ".db");
-                // send all images
-                string[] imgList = ProjectSql.GetImages(szProjectName);
-                foreach(var img in imgList)
+                // send all changed images
+                foreach (var bild in bilder)
                 {
-                    ProjectUtil.SendFile(szProjectName, Path.GetFileName(img));
+                    ProjectUtil.SendFile(szProjectName, Path.GetFileName(bild.Name));
+
                 }
+                // send all changed data
+                foreach (var bild in bilder)
+                {
+                    BildInfo bi = tmpProject.GetBildInfo(bild.Name);
+
+                    string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(bi);
+                    ProjectUtil.SendJson(szProjectName, szJson);
+                }
+
             }
         }
 
-        
-        //void OnCancelButtonClicked(object sender, EventArgs args)
-        //{
-        //    overlay.IsVisible = false;
-        //}
         private void LstProjects_ItemTapped(object sender, ItemTappedEventArgs e)
         {
             if (lstProjects.SelectedItem != null)

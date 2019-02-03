@@ -14,5 +14,5 @@ namespace XCamera.Util
     public class JsonError
     {
         public string szMessage{ get; set; }
-    }
+    }    
 }

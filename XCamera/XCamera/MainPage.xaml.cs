@@ -48,7 +48,7 @@ namespace XCamera
                 }
                 memoryStream.Position = 0;
                 PhotoImage.Source = ImageSource.FromStream(()=> memoryStream);
-                string szComment = curProjectSql.GetKommentar(szFullImageName);
+                string szComment = curProjectSql.GetKommentar(szImageName);
                 entryComment.Text = szComment;
             }
         }
@@ -57,8 +57,6 @@ namespace XCamera
             if ( !string.IsNullOrWhiteSpace(szImageName) )
             {
                 curProjectSql.SetComment(szImageName, entryComment.Text);
-                // curProject.SetComment(szFullImageName, entryComment.Text);
-                // curProject.Save();
             }
         }
         

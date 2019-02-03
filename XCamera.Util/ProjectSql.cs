@@ -12,177 +12,14 @@ using System.Threading.Tasks;
 
 namespace XCamera.Util
 {
-    public class ProjectUtil
-    {
-        static private HttpClient _httpClient;
 
-        public static  HttpClient httpClient
-        {
-            get {
-                if(_httpClient == null)
-                {
-                    _httpClient = new HttpClient();
-                }
-                return _httpClient;
-            }
-        }
-
-        public static string szBasePath { get; set; } = "";
-        public static string szServer { get; set; }
-
-        public static Boolean IsValidName(string szProjectName)
-        {
-            return !szProjectName.StartsWith("__");
-        }
-    
-
-        public static List<string> GetList()
-        {
-            List<string> projList = new List<string>();
-            string[] projects = Directory.GetDirectories(ProjectUtil.szBasePath);
-            foreach (var project in projects)
-            {
-                string szProjectName = project.Split(Path.DirectorySeparatorChar).LastOrDefault();
-                if (ProjectUtil.IsValidName(szProjectName))
-                {
-                    projList.Add(szProjectName);
-                }
-            }
-
-            return projList;
-        }
-
-        public static List<string> GetRemoteList()
-        {
-            string szJson = "";
-            List<string> projList = new List<string>();
-
-            Task.Run(async () =>
-            {
-                szJson = await httpClient.GetStringAsync(szServer);
-            }).Wait();
-            //  [{"szProjectName":"Test1","lSize":11496036},{"szProjectName":"Test2","lSize":11496036}]
-            List<JsonProject> remoteProjects = JsonConvert.DeserializeObject<List<JsonProject>>(szJson);
-            foreach (var project in remoteProjects)
-            {
-                if (ProjectUtil.IsValidName(project.szProjectName))
-                {
-                    projList.Add(project.szProjectName);
-                }
-            }
-
-            return projList;
-        }
-        public static Boolean DownloadFile(string szProjetName, string szFileName, string szDestFile)
-        {
-            Boolean bRet = false;
-            byte[] byteArr =null;
-            Task.Run(async () =>
-            {
-                byteArr = await httpClient.GetByteArrayAsync(szServer + "?project=" + szProjetName + "&file=" + szFileName);
-            }).Wait();
-            File.WriteAllBytes(szDestFile, byteArr);
-
-            return bRet;
-        }
-        public static Boolean SendFile(string szProjectName, string szFileName)
-        {
-            Boolean bRet = false;
-            byte[] byteArr = null;
-            HttpResponseMessage response = null;
-
-            try
-            {
-                Task.Run(async () =>
-                {
-                    string szSourceFile =  Path.Combine( ProjectPath(szProjectName), szFileName);
-
-                    byteArr = File.ReadAllBytes(szSourceFile);
-                    HttpContent httpContent = new ByteArrayContent(byteArr);
-                    response = await httpClient.PostAsync(szServer + "?project=" + szProjectName + "&file=" + szFileName, httpContent);
-                }).Wait();
-
-            }
-            catch (Exception ex)
-            {
-                Logging.AddError("SendFile " + ex.ToString());
-            }
-
-            return bRet;
-        }
-
-        public static string ProjectPath(string szProjectName)
-        {
-            string szProjectPath = Path.Combine(szBasePath, szProjectName);
-            if (!Directory.Exists(szProjectPath))
-            {
-                Directory.CreateDirectory(szProjectPath);
-            }
-            return szProjectPath;
-        }
-        public static string ProjectDbFile(string szProjectName)
-        {
-            string szProjectPath = ProjectPath( szProjectName);
-            return Path.Combine(szProjectPath, szProjectName + ".db");
-        }
-        public static void  MergeProject(string szRemoteProject, string szLocalProject)
-        {
-
-        }
-        public static async void CopyProject(string szRemoteProject, string szLocalProject)
-        {
-            try
-            {
-                byte[] arr = await DownloadFileAsync(szServer + "?project=" + szRemoteProject + "&file=" + szRemoteProject + ".db");
-                File.WriteAllBytes(ProjectDbFile(szLocalProject), arr);
-
-                // load the DB file
-                ProjectSql tmpProject = new ProjectSql(szLocalProject);
-                // get all images
-                List<Bild> bilder = tmpProject.GetBilder();
-                foreach (var bild in bilder)
-                {
-                    string szImageName = bild.Name;
-                    string szFullImageName = tmpProject.GetImageFullName(szImageName);
-                    arr = await DownloadFileAsync(szServer + "?project=" + szRemoteProject + "&file=" + szImageName);
-                    File.WriteAllBytes(szFullImageName, arr);
-                }
-            }
-            catch (Exception ex)
-            {
-
-                throw;
-            }
-
-        }
-        static async Task<byte[]> DownloadFileAsync(string szFileUrl)
-        {
-            // var _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
-
-            try
-            {
-                using (var httpResponse = await _httpClient.GetAsync(szFileUrl))
-                {
-                    if (httpResponse.StatusCode == HttpStatusCode.OK)
-                    {
-                        return await httpResponse.Content.ReadAsByteArrayAsync();
-                    }
-                    else
-                    {
-                        //Url is Invalid
-                        return null;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                //Handle Exception
-                return null;
-            }
-        }
-    }
     public class ProjectSql
     {
+        /// <summary>
+        /// build the project path, create the directory if it does not exist
+        /// </summary>
+        /// <param name="szProjectNameToLoad"></param>
+        /// <returns></returns>
         public static string BuildProjectPath(string szProjectNameToLoad)
         {
             string szProjectPath = Path.Combine(ProjectUtil.szBasePath, szProjectNameToLoad);
@@ -192,11 +29,22 @@ namespace XCamera.Util
             }
             return szProjectPath;
         }
+        /// <summary>
+        /// build the fulle file name of the SqLite database
+        /// </summary>
+        /// <param name="szProjectNameToLoad"></param>
+        /// <returns></returns>
         public static string BuildDbPath(string szProjectNameToLoad)
         {
             string szProjectPath = BuildProjectPath(szProjectNameToLoad);
             return Path.Combine(szProjectPath, szProjectNameToLoad + ".db");
         }
+        /// <summary>
+        /// Delete the project <para/>
+        /// All files and the directory are removed
+        /// </summary>
+        /// <param name="szProjectNameToDelete">error messages or an empty string</param>
+        /// <returns></returns>
         public static string Delete(string szProjectNameToDelete)
         {
             string szRet = "";
@@ -224,6 +72,12 @@ namespace XCamera.Util
 
             return szRet;
         }
+        /// <summary>
+        /// Get all imagesin the project directory.<para/>
+        /// There may be found images on disk, but not in the database, or found in the database but on disk
+        /// </summary>
+        /// <param name="szProjectName"></param>
+        /// <returns></returns>
         public static string[] GetImages(string szProjectName)
         {
             string szProjectPath = BuildProjectPath(szProjectName);
@@ -270,6 +124,7 @@ namespace XCamera.Util
             return Directory.GetFiles(this.szProjectPath, "*.*");
             
         }
+#if false
         public List<string> GetLevelListxx()
         {
             List<string> lstLevel = new List<string>();
@@ -295,6 +150,7 @@ namespace XCamera.Util
 
             return lstLevel;
         }
+#endif
         public List<string> GetImages()
         {
             List<string> imgList = new List<string>();
@@ -308,10 +164,13 @@ namespace XCamera.Util
 
         public void DeleteImage(string szImageName)
         {
+            int bildID = GetBildId(szImageName);
+            SetDeleted(bildID);
         }
 
         public Boolean IsDirty()
         {
+            // TODO: are there any change images?
             return false;
         }
         public string GetTempDir()
@@ -434,19 +293,62 @@ namespace XCamera.Util
         public void ClearDeleted()
         {
         }
-        public Boolean IsDeleted(string szImageName)
+        public Boolean IsDeleted(int bildID)
         {
+            return HasStatus(bildID,STATUS.DELETED);
+        }
+        public Boolean IsNew(int bildID)
+        {
+            return HasStatus(bildID, STATUS.NEW);
+        }
+        public Boolean IsChanged(int bildID)
+        {
+            return HasStatus(bildID, STATUS.CHANGED);
+        }
+        public void SetDeleted(int bildID)
+        {
+            SetStatus(bildID, STATUS.DELETED | STATUS.CHANGED);
+        }
+        public void SetNew(int bildID)
+        {
+            SetStatus(bildID, STATUS.NEW | STATUS.CHANGED);
+        }
+        public void SetChanged(int bildID)
+        {
+            SetStatus(bildID, STATUS.CHANGED);
+        }
+
+        public Boolean HasStatus(int bildID, STATUS bsCheck)
+        {
+            Bild bild = GetBild(bildID);
+            if (bild != null)
+            {
+                STATUS bs = (STATUS)bild.Status;
+
+                return bs.HasFlag(bsCheck);
+            }
             return false;
         }
+        public void SetStatus(int bildID, STATUS bsSet)
+        {
+            Bild bild = GetBild(bildID);
+            if (bild != null)
+            {
+                bild.Status = (int)bsSet;
+                database.Update(bild);
+
+            }
+        }
+
         public string GetKommentar(string szImageName)
         {
             int bildID = GetBildId(szImageName);
             
             return GetKommentar(bildID);
         }
-        public string GetKommentar(int id)
+        public string GetKommentar(int bildId)
         {
-            var kommentarListe = database.Query<Kommentar>("SELECT * FROM [Kommentar] left join Bild_Kommentar WHERE Kommentar.ID = Bild_Kommentar.KommentarID and Bild_Kommentar.BildID = " + id.ToString());
+            var kommentarListe = database.Query<Kommentar>("SELECT * FROM [Kommentar] left join Bild_Kommentar WHERE Kommentar.ID = Bild_Kommentar.KommentarID and Bild_Kommentar.BildID = " + bildId.ToString());
                 
             if (kommentarListe.Count > 0 )
             {
@@ -459,9 +361,9 @@ namespace XCamera.Util
             int bildID = GetBildId(szImageName);
             SetComment(bildID, szComment);
         }
-        public void SetComment(int id, string szComment)
+        public void SetComment(int bildId, string szComment)
         {
-            var kommentarListe = database.Query<Kommentar>("SELECT * FROM [Kommentar] left join Bild_Kommentar WHERE Kommentar.ID = Bild_Kommentar.KommentarID and Bild_Kommentar.BildID = " + id.ToString());
+            var kommentarListe = database.Query<Kommentar>("SELECT * FROM [Kommentar] left join Bild_Kommentar WHERE Kommentar.ID = Bild_Kommentar.KommentarID and Bild_Kommentar.BildID = " + bildId.ToString());
 
             if (kommentarListe.Count == 0)
             {
@@ -469,7 +371,7 @@ namespace XCamera.Util
                 kommentar.Bezeichnung = szComment;
                 database.Insert(kommentar);
                 int kommentarID = database.ExecuteScalar<int>("select last_insert_rowid();");
-                Bild_Kommentar bk = new Bild_Kommentar { BildID = id, KommentarID = kommentarID };
+                Bild_Kommentar bk = new Bild_Kommentar { BildID = bildId, KommentarID = kommentarID };
                 database.Insert(bk);
             }
             else
@@ -478,6 +380,7 @@ namespace XCamera.Util
                 kommentar.Bezeichnung = szComment;
                 database.Update(kommentar);
             }
+            SetChanged(bildId);
         }
         public void SetGebaeude(int bildId, int gebaeudeId)
         {
@@ -505,6 +408,8 @@ namespace XCamera.Util
                     database.Update(eintrag);
                 }
             }
+            SetChanged(bildId);
+
         }
         public void SetEtage(int bildId, int etageId)
         {
@@ -531,6 +436,7 @@ namespace XCamera.Util
                     database.Update(eintrag);
                 }
             }
+            SetChanged(bildId);
         }
         public void SetWohnung(int bildId, int wohnungId)
         {
@@ -558,6 +464,7 @@ namespace XCamera.Util
                     database.Update(eintrag);
                 }
             }
+            SetChanged(bildId);
         }
         public void SetZimmer(int bildId, int zimmerId)
         {
@@ -586,6 +493,7 @@ namespace XCamera.Util
                     database.Update(eintrag);
                 }
             }
+            SetChanged(bildId);
         }
         public int AddBild(string szImageName)
         {
@@ -603,6 +511,11 @@ namespace XCamera.Util
         }
         public Gebaeude EnsureGebaeude(string szGebaeude)
         {
+            if (string.IsNullOrWhiteSpace(szGebaeude))
+            {
+                return null;
+            }
+
             Gebaeude gebaeude = GetGebaeude(szGebaeude);
             if (gebaeude == null)
             {
@@ -612,6 +525,11 @@ namespace XCamera.Util
         }
         public Etage EnsureEtage(string szEtage)
         {
+            if (string.IsNullOrWhiteSpace(szEtage))
+            {
+                return null;
+            }
+
             Etage etage = GetEtage(szEtage);
             if (etage == null)
             {
@@ -621,6 +539,11 @@ namespace XCamera.Util
         }
         public Wohnung EnsureWohnung(string szWohnung)
         {
+            if (string.IsNullOrWhiteSpace(szWohnung))
+            {
+                return null;
+            }
+
             Wohnung wohnung = GetWohnung(szWohnung);
             if (wohnung == null)
             {
@@ -630,6 +553,10 @@ namespace XCamera.Util
         }
         public Zimmer EnsureZimmer(string szZimmer)
         {
+            if( string.IsNullOrWhiteSpace(szZimmer) )
+            {
+                return null;
+            }
             Zimmer zimmer = GetZimmer(szZimmer);
             if (zimmer == null)
             {
@@ -678,6 +605,10 @@ namespace XCamera.Util
         {
             return database.Table<Gebaeude>().Where(x => x.Bezeichnung.Equals(szBezeichnung)).SingleOrDefault();
         }
+        public Bild GetBild(int id)
+        {
+            return database.Table<Bild>().Where(x => x.ID == id).SingleOrDefault();
+        }
         public Gebaeude GetGebaeude(int id)
         {
             return database.Table<Gebaeude>().Where(x => x.ID == id).SingleOrDefault();
@@ -706,7 +637,13 @@ namespace XCamera.Util
         {
             return database.Table<Zimmer>().Where(x => x.ID == id).SingleOrDefault();
         }
-        public List<Bild> GetBilder(int gebaeudeId=-1, int etageId = -1,int wohnungId = -1,int zimmerId=-1)
+        public List<Bild> GetBilderChanged()
+        {
+            string szSql = "SELECT * FROM Bild where Status & " + (int)STATUS.CHANGED;
+            return database.Query<Bild>(szSql);
+
+        }
+        public List<Bild> GetBilder(int gebaeudeId = -1, int etageId = -1, int wohnungId = -1, int zimmerId = -1)
         {
             string szSql = "SELECT * FROM Bild ";
             string szWhere = "";
@@ -757,125 +694,5 @@ namespace XCamera.Util
             }
             return database.Query<Bild>(szSql);
         }
-    }
-    public class BildInfo
-    {
-        public int BildId { get; set; }
-        public string BildName { get; set; }
-        public Boolean bBildIdFound { get; set; }
-        public int GebaeudeId { get; set; }
-        public string GebaeudeBezeichnung { get; set; }
-        public int EtageId { get; set; }
-        public string EtageBezeichnung { get; set; }
-        public int WohnungId { get; set; }
-        public string WohnungBezeichnung { get; set; }
-        public int ZimmerId { get; set; }
-        public string ZimmerBezeichnung { get; set; }
-        public int KommentarId { get; set; }
-        public string KommentarBezeichnung { get; set; }
-    }
-    public class Zusatz
-    {
-        [PrimaryKey, AutoIncrement]
-        public int ID { get; set; }
-        public string Bezeichnung { get; set; }
-        public override string ToString()
-        {
-            return Bezeichnung;
-        }
-    }
-    public class Bild_Zusatz
-    {
-        [PrimaryKey]
-        public int BildID { get; set; }
-        public int ZusatzID { get; set; }
-    }
-
-    public class Gebaeude
-    {
-        [PrimaryKey, AutoIncrement]
-        public int ID { get; set; }
-        public string Bezeichnung { get; set; }
-
-        public  override string ToString()
-        {
-            return Bezeichnung;
-        }
-    }
-    public class Bild_Gebaeude
-    {
-        [PrimaryKey]
-        public int BildID { get; set; }
-        public int GebaeudeID { get; set; }
-    }
-
-    public class Etage
-    {
-        [PrimaryKey, AutoIncrement]
-        public int ID { get; set; }
-        public string Bezeichnung { get; set; }
-        public override string ToString()
-        {
-            return Bezeichnung;
-        }
-    }
-    public class Bild_Etage
-    {
-        [PrimaryKey]
-        public int BildID { get; set; }
-        public int EtageID { get; set; }
-    }
-
-    public class Wohnung
-    {
-        [PrimaryKey, AutoIncrement]
-        public int ID { get; set; }
-        public string Bezeichnung { get; set; }
-        public override string ToString()
-        {
-            return Bezeichnung;
-        }
-    }
-    public class Bild_Wohnung
-    {
-        [PrimaryKey]
-        public int BildID { get; set; }
-        public int WohnungID { get; set; }
-    }
-    public class Zimmer
-    {
-        [PrimaryKey, AutoIncrement]
-        public int ID { get; set; }
-        public string Bezeichnung { get; set; }
-        public override string ToString()
-        {
-            return Bezeichnung;
-        }
-    }
-    public class Bild_Zimmer
-    {
-        [PrimaryKey]
-        public int BildID { get; set; }
-        public int ZimmerID { get; set; }
-    }
-    public class Kommentar
-    {
-        [PrimaryKey, AutoIncrement]
-        public int ID { get; set; }
-        public string Bezeichnung { get; set; }
-    }
-    public class Bild_Kommentar
-    {
-        [PrimaryKey]
-        public int BildID { get; set; }
-        public int KommentarID { get; set; }
-    }
-
-    public class Bild
-    {
-        [PrimaryKey, AutoIncrement]
-        public int ID { get; set; }
-        public string Name { get; set; }
-        public Boolean IsDeleted { get; set; }
     }
 }

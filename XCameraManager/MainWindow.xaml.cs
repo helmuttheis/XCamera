@@ -80,10 +80,15 @@ namespace XCameraManager
                         // project.Close();
                     }
                     ProjectUtil.szBasePath = Config.current.szBasedir;
-                     //ProjectSql.szProjectName = szProjectName;
+                    //ProjectSql.szProjectName = szProjectName;
                     // create the SQLite database
+                    SetTitle(szProjectName);
+
                     projectSql = new ProjectSql(szProjectName);
-                    GenerateSampleData();
+                    if (MessageBox.Show("Sollen Demodaten erzeugt werden?", this.Title, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        GenerateSampleData();
+                    }
                 }
                 else
                 {
@@ -154,6 +159,13 @@ namespace XCameraManager
                 }
             }
         }
+        private void SetTitle(string szProjectName)
+        {
+            string szTitel = this.Title;
+            szTitel = szTitel.Split(' ')[0] + " " + szProjectName;
+
+            this.Title = szTitel;
+        }
         private void OpenCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
@@ -168,12 +180,15 @@ namespace XCameraManager
             // Get the selected file name and display in a TextBox 
             if (result == true)
             {
+
                 // Open document 
                 string filename = dlg.FileName;
                 
                 ProjectUtil.szBasePath = Config.current.szBasedir;
-               // ProjectSql.szProjectName = System.IO.Path.GetFileNameWithoutExtension(filename);
-                projectSql = new ProjectSql(System.IO.Path.GetFileNameWithoutExtension(filename));
+                string szProjectName = System.IO.Path.GetFileNameWithoutExtension(filename);
+                SetTitle(szProjectName);
+
+                projectSql = new ProjectSql(szProjectName);
                 cmbGebaeude.Items.Clear();
                 List<Gebaeude> gebaeudeListe = projectSql.GetGebaeudeListe();
                 foreach(var gebaeude in gebaeudeListe)
