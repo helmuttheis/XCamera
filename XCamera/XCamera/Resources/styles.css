@@ -9,19 +9,21 @@ navigationpage {
 }
 
 ^contentpage {
-    background-color: lightcoral;
+    background-color: lightgray;
 }
 
 #listView {
-    background-color: lightcoral;
+    
 }
 
-stacklayout {
-    margin: 5;
-}
 .projectViewCell {
-    background-color: lightgoldenrodyellow;
+    background-color: rgba(0,0,0,.2);
 }
+
+.imageViewCell {
+    background-color: rgba(0,0,0,.2);
+}
+
 /* Overlay */
 #grdOverlay {
     background-color: white;
@@ -37,10 +39,9 @@ stacklayout {
     background-color: lightskyblue;
 }
 #viewOverlay Label {
-    height: 24;
     background-color: white;
 }
 #viewOverlay  Picker {
     height: 24;
-    background-color: green;
+    background-color: white;
 }

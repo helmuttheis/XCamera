@@ -16,18 +16,19 @@
                 <StackLayout>
                 <Label Text="Projektliste"
                 VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
+                HorizontalOptions="CenterAndExpand" 
+                FontSize="Medium"/>
                 <ListView x:Name="lstProjects" ItemTapped="LstProjects_ItemTapped" >
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>
-                                <StackLayout class="projectViewCell" Orientation="Horizontal" HorizontalOptions="Fill" BackgroundColor="Olive">
-                                    <Label Text = "{Binding .}" FontSize="24" HorizontalOptions="End" AbsoluteLayout.LayoutBounds="0.25, 0.25, 400, 40"/>
-                                        <Button Text="senden" x:Name="btnSend" Clicked="BtnSend_Clicked" CommandParameter="{Binding .}" 
-                                                IsVisible="{Binding .,Converter={StaticResource bVisible}}"/>
-                                        <Button Text="löschen" x:Name="btnDelete" Clicked="BtnDelete_Clicked" CommandParameter="{Binding .}" 
-                                                IsVisible="{Binding .,Converter={StaticResource bVisible}}"/>
-                                    </StackLayout>
+                                    <StackLayout class="projectViewCell" Orientation="Horizontal" HorizontalOptions="Fill" Margin="0,5" Padding="5,2">
+                                    <Label Text = "{Binding .}" FontSize="24" HorizontalOptions="FillAndExpand"/>
+                                    <Button Text="senden" x:Name="btnSend" Clicked="BtnSend_Clicked" CommandParameter="{Binding .}" 
+                                            IsVisible="{Binding .,Converter={StaticResource bVisible}}"/>
+                                    <Button Text="löschen" x:Name="btnDelete" Clicked="BtnDelete_Clicked" CommandParameter="{Binding .}" 
+                                            IsVisible="{Binding .,Converter={StaticResource bVisible}}"/>
+                                </StackLayout>
                             </ViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>
