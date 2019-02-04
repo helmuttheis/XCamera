@@ -203,29 +203,26 @@ namespace XCamera
         }
         private void DownloadProject(string szProjectName)
         {
-            // get the SQLite file
-            string szDbFile = "";
-
+            Boolean bLoad = true;
             if (projects.Any(proj => { return proj.Equals(szProjectName); }))
             {
-
+            
             }
-            else
+            if( bLoad )
             {
-                szDbFile = ProjectSql.BuildDbPath(szProjectName);
-                ProjectUtil.DownloadFile(szProjectName, szProjectName + ".db", szDbFile);
+                ProjectUtil.GetRemoteMetaData(szProjectName);
                 projects.Add(szProjectName);
                 lstProjects.ItemsSource = null;
                 lstProjects.ItemsSource = projects;
                 XCamera.Util.Config.current.szCurProject = szProjectName;
                 new ProjectSql(XCamera.Util.Config.current.szCurProject);
+
+                BtnConnect_Clicked(null, null);
             }
         }
-        private void SendProject(string szProjectName)
+        // private void DownloadProject
+        private void SendProject(string szProjectName, Action<string> cb)
         {
-            // get the SQLite file
-            string szDbFile = "";
-
             if (projects.Any(proj => { return proj.Equals(szProjectName); }))
             {
                 // ToDo: open the overlay with the server settings
@@ -237,17 +234,22 @@ namespace XCamera
                 // send all changed images
                 foreach (var bild in bilder)
                 {
+                    cb("send " + bild.Name);
                     ProjectUtil.SendFile(szProjectName, Path.GetFileName(bild.Name));
 
                 }
                 // send all changed data
                 foreach (var bild in bilder)
                 {
+                    cb("send changed data for " + bild.Name);
+
                     BildInfo bi = tmpProject.GetBildInfo(bild.Name);
 
                     string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(bi);
                     ProjectUtil.SendJson(szProjectName, szJson);
+                    tmpProject.SetStatus(bild.ID, STATUS.NONE);
                 }
+                cb("");
 
             }
         }
@@ -258,7 +260,24 @@ namespace XCamera
             {
                 if (bIsRemote)
                 {
-                    DownloadProject(lstProjects.SelectedItem.ToString());
+                    string szProjectName = lstProjects.SelectedItem.ToString();
+                    if (  ProjectSql.DbExists(szProjectName) )
+                    {
+                        ProjectSql tmpProject = new ProjectSql(szProjectName);
+                        if(tmpProject.IsDirty())
+                        {
+                            Overlay overlay = new Overlay(grdOverlay);
+                            overlay.ShowMessage("Das Projekt enthält noch geänderte Daten, die noch nicht gesichert wurden.");
+                        }
+                        else
+                        {
+                            DownloadProject(szProjectName);
+                        }
+                    }
+                    else
+                    {
+                        DownloadProject(szProjectName);
+                    }
                 }
                 else
                 {
@@ -289,12 +308,16 @@ namespace XCamera
             }
             else
             {
-
                 string szProject = (sender as Button).CommandParameter.ToString();
 
-                SendProject(szProject);
+                SendProject(szProject, SetStatusLine);
             }
-
+        }
+        private void SetStatusLine(string szMessage)
+        {
+            Device.BeginInvokeOnMainThread(() => {
+                lblStatus.Text = szMessage;
+            });
         }
         private void DeleteProject(string szProjectName)
         {

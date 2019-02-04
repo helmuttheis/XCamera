@@ -204,6 +204,7 @@ namespace XCameraManager
                                 projectSql.SetWohnung(bildId, wohnungen[wohnung]);
                                 projectSql.SetZimmer(bildId, zimmer[raum]);
                                 projectSql.SetComment(bildId, szImgName);
+                                projectSql.SetStatus(bildId, STATUS.NONE);
                             }
                         }
                     }
@@ -266,8 +267,6 @@ namespace XCameraManager
                     cmbZimmer.Items.Add(zimmer);
                 }
 
-                //List<Bild> bildListe = projectSql.GetBilder(gebaeudeListe[0].ID);
-                
                 spProject.IsEnabled = true;
             }
 

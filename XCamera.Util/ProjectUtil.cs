@@ -72,13 +72,47 @@ namespace XCamera.Util
 
             return projList;
         }
-        public static Boolean DownloadFile(string szProjetName, string szFileName, string szDestFile)
+        public static void GetRemoteMetaData(string szProjectName)
+        {
+            string szJson = "";
+            try
+            {
+                Task.Run(async () =>
+                {
+                    szJson = await httpClient.GetStringAsync(szServer + "?project=" + szProjectName + "&file=" + szProjectName + ".db");
+                }).Wait();
+                var remoteMetaData = JsonConvert.DeserializeObject<MetaData>(szJson);
+                ProjectSql tmpProject = new ProjectSql(szProjectName);
+                foreach (var gebaeude in remoteMetaData.gebaeudeListe)
+                {
+                    tmpProject.EnsureGebaeude(gebaeude.Bezeichnung);
+                }
+                foreach (var etage in remoteMetaData.etageListe)
+                {
+                    tmpProject.EnsureEtage(etage.Bezeichnung);
+                }
+                foreach (var wohnung in remoteMetaData.wohnungiste)
+                {
+                    tmpProject.EnsureWohnung(wohnung.Bezeichnung);
+                }
+                foreach (var zimmer in remoteMetaData.zimmerListe)
+                {
+                    tmpProject.EnsureZimmer(zimmer.Bezeichnung);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logging.AddError("GetRemoteMetaData " + ex.ToString());
+            }
+        }
+        public static Boolean xxDownloadFile(string szProjectName, string szFileName, string szDestFile)
         {
             Boolean bRet = false;
             byte[] byteArr = null;
             Task.Run(async () =>
             {
-                byteArr = await httpClient.GetByteArrayAsync(szServer + "?project=" + szProjetName + "&file=" + szFileName);
+                byteArr = await httpClient.GetByteArrayAsync(szServer + "?project=" + szProjectName + "&file=" + szFileName);
             }).Wait();
             File.WriteAllBytes(szDestFile, byteArr);
 

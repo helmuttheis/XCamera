@@ -105,6 +105,17 @@ namespace XCamera.Util
                 Save();
             }
         }
+        public void SetProjectStatus(string szProjectName,STATUS status)
+        {
+            XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "status","project",szProjectName);
+            oneNode.InnerText = status.ToString();
+            Save();
+        }
+        public string GetProjectStatus(string szProjectName)
+        {
+            XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "status", "project", szProjectName);
+            return oneNode.InnerText;
+        }
         public void Save()
         {
             xmlDoc.Save(szConfigFile);

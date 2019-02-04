@@ -39,6 +39,10 @@ namespace XCamera.Util
             string szProjectPath = BuildProjectPath(szProjectNameToLoad);
             return Path.Combine(szProjectPath, szProjectNameToLoad + ".db");
         }
+        public static Boolean DbExists(string szProjectNameToLoad)
+        {
+            return File.Exists(BuildDbPath(szProjectNameToLoad));
+        }
         /// <summary>
         /// Delete the project <para/>
         /// All files and the directory are removed
@@ -117,6 +121,12 @@ namespace XCamera.Util
             database.CreateTable<Bild_Zimmer>();
             database.CreateTable<Bild_Kommentar>();
             database.CreateTable<Bild>();
+
+            if( GetBilderChanged().Count > 0 )
+            {
+                Config.current.SetProjectStatus(this.szProjectName, STATUS.CHANGED);
+            }
+
         }
         
         public string[] ListAllFiles()
@@ -124,33 +134,18 @@ namespace XCamera.Util
             return Directory.GetFiles(this.szProjectPath, "*.*");
             
         }
-#if false
-        public List<string> GetLevelListxx()
+        public MetaData GetMetaData()
         {
-            List<string> lstLevel = new List<string>();
-            lstLevel.Add("Gebäude");
-            lstLevel.Add("Etage");
-            lstLevel.Add("Wohnung");
-            lstLevel.Add("Zimmer");
+            MetaData metaData = new MetaData();
+            metaData.gebaeudeListe = GetGebaeudeListe();
+            metaData.etageListe = GetEtagenListe();
+            metaData.wohnungiste = GetWohnungListe();
+            metaData.zimmerListe = GetZimmerListe();
+            metaData.kommentarListe = GetKommentarListe();
 
-            return lstLevel;
+            return metaData;
+
         }
-        public List<string> GetLevelValuesList(int iLevelId)
-        {
-
-            List<string> lstLevel = new List<string>();
-            // if (levelNode != null)
-            // {
-            //     XmlNodeList valueNodes = levelNode.SelectNodes("child::value");
-            //     foreach (XmlNode valueNode in valueNodes)
-            //     {
-            //         lstLevel.Add(valueNode.InnerText);
-            //     }
-            // }
-
-            return lstLevel;
-        }
-#endif
         public List<string> GetImages()
         {
             List<string> imgList = new List<string>();
@@ -170,8 +165,8 @@ namespace XCamera.Util
 
         public Boolean IsDirty()
         {
-            // TODO: are there any change images?
-            return false;
+            // are there any change images?
+            return GetBilderChanged().Count > 0;
         }
         public string GetTempDir()
         {
@@ -600,6 +595,10 @@ namespace XCamera.Util
         public List<Zimmer> GetZimmerListe()
         {
             return database.Table<Zimmer>().ToList();
+        }
+        public List<Kommentar> GetKommentarListe()
+        {
+            return database.Table<Kommentar>().ToList();
         }
         public Gebaeude GetGebaeude(string szBezeichnung)
         {

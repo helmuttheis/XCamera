@@ -28,7 +28,7 @@ namespace XCameraManager
         public ConnectWindow()
         {
             InitializeComponent();
-
+            ProjectUtil.szBasePath = Config.current.szBasedir;
             IPAddress[] addrList = LocalIPAddress();
             int sel = 0;
             foreach (var addr in addrList)
@@ -118,30 +118,28 @@ namespace XCameraManager
                     {
                         BildInfo bi = Newtonsoft.Json.JsonConvert.DeserializeObject<BildInfo>(szJson);
                         ProjectSql tmpProject = new ProjectSql(szProjectname);
-
+                        int bildId = tmpProject.GetBildId(bi.BildName);
                         Gebaeude gebauede = tmpProject.EnsureGebaeude(bi.GebaeudeBezeichnung);
                         Etage etage = tmpProject.EnsureEtage(bi.EtageBezeichnung);
                         Wohnung wohnung = tmpProject.EnsureWohnung(bi.WohnungBezeichnung);
                         Zimmer zimmer = tmpProject.EnsureZimmer(bi.ZimmerBezeichnung);
                         if( gebauede != null )
                         {
-                            tmpProject.SetGebaeude(bi.BildId, gebauede.ID);
+                            tmpProject.SetGebaeude(bildId, gebauede.ID);
                         }
                         if (etage != null)
                         {
-                            tmpProject.SetEtage(bi.BildId, etage.ID);
+                            tmpProject.SetEtage(bildId, etage.ID);
                         }
                         if (wohnung != null)
                         {
-                            tmpProject.SetWohnung(bi.BildId, wohnung.ID);
+                            tmpProject.SetWohnung(bildId, wohnung.ID);
                         }
                         if (zimmer != null)
                         {
-                            tmpProject.SetZimmer(bi.BildId, zimmer.ID);
+                            tmpProject.SetZimmer(bildId, zimmer.ID);
                         }
-                        tmpProject.SetComment(bi.BildId, bi.KommentarBezeichnung);
-
-
+                        tmpProject.SetComment(bildId, bi.KommentarBezeichnung);
                     }
                     catch (Exception ex)
                     {
@@ -153,7 +151,6 @@ namespace XCameraManager
                         swRes.szMinetype = "text/json";
 
                     }
-
                 }
                 else
                 {
@@ -172,6 +169,8 @@ namespace XCameraManager
                             request.InputStream.CopyTo(fs);
                         }
                         request.InputStream.Close();
+                        ProjectSql tmpProject = new ProjectSql(szProjectname);
+                        tmpProject.AddBild(szFilename);
                     }
                     catch (Exception ex)
                     {
@@ -209,14 +208,20 @@ namespace XCameraManager
                     ShowInfo("sending  " + szFullFilename);
                     if (File.Exists(szFullFilename))
                     {
-                        swRes.ba = System.IO.File.ReadAllBytes(szFullFilename);
                         if (System.IO.Path.GetExtension(szFullFilename).Equals(".jpg", StringComparison.InvariantCultureIgnoreCase))
                         {
+                            swRes.ba = System.IO.File.ReadAllBytes(szFullFilename);
                             swRes.szMinetype = "image/jpeg";
                         }
                         else
                         {
-                            swRes.szMinetype = "pplication/x-sqlite3";
+                            // swRes.szMinetype = "Application/x-sqlite3";
+                            ProjectSql tmpProject = new ProjectSql(szProjectname);
+                            var metaData = tmpProject.GetMetaData();
+                            string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(metaData);
+                            swRes.ba = Encoding.UTF8.GetBytes(szJson);
+                            swRes.szMinetype = "text/json";
+
                         }
                     }
                     else

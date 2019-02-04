@@ -29,6 +29,14 @@ namespace XCamera.Util
         public int KommentarId { get; set; }
         public string KommentarBezeichnung { get; set; }
     }
+    public class MetaData
+    {
+        public List<Gebaeude> gebaeudeListe { get; set; }
+        public List<Etage> etageListe { get; set; }
+        public List<Wohnung> wohnungiste { get; set; }
+        public List<Zimmer> zimmerListe { get; set; }
+        public List<Kommentar> kommentarListe { get; set; }
+    }
     public class Zusatz
     {
         [PrimaryKey, AutoIncrement]
