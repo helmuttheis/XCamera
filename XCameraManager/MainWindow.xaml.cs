@@ -58,6 +58,57 @@ namespace XCameraManager
                 }
                 return;
             };
+            cmbEtage.PreviewKeyDown += (se, ev) =>
+            {
+                if (ev.Key == Key.Enter || ev.Key == Key.Return || ev.Key == Key.Tab)
+                {
+                    Etage etage = cmbEtage.SelectedItem as Etage;
+
+                    if (etage == null)
+                    {
+                        // add the new value
+                        projectSql.AddEtage(cmbEtage.Text.ToString());
+                        etage = projectSql.GetEtage(cmbEtage.Text.ToString());
+                        cmbEtage.Items.Add(etage);
+                        cmbEtage.SelectedItem = etage;
+                    }
+                }
+                return;
+            };
+            cmbWohnung.PreviewKeyDown += (se, ev) =>
+            {
+                if (ev.Key == Key.Enter || ev.Key == Key.Return || ev.Key == Key.Tab)
+                {
+                    Wohnung wohnung = cmbWohnung.SelectedItem as Wohnung;
+
+                    if (wohnung == null)
+                    {
+                        // add the new value
+                        projectSql.AddWohnung(cmbWohnung.Text.ToString());
+                        wohnung = projectSql.GetWohnung(cmbWohnung.Text.ToString());
+                        cmbWohnung.Items.Add(wohnung);
+                        cmbWohnung.SelectedItem = wohnung;
+                    }
+                }
+                return;
+            };
+            cmbZimmer.PreviewKeyDown += (se, ev) =>
+            {
+                if (ev.Key == Key.Enter || ev.Key == Key.Return || ev.Key == Key.Tab)
+                {
+                    Zimmer zimmer = cmbZimmer.SelectedItem as Zimmer;
+
+                    if (zimmer == null)
+                    {
+                        // add the new value
+                        projectSql.AddZimmer(cmbZimmer.Text.ToString());
+                        zimmer = projectSql.GetZimmer(cmbZimmer.Text.ToString());
+                        cmbZimmer.Items.Add(zimmer);
+                        //cmbZimmer.SelectedItem = zimmer;
+                    }
+                }
+                return;
+            };
 
 
         }
@@ -215,7 +266,7 @@ namespace XCameraManager
                     cmbZimmer.Items.Add(zimmer);
                 }
 
-                List<Bild> bildListe = projectSql.GetBilder(gebaeudeListe[0].ID);
+                //List<Bild> bildListe = projectSql.GetBilder(gebaeudeListe[0].ID);
                 
                 spProject.IsEnabled = true;
             }
