@@ -33,6 +33,10 @@ namespace XCameraManager
             XCamera.Util.Config.szConfigFile = XCamera.Util.Config.szConfigFile.Replace(@"\bin\Debug", "");
             XCamera.Util.Config.szConfigFile = System.IO.Path.Combine(XCamera.Util.Config.szConfigFile, "XcameraManmager.xml");
 
+            ProjectUtil.szBasePath = Config.current.szBasedir;
+            tbBasedir.Text = Config.current.szBasedir;
+            LoadProjects();
+            
             cmbGebaeude.SelectionChanged += (se, ev) =>
             {
                 Gebaeude gebaeude = cmbGebaeude.SelectedItem as Gebaeude;
@@ -112,6 +116,28 @@ namespace XCameraManager
 
 
         }
+        private void LoadProjects()
+        {
+            var projekte = ProjectUtil.GetProjectList();
+            cmbProjects.Items.Clear();
+            foreach (var projekt in projekte)
+            {
+                cmbProjects.Items.Add(projekt);
+            }
+        }
+        private void BtnSelectBasedir_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.FolderBrowserDialog folderDlg = new System.Windows.Forms.FolderBrowserDialog();
+            folderDlg.ShowNewFolderButton = true;
+            // Show the FolderBrowserDialog.  
+            System.Windows.Forms.DialogResult result = folderDlg.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                tbBasedir.Text = folderDlg.SelectedPath;
+                XCamera.Util.Config.current.szBasedir = folderDlg.SelectedPath;
+            }
+        }
+
         private void NewCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -238,38 +264,42 @@ namespace XCameraManager
                 
                 ProjectUtil.szBasePath = Config.current.szBasedir;
                 string szProjectName = System.IO.Path.GetFileNameWithoutExtension(filename);
-                SetTitle(szProjectName);
-
-                projectSql = new ProjectSql(szProjectName);
-                cmbGebaeude.Items.Clear();
-                List<Gebaeude> gebaeudeListe = projectSql.GetGebaeudeListe();
-                foreach(var gebaeude in gebaeudeListe)
-                {
-                    cmbGebaeude.Items.Add(gebaeude);
-                }
-                cmbEtage.Items.Clear();
-                List<Etage> etageListe = projectSql.GetEtagenListe();
-                foreach (var etage in etageListe)
-                {
-                    cmbEtage.Items.Add(etage);
-                }
-                cmbWohnung.Items.Clear();
-                List<Wohnung> wohnungListe = projectSql.GetWohnungListe();
-                foreach (var wohnung in wohnungListe)
-                {
-                    cmbWohnung.Items.Add(wohnung);
-                }
-
-                cmbZimmer.Items.Clear();
-                List<Zimmer> zimmerListe = projectSql.GetZimmerListe();
-                foreach (var zimmer in zimmerListe)
-                {
-                    cmbZimmer.Items.Add(zimmer);
-                }
-
-                spProject.IsEnabled = true;
+                OpenProject(szProjectName);
+                
             }
 
+        }
+        private void OpenProject(string szProjectName)
+        {
+            SetTitle(szProjectName);
+
+            projectSql = new ProjectSql(szProjectName);
+            cmbGebaeude.Items.Clear();
+            List<Gebaeude> gebaeudeListe = projectSql.GetGebaeudeListe();
+            foreach (var gebaeude in gebaeudeListe)
+            {
+                cmbGebaeude.Items.Add(gebaeude);
+            }
+            cmbEtage.Items.Clear();
+            List<Etage> etageListe = projectSql.GetEtagenListe();
+            foreach (var etage in etageListe)
+            {
+                cmbEtage.Items.Add(etage);
+            }
+            cmbWohnung.Items.Clear();
+            List<Wohnung> wohnungListe = projectSql.GetWohnungListe();
+            foreach (var wohnung in wohnungListe)
+            {
+                cmbWohnung.Items.Add(wohnung);
+            }
+
+            cmbZimmer.Items.Clear();
+            List<Zimmer> zimmerListe = projectSql.GetZimmerListe();
+            foreach (var zimmer in zimmerListe)
+            {
+                cmbZimmer.Items.Add(zimmer);
+            }
+            spProject.IsEnabled = true;
         }
         private void BtnSearch_Click(object sender, RoutedEventArgs e)
         {
@@ -328,6 +358,16 @@ namespace XCameraManager
             {
                 imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.Bild)));
             }
+        }
+
+        private void CmbProjects_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string szProjectName = cmbProjects.SelectedItem as string;
+            if( !string.IsNullOrWhiteSpace(szProjectName) )
+            {
+                OpenProject(szProjectName);
+            }
+
         }
     }
     public class BildMitKommentar

@@ -25,61 +25,123 @@
             </MenuItem>
         </Menu>
         <Label  DockPanel.Dock="Bottom" x:Name="lblLog" Content=""/>
-        <StackPanel x:Name="spProject" IsEnabled="False" Orientation="Horizontal">
-            <Grid x:Name="grdOverlay"
+        <StackPanel Orientation="Vertical" Margin="0,10,0,0">
+            <StackPanel Orientation="Horizontal">
+                <Grid 
                     HorizontalAlignment="Center" 
                     VerticalAlignment="Top">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="200"/>
-                    <ColumnDefinition Width="40"/>
-                </Grid.ColumnDefinitions>
-                <Label Grid.Column="0" Grid.Row="0" Content="Gebäude"/>
-                <ComboBox Grid.Column="1" Grid.Row="0" x:Name="cmbGebaeude"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False">
-                    <ComboBoxItem>robot</ComboBoxItem>
-                    <ComboBoxItem>Robot</ComboBoxItem>
-                </ComboBox>
-                <Label Grid.Column="0" Grid.Row="1" Content="Etage"/>
-                <ComboBox Grid.Column="1" Grid.Row="1" x:Name="cmbEtage"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False">
-                    <ComboBoxItem>robot</ComboBoxItem>
-                    <ComboBoxItem>Robot</ComboBoxItem>
-                </ComboBox>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="40"/>
+                    </Grid.ColumnDefinitions>
+                    <Label   Grid.Column="0" Grid.Row="0" Content="Verzeichnis"  />
+                    <TextBox Grid.Column="1" Grid.Row="0"  x:Name="tbBasedir" Text=""  />
+                    <Button  Grid.Column="2" Grid.Row="0" x:Name="btnSelectBasedir" Content="..." Click="BtnSelectBasedir_Click"/>
 
-                <Label Grid.Column="0" Grid.Row="2" Content="Wohnung"/>
-                <ComboBox Grid.Column="1" Grid.Row="2" x:Name="cmbWohnung"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False">
-                    <ComboBoxItem>robot</ComboBoxItem>
-                    <ComboBoxItem>Robot</ComboBoxItem>
-                </ComboBox>
+                    <Label   Grid.Column="0" Grid.Row="1" Content="Projekte"  />
+                    <ComboBox Grid.Column="1" Grid.Row="1"  x:Name="cmbProjects" SelectionChanged="CmbProjects_SelectionChanged"/>
+                </Grid>
 
-                <Label Grid.Column="0" Grid.Row="3" Content="Zimmer"/>
-                <ComboBox Grid.Column="1" Grid.Row="3" x:Name="cmbZimmer"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False">
-                    <ComboBoxItem>robot</ComboBoxItem>
-                    <ComboBoxItem>Robot</ComboBoxItem>
-                </ComboBox>
+            </StackPanel>
+            <StackPanel x:Name="spProject" IsEnabled="False" Orientation="Horizontal" Margin="0,50,0,0">
+                <Grid x:Name="grdOverlay"
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Top">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="40"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Grid.Row="0" Content="Gebäude"/>
+                    <ComboBox Grid.Column="1" Grid.Row="0" x:Name="cmbGebaeude"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False">
+                        <ComboBoxItem>robot</ComboBoxItem>
+                        <ComboBoxItem>Robot</ComboBoxItem>
+                    </ComboBox>
+                    <Label Grid.Column="0" Grid.Row="1" Content="Etage"/>
+                    <ComboBox Grid.Column="1" Grid.Row="1" x:Name="cmbEtage"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False">
+                        <ComboBoxItem>robot</ComboBoxItem>
+                        <ComboBoxItem>Robot</ComboBoxItem>
+                    </ComboBox>
 
-                <Button Grid.Column="1" Grid.Row="5"  x:Name="btnSearch" Content="suchen" Click="BtnSearch_Click" />
-            </Grid>
-            <ListView x:Name="lvBilder" Width="Auto" SelectionChanged="LvBilder_SelectionChanged">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding Bild}" />
-                            <TextBlock Text="{Binding Kommentar}" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
+                    <Label Grid.Column="0" Grid.Row="2" Content="Wohnung"/>
+                    <ComboBox Grid.Column="1" Grid.Row="2" x:Name="cmbWohnung"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False">
+                        <ComboBoxItem>robot</ComboBoxItem>
+                        <ComboBoxItem>Robot</ComboBoxItem>
+                    </ComboBox>
 
-            </ListView>
-            <Image x:Name="imgBild" Width="Auto" Height="Auto"/>
+                    <Label Grid.Column="0" Grid.Row="3" Content="Zimmer"/>
+                    <ComboBox Grid.Column="1" Grid.Row="3" x:Name="cmbZimmer"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False">
+                        <ComboBoxItem>robot</ComboBoxItem>
+                        <ComboBoxItem>Robot</ComboBoxItem>
+                    </ComboBox>
+
+                    <Button Grid.Column="1" Grid.Row="5"  x:Name="btnSearch" Content="suchen" Click="BtnSearch_Click" />
+<!--
+                    <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6"   >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"></RowDefinition>
+                            
+                        </Grid.RowDefinitions>
+                        <ListView Grid.Row="0"
+                         HorizontalAlignment="Stretch"
+                         VerticalContentAlignment="Stretch" 
+                         ScrollViewer.CanContentScroll="True"
+                         ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                  x:Name="lvBilder" 
+                         SelectionChanged="LvBilder_SelectionChanged"
+                         Margin="1 0 1 1" BorderThickness="0" VerticalAlignment="Top">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Vertical">
+                                        <TextBlock Text="{Binding Bild}" />
+                                        <TextBlock Text="{Binding Kommentar}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                    </Grid>
+                    -->
+
+                    <ListView   Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6" 
+                               ScrollViewer.CanContentScroll="False" ScrollViewer.VerticalScrollBarVisibility="Auto"
+                               x:Name="lvBilder" 
+                              Width="Auto" 
+                              SelectionChanged="LvBilder_SelectionChanged">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Vertical">
+                                    <TextBlock Text="{Binding Bild}" />
+                                    <TextBlock Text="{Binding Kommentar}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+
+                        </ListView>
+
+                </Grid>
+
+            </StackPanel>
         </StackPanel>
+        <Image x:Name="imgBild" Width="Auto" Height="Auto"/>
     </DockPanel>
 </Window>
