@@ -313,13 +313,18 @@ namespace XCameraManager
             int wohnungId = wohnung != null ? wohnung.ID : -1;
             int zimmerId = zimmer != null ? zimmer.ID : -1;
 
+
+            string szSerarchKommentar = tbKommentar.Text.Trim().ToLower();
             List<BildMitKommentar> bmk = new List<BildMitKommentar>();
             List<Bild> bildListe = projectSql.GetBilder(gebaeudeId, etageId, wohnungId, zimmerId);
             foreach (var bild in bildListe)
             {
+                string szKommentar = projectSql.GetKommentar(bild.ID);
+                if( string.IsNullOrWhiteSpace(szSerarchKommentar) || szKommentar.ToLower().Contains(szSerarchKommentar))
                 bmk.Add(new BildMitKommentar {
                     Bild = System.IO.Path.GetFileName( bild.Name),
-                    Kommentar = projectSql.GetKommentar(bild.ID) });
+                    Kommentar = szKommentar
+                });
             }
             lvBilder.ItemsSource = bmk;
             imgBild.Source = null;
