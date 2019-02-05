@@ -135,6 +135,8 @@ namespace XCameraManager
             {
                 tbBasedir.Text = folderDlg.SelectedPath;
                 XCamera.Util.Config.current.szBasedir = folderDlg.SelectedPath;
+                ProjectUtil.szBasePath = Config.current.szBasedir;
+                LoadProjects();
             }
         }
 
