@@ -21,6 +21,8 @@ namespace XCamera
         private List<string> projects;
         private List<string> remoteProjects;
 
+
+        private Boolean bFirstRun = true;
         public ProjectPage ()
 		{
 			InitializeComponent();
@@ -43,9 +45,25 @@ namespace XCamera
             lstProjects.SelectedItem = projects.Find(proj => { return proj.Equals(XCamera.Util.Config.current.szCurProject); });
 
 		}
-        async protected override void OnAppearing()
+        protected override void OnAppearing()
         {
             base.OnAppearing();
+            if (bFirstRun)
+            {
+                List<string> deletedFiles = ProjectUtil.GetDeletedProjectList();
+                if(deletedFiles.Count > 0)
+                {
+                    Overlay overlay = new Overlay(grdOverlay);
+                    overlay.ShowQuestion("Es gibt " + deletedFiles.Count + " Projekte,die zum Löschen vorgemerkt sind." + Environment.NewLine +
+                        " Sollen die jetzt gelöscht werden?", () =>
+                    {
+                        foreach(var deleted in deletedFiles)
+                        {
+                            DeleteProject(true,deleted.Split('.').First());
+                        }
+                    });
+                }
+            }
 #if false
             if curProject != null )//u( !string.IsNullOrWhiteSpace(ProjectSql.szProjectName))
             {
@@ -319,20 +337,20 @@ namespace XCamera
                 lblStatus.Text = szMessage;
             });
         }
-        private void DeleteProject(string szProjectName)
+        private void DeleteProject(Boolean bForce,string szProjectName)
         {
-            string szDelRet = ProjectSql.Delete(szProjectName);
-            if (string.IsNullOrWhiteSpace(szDelRet))
-            {
-                lblStatus.Text = "";
-                projects.Remove(szProjectName);
-                lstProjects.ItemsSource = null;
-                lstProjects.ItemsSource = projects;
-            }
-            else
-            {
-                lblStatus.Text = szDelRet;
-            }
+                string szDelRet = ProjectSql.Delete(bForce, szProjectName);
+                if (string.IsNullOrWhiteSpace(szDelRet))
+                {
+                    lblStatus.Text = "";
+                    projects.Remove(szProjectName);
+                    lstProjects.ItemsSource = null;
+                    lstProjects.ItemsSource = projects;
+                }
+                else
+                {
+                    lblStatus.Text = szDelRet;
+                }
         }
         private void BtnDelete_Clicked(object sender, EventArgs e)
         {
@@ -351,12 +369,12 @@ namespace XCamera
                     {
                         overlay.ShowQuestion("Das Projekt " + szProjectName + " wurde nicht nicht gesichert." + Environment.NewLine +"Soll es trotzdem gelöscht werden?", () =>
                         {
-                            DeleteProject(szProjectName);
+                            DeleteProject(false,szProjectName);
                         });
                     }
                     else
                     {
-                        DeleteProject(szProjectName);
+                        DeleteProject(false,szProjectName);
                     }
                 });
             }

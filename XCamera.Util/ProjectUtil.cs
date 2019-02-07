@@ -50,7 +50,21 @@ namespace XCamera.Util
 
             return projList;
         }
+        public static List<string> GetDeletedProjectList()
+        {
+            List<string> projList = new List<string>();
+            string[] projects = Directory.GetFiles(ProjectUtil.szBasePath,"*.deleted");
+            foreach (var project in projects)
+            {
+                string szProjectName = project.Split(Path.DirectorySeparatorChar).LastOrDefault();
+                if (ProjectUtil.IsValidName(szProjectName))
+                {
+                    projList.Add(szProjectName);
+                }
+            }
 
+            return projList;
+        }
         public static List<string> GetRemoteProjectList()
         {
             string szJson = "";

@@ -118,12 +118,12 @@ namespace XCameraManager
         }
         private void LoadProjects()
         {
-            var projekte = ProjectUtil.GetProjectList();
-            cmbProjects.Items.Clear();
-            foreach (var projekt in projekte)
-            {
-                cmbProjects.Items.Add(projekt);
-            }
+              var projekte = ProjectUtil.GetProjectList();
+              cmbProjects.Items.Clear();
+              foreach (var projekt in projekte)
+              {
+                  cmbProjects.Items.Add(projekt);
+              }
         }
         private void BtnSelectBasedir_Click(object sender, RoutedEventArgs e)
         {
@@ -360,20 +360,20 @@ namespace XCameraManager
 
         private void LvBilder_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            BildMitKommentar bmk = lvBilder.SelectedItem as BildMitKommentar;
-            if(bmk != null  )
-            {
-                imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.Bild)));
-            }
+             BildMitKommentar bmk = lvBilder.SelectedItem as BildMitKommentar;
+             if(bmk != null  )
+             {
+                 imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.Bild)));
+             }
         }
 
         private void CmbProjects_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            string szProjectName = cmbProjects.SelectedItem as string;
-            if( !string.IsNullOrWhiteSpace(szProjectName) )
-            {
-                OpenProject(szProjectName);
-            }
+             string szProjectName = cmbProjects.SelectedItem as string;
+             if( !string.IsNullOrWhiteSpace(szProjectName) )
+             {
+                 OpenProject(szProjectName);
+             }
 
         }
     }
@@ -419,8 +419,9 @@ namespace XCameraManager
         public void Execute(object parameter)
         {
             // 
-            ConnectWindow connectWindow = new ConnectWindow();
-            connectWindow.ShowDialog();
+           ConnectWindow connectWindow = new ConnectWindow();
+           connectWindow.ShowDialog();
+           
         }
     }
     public static class MyCommands

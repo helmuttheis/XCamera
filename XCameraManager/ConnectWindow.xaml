@@ -5,36 +5,37 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XCameraManager"
         mc:Ignorable="d"
-        Title="ConnectWindow" Height="450" Width="800">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="8*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Label  Grid.Row="0" Grid.Column="0" Content="Port"  />
-        <TextBox  Grid.Row="0" Grid.Column="1" x:Name="tbPort" Text="8080" />
+        Title="ConnectWindow" Height="450" Width="800" >
+        <Grid VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="8*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label  Grid.Row="0" Grid.Column="0" Content="Port"  />
+            <TextBox  Grid.Row="0" Grid.Column="1" x:Name="tbPort" Text="8080" />
 
-        <Button  Grid.Row="1" Grid.Column="1" x:Name="btnConnect" Content="starten" Click="BtnConnect_Click"  />
+            <Button  Grid.Row="1" Grid.Column="1" x:Name="btnConnect" Content="starten" Click="BtnConnect_Click"  />
 
-        <Label  Grid.Row="2" Grid.Column="0" Content="IP Adresse"  />
-        <ComboBox  Grid.Row="2" Grid.Column="1" x:Name="cmbIP" Text=""  />
+            <Label  Grid.Row="2" Grid.Column="0" Content="IP Adresse"  />
+            <ComboBox  Grid.Row="2" Grid.Column="1" x:Name="cmbIP" Text=""  />
 
-        <Button  Grid.Row="3" Grid.Column="1" x:Name="btnDisconnect" Content="stop" Click="BtnDisconnect_Click"  />
+            <Button  Grid.Row="3" Grid.Column="1" x:Name="btnDisconnect" Content="stop" Click="BtnDisconnect_Click"  />
 
-        <Label  Grid.Row="4" Grid.Column="0" Content="Verzeichnis"  />
-        
+            <Label  Grid.Row="4" Grid.Column="0" Content="Verzeichnis"  />
+
             <TextBox Grid.Row="4" Grid.Column="1" x:Name="tbBasedir" Text=""  />
             <Button Grid.Row="4" Grid.Column="2" x:Name="btnSelectBasedir" Content="..." Click="BtnSelectBasedir_Click"/>
-       
-        <TextBlock  Grid.Row="5" Grid.Column="1" x:Name="tbLog"  />
-    </Grid>
+
+            <TextBlock  Grid.Row="5" Grid.Column="1" x:Name="tbLog"  />
+        </Grid>
+
 </Window>

@@ -51,6 +51,10 @@ namespace XCameraManager
         }
         private void BtnConnect_Click(object sender, RoutedEventArgs e)
         {
+            for(int i=0;i<100;i++)
+            {
+                tbLog.Text += i.ToString() + "fffffffffffffffffffffffffffff" + Environment.NewLine;
+            }
 
             string szIP = cmbIP.SelectedValue.ToString();
             
@@ -61,6 +65,7 @@ namespace XCameraManager
             btnDisconnect.IsEnabled = true;
             btnConnect.IsEnabled = false;
             ShowInfo("Server wurde erfolgreich gestartet.");
+
         }
         public  wsResponse SendResponse(HttpListenerRequest request)
         {

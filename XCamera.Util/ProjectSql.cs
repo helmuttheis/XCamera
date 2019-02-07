@@ -49,13 +49,36 @@ namespace XCamera.Util
         /// </summary>
         /// <param name="szProjectNameToDelete">error messages or an empty string</param>
         /// <returns></returns>
-        public static string Delete(string szProjectNameToDelete)
+        public static string Delete(Boolean bForce, string szProjectNameToDelete)
         {
             string szRet = "";
             string szProjectPath = BuildProjectPath(szProjectNameToDelete);
-            string[] dateien = Directory.GetFiles(szProjectPath, "*.*");
-            foreach (var datei in dateien)
+            if (bForce)
             {
+                string[] dateien = Directory.GetFiles(szProjectPath, "*.*");
+                foreach (var datei in dateien)
+                {
+                    try
+                    {
+                        File.Delete(datei);
+                    }
+                    catch (Exception)
+                    {
+                        szRet += "Kann " + Path.GetFileName(datei) + " nicht löschen." + Environment.NewLine;
+                    }
+                }
+                try
+                {
+                    Directory.Delete(szProjectPath, true);
+                }
+                catch (Exception)
+                {
+                    szRet += "Kann " + szProjectPath + " nicht löschen." + Environment.NewLine;
+                }
+            }
+            if (bForce)
+            {
+                string datei = szProjectPath + ".deleted";
                 try
                 {
                     File.Delete(datei);
@@ -65,15 +88,17 @@ namespace XCamera.Util
                     szRet += "Kann " + Path.GetFileName(datei) + " nicht löschen." + Environment.NewLine;
                 }
             }
-            try
+            if (Directory.Exists(szProjectPath))
             {
-                Directory.Delete(szProjectPath, true);
+                try
+                {
+                    File.WriteAllText(szProjectPath + ".deleted", "deleted on" + DateTime.Now.ToLongDateString());
+                }
+                catch (Exception)
+                {
+                    szRet += "Kann " + szProjectPath + ".deleted nicht anlegen." + Environment.NewLine;
+                }
             }
-            catch (Exception)
-            {
-                szRet += "Kann " + szProjectPath + " nicht löschen." + Environment.NewLine;
-            }
-
             return szRet;
         }
         /// <summary>
