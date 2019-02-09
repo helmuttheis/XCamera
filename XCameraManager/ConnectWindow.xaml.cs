@@ -48,14 +48,15 @@ namespace XCameraManager
             tbPort.Text = XCamera.Util.Config.current.szPort;
             tbBasedir.Text = XCamera.Util.Config.current.szBasedir;
             btnDisconnect.IsEnabled = false;
+
+            for(int i=0;i<100;i++)
+            {
+                tbLog.Text += i.ToString() + Environment.NewLine;
+            }
+
         }
         private void BtnConnect_Click(object sender, RoutedEventArgs e)
         {
-            for(int i=0;i<100;i++)
-            {
-                tbLog.Text += i.ToString() + "fffffffffffffffffffffffffffff" + Environment.NewLine;
-            }
-
             string szIP = cmbIP.SelectedValue.ToString();
             
             webServer = new WebServer(SendResponse, "http://" + szIP + ":" + tbPort.Text.Trim() + "/xcamera/");

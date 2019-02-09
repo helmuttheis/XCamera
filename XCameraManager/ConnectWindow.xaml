@@ -14,7 +14,8 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="8*"/>
@@ -35,7 +36,11 @@
             <TextBox Grid.Row="4" Grid.Column="1" x:Name="tbBasedir" Text=""  />
             <Button Grid.Row="4" Grid.Column="2" x:Name="btnSelectBasedir" Content="..." Click="BtnSelectBasedir_Click"/>
 
-            <TextBlock  Grid.Row="5" Grid.Column="1" x:Name="tbLog"  />
-        </Grid>
+        <ScrollViewer  Grid.Row="5" Grid.Column="1" VerticalScrollBarVisibility="Visible">
+            <TextBlock  x:Name="tbLog"   />
+
+        </ScrollViewer>         
+        <Label Grid.Column="1" Grid.Row="6" Content="-"/>
+    </Grid>
 
 </Window>
