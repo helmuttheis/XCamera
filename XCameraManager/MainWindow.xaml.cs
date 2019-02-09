@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -381,6 +382,15 @@ namespace XCameraManager
                  OpenProject(szProjectName);
              }
 
+        }
+
+        private void BtnOpenProjectdir_Click(object sender, RoutedEventArgs e)
+        {
+            string szProjectName = cmbProjects.SelectedItem as string;
+            if (!string.IsNullOrWhiteSpace(szProjectName))
+            {
+                Process.Start(projectSql.szProjectPath);
+            }
         }
     }
     public class BildMitKommentar

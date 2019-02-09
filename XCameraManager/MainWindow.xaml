@@ -55,7 +55,8 @@
 
                     <Label   Grid.Column="0" Grid.Row="1" Content="Projekte"  />
                     <ComboBox Grid.Column="1" Grid.Row="1"  x:Name="cmbProjects" SelectionChanged="CmbProjects_SelectionChanged"/>
-                </Grid>
+                        <Button  Grid.Column="2" Grid.Row="1" x:Name="btnOpenProjectdir" Content="..." Click="BtnOpenProjectdir_Click"/>
+                    </Grid>
 
             </StackPanel>
             <Grid x:Name="spProject" IsEnabled="False" Margin="0,50,0,0" 
