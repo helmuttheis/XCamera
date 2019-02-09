@@ -155,7 +155,27 @@
         </Grid>
 
         <Label  DockPanel.Dock="Bottom" x:Name="lblLog" Content=""/>
-        <Image x:Name="imgBild" Width="Auto" Height="Auto"/>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" Grid.Column="0" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" x:Name="lblGebaeude"/>
+                <Label Grid.Row="0" Grid.Column="1" x:Name="lblEtage"/>
+                <Label Grid.Row="0" Grid.Column="2" x:Name="lblWohnung"/>
+                <Label Grid.Row="0" Grid.Column="3" x:Name="lblZimmer"/>
+                <Label Grid.Row="0" Grid.Column="4" x:Name="lblKommentar"/>
+            </Grid>
+            <Image Grid.Row="1" Grid.Column="0" x:Name="imgBild" Width="Auto" Height="Auto"/>
+        </Grid>
 
     </DockPanel>
 </Window>

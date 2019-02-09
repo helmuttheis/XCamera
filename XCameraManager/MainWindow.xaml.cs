@@ -364,6 +364,12 @@ namespace XCameraManager
              if(bmk != null  )
              {
                  imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.Bild)));
+                BildInfo bi = projectSql.GetBildInfo(bmk.Bild);
+                lblGebaeude.Content = bi.GebaeudeBezeichnung;
+                lblEtage.Content = bi.EtageBezeichnung;
+                lblWohnung.Content = bi.WohnungBezeichnung;
+                lblZimmer.Content = bi.ZimmerBezeichnung;
+                lblKommentar.Content = bi.KommentarBezeichnung;
              }
         }
 
