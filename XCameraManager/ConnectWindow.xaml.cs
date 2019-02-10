@@ -49,10 +49,10 @@ namespace XCameraManager
             tbBasedir.Text = XCamera.Util.Config.current.szBasedir;
             btnDisconnect.IsEnabled = false;
 
-            for(int i=0;i<100;i++)
+            /*for(int i=0;i<100;i++)
             {
                 tbLog.Text += i.ToString() + Environment.NewLine;
-            }
+            }*/
 
         }
         private void BtnConnect_Click(object sender, RoutedEventArgs e)
