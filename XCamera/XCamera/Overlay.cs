@@ -109,12 +109,15 @@ namespace XCamera
                 picker.IsVisible = true;
                 button.IsEnabled = true;
 
-                // get the new entry
-                string szEntry = entry.Text.Trim();
-                // add it to the list
-                if (!string.IsNullOrWhiteSpace(szEntry))
+                if (entry.Text != null)
                 {
-                    addItem?.Invoke(picker, szEntry);
+                    // get the new entry
+                    string szEntry = entry.Text.Trim();
+                    // add it to the list
+                    if (!string.IsNullOrWhiteSpace(szEntry))
+                    {
+                        addItem?.Invoke(picker, szEntry);
+                    }
                 }
             };
             picker.ClassId = "level";
