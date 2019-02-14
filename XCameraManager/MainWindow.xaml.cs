@@ -323,13 +323,22 @@ namespace XCameraManager
             foreach (var bild in bildListe)
             {
                 string szKommentar = projectSql.GetKommentar(bild.ID);
-                if( string.IsNullOrWhiteSpace(szSerarchKommentar) || szKommentar.ToLower().Contains(szSerarchKommentar))
+                string LoadVisibility = "Collapsed";
+                if (chkLoadImages.IsChecked == true)
+                {
+                    LoadVisibility = "Visible";
+                }
+                if ( string.IsNullOrWhiteSpace(szSerarchKommentar) || szKommentar.ToLower().Contains(szSerarchKommentar))
                 bmk.Add(new BildMitKommentar {
-                    Bild = System.IO.Path.GetFileName( bild.Name),
-                    Kommentar = szKommentar
+                    BildName = System.IO.Path.GetFileName( bild.Name),
+                    BildInfo = projectSql.GetBildInfo(bild.Name),
+                    Kommentar = szKommentar,
+                    BildPath = projectSql.GetImageFullName(bild.Name),
+                    ToBeLaoded = LoadVisibility
                 });
             }
             lvBilder.ItemsSource = bmk;
+
             imgBild.Source = null;
         }
 
@@ -364,8 +373,8 @@ namespace XCameraManager
              BildMitKommentar bmk = lvBilder.SelectedItem as BildMitKommentar;
              if(bmk != null  )
              {
-                 imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.Bild)));
-                BildInfo bi = projectSql.GetBildInfo(bmk.Bild);
+                imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.BildName)));
+                BildInfo bi = projectSql.GetBildInfo(bmk.BildName);
                 lblGebaeude.Content = bi.GebaeudeBezeichnung;
                 lblEtage.Content = bi.EtageBezeichnung;
                 lblWohnung.Content = bi.WohnungBezeichnung;
@@ -392,11 +401,15 @@ namespace XCameraManager
                 Process.Start(projectSql.szProjectPath);
             }
         }
+
     }
     public class BildMitKommentar
     {
-        public string Bild { get; set; }
+        public string BildName { get; set; }
+        public BildInfo BildInfo { get; set; }
         public string Kommentar { get; set; }
+        public string BildPath { get; set; }
+        public string ToBeLaoded{ get; set; }
 
     }
     public class ApplicationCloseCommand : ICommand

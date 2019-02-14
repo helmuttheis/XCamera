@@ -5,13 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XCameraManager"
         mc:Ignorable="d"
-        Title="XCameraManager " Height="Auto" Width="800" >
+        Title="XCameraManager " Height="Auto" Width="800" MinWidth="400">
     <Window.CommandBindings>
         <CommandBinding Command="New" CanExecute="NewCommand_CanExecute" Executed="NewCommand_Executed" />
         <CommandBinding Command="Open" CanExecute="OpenCommand_CanExecute" Executed="OpenCommand_Executed" />
         <CommandBinding Command="Close" CanExecute="CloseCommand_CanExecute" Executed="CloseCommand_Executed" />
     </Window.CommandBindings>
     <DockPanel LastChildFill="True">
+        <!-- Top menu -->
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Projekt">
                 <MenuItem Header="Neu" Command="New" />
@@ -24,18 +25,40 @@
                 <MenuItem  Header="_Verbindung" Command="local:MyCommands.ApplicationConnectCommand" />
             </MenuItem>
         </Menu>
-        <Grid>
+        
+        <!-- Auswahlmenu -->
+        <Grid Margin="5 0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" Margin="0,10,0,0" VerticalAlignment="Stretch">
-
-            <StackPanel Orientation="Horizontal">
-                <Grid 
-                    HorizontalAlignment="Center" 
-                    VerticalAlignment="Top">
+            <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Vertical" Margin="0,10,0,0" VerticalAlignment="Stretch">
+                
+                <!-- Verzeichnis Projekte -->
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Top">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="225"/>
+                        <ColumnDefinition Width="25"/>
+                    </Grid.ColumnDefinitions>
+                    <Label   Grid.Column="0" Grid.Row="0" Content="Verzeichnis"  />
+                    <TextBox Grid.Column="1" Grid.Row="0"  x:Name="tbBasedir" Text=""  />
+                    <Button  Grid.Column="2" Grid.Row="0" x:Name="btnSelectBasedir" Content="..." Click="BtnSelectBasedir_Click"/>
+
+                    <Label   Grid.Column="0" Grid.Row="1" Content="Projekte"  />
+                    <ComboBox Grid.Column="1" Grid.Row="1"  x:Name="cmbProjects" SelectionChanged="CmbProjects_SelectionChanged"/>
+                    <Button  Grid.Column="2" Grid.Row="1" x:Name="btnOpenProjectdir" Content="..." Click="BtnOpenProjectdir_Click"/>
+                </Grid>
+                
+                <!-- ComboBoxen -->
+                <Grid x:Name="spProject" IsEnabled="False" Margin="0 20 0 0" 
+                       VerticalAlignment="Center">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -46,66 +69,39 @@
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="200"/>
-                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Label   Grid.Column="0" Grid.Row="0" Content="Verzeichnis"  />
-                    <TextBox Grid.Column="1" Grid.Row="0"  x:Name="tbBasedir" Text=""  />
-                    <Button  Grid.Column="2" Grid.Row="0" x:Name="btnSelectBasedir" Content="..." Click="BtnSelectBasedir_Click"/>
-
-                    <Label   Grid.Column="0" Grid.Row="1" Content="Projekte"  />
-                    <ComboBox Grid.Column="1" Grid.Row="1"  x:Name="cmbProjects" SelectionChanged="CmbProjects_SelectionChanged"/>
-                        <Button  Grid.Column="2" Grid.Row="1" x:Name="btnOpenProjectdir" Content="..." Click="BtnOpenProjectdir_Click"/>
-                    </Grid>
-
-            </StackPanel>
-            <Grid x:Name="spProject" IsEnabled="False" Margin="0,50,0,0" 
-                       VerticalAlignment="Center">
-                <Grid x:Name="grdOverlay"
-                    HorizontalAlignment="Center" 
-                    VerticalAlignment="Bottom">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="200"/>
-                        <ColumnDefinition Width="40"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Grid.Row="0" Content="Gebäude"/>
-                    <ComboBox Grid.Column="1" Grid.Row="0" x:Name="cmbGebaeude"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False" Margin="0,1,0,0">
-                        <ComboBoxItem>robot</ComboBoxItem>
-                        <ComboBoxItem>Robot</ComboBoxItem>
-                    </ComboBox>
-                    <Label Grid.Column="0" Grid.Row="1" Content="Etage"/>
-                        <ComboBox Grid.Column="1" Grid.Row="1" x:Name="cmbEtage"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False" Margin="0,1,0,0">
+                    
+                    <Label Grid.Column="0" Grid.Row="0" Content="Gebäude" VerticalContentAlignment="Center"/>
+                    <ComboBox Grid.Column="1" Grid.Row="0" x:Name="cmbGebaeude"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
                         <ComboBoxItem>robot</ComboBoxItem>
                         <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
-                    <Label Grid.Column="0" Grid.Row="2" Content="Wohnung"/>
-                    <ComboBox Grid.Column="1" Grid.Row="2" x:Name="cmbWohnung"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False" Margin="0,1,0,0">
+                    <Label Grid.Column="0" Grid.Row="1" Content="Etage" VerticalContentAlignment="Center"/>
+                    <ComboBox Grid.Column="1" Grid.Row="1" x:Name="cmbEtage"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
                         <ComboBoxItem>robot</ComboBoxItem>
                         <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
-                    <Label Grid.Column="0" Grid.Row="3" Content="Zimmer"/>
-                    <ComboBox Grid.Column="1" Grid.Row="3" x:Name="cmbZimmer"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False" Margin="0,1,0,1">
+                    <Label Grid.Column="0" Grid.Row="2" Content="Wohnung" VerticalContentAlignment="Center"/>
+                    <ComboBox Grid.Column="1" Grid.Row="2" x:Name="cmbWohnung"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
                         <ComboBoxItem>robot</ComboBoxItem>
                         <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
-                    <Label Grid.Column="0" Grid.Row="4" Content="Kommentar"/>
-                    <TextBox Grid.Column="1" Grid.Row="4" x:Name="tbKommentar" />
 
-                    <Button Grid.Column="1" Grid.Row="5"  x:Name="btnSearch" Content="suchen" Click="BtnSearch_Click" />
-<!--
+                    <Label Grid.Column="0" Grid.Row="3" Content="Zimmer" VerticalContentAlignment="Center"/>
+                    <ComboBox Grid.Column="1" Grid.Row="3" x:Name="cmbZimmer"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
+                        <ComboBoxItem>robot</ComboBoxItem>
+                        <ComboBoxItem>Robot</ComboBoxItem>
+                    </ComboBox>
+
+                    <Label Grid.Column="0" Grid.Row="4" Content="Kommentar" VerticalContentAlignment="Center"/>
+                    <TextBox Grid.Column="1" Grid.Row="4" x:Name="tbKommentar" Margin="0 2 0 0" Height="30" VerticalContentAlignment="Center"/>
+
+                    <Button Grid.Column="1" Grid.Row="5"  x:Name="btnSearch" Content="suchen" Click="BtnSearch_Click" Margin="0 2 0 0"/>
+                    
+                    <!--
                     <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6"   >
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"></RowDefinition>
@@ -132,52 +128,69 @@
                     </Grid>
                     -->
 
-
-
                 </Grid>
-
-            </Grid>
-        </StackPanel>
-            <ListView  Grid.Column="0" Grid.Row="1"  
-                        ScrollViewer.CanContentScroll="False" ScrollViewer.VerticalScrollBarVisibility="Visible"
-                        x:Name="lvBilder" 
-                        Width="Auto"  
-                        SelectionChanged="LvBilder_SelectionChanged"
-                        Margin="5,10,0,0">
+            </StackPanel>
+            <!-- Bilderliste -->
+            <ListView  Grid.Column="0" Grid.Row="1" Width="Auto" Margin="0 10 0 5" MaxWidth="345"
+                            ScrollViewer.CanContentScroll="False" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                            x:Name="lvBilder" SelectionChanged="LvBilder_SelectionChanged">
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding Bild}" />
-                            <TextBlock Text="{Binding Kommentar}" />
+                        <StackPanel>
+                            <Grid Height="40" Margin="0 1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="50"/>
+                                    <ColumnDefinition Width="*" MinWidth="270"/>
+                                </Grid.ColumnDefinitions>
+                                <Image Grid.Column="0" x:Name="imgPreview" Width="Auto" MaxHeight="39" Source="{Binding BildPath, IsAsync=True}" Visibility="{Binding ToBeLaoded}"/>
+                                <StackPanel Orientation="Vertical" Grid.Column="1" MaxHeight="40">
+                                    <!--<TextBlock Text="{Binding BildName}" />-->
+                                    <StackPanel Orientation="Horizontal" Height="19">
+                                        <TextBlock Padding="2 0 0 0" Text="{Binding BildInfo.GebaeudeBezeichnung}"/>
+                                        <TextBlock Text=","/>
+                                        <TextBlock Padding="2 0 0 0" Text="{Binding BildInfo.EtageBezeichnung}" />
+                                        <TextBlock Text=","/>
+                                        <TextBlock Padding="2 0 0 0" Text="{Binding BildInfo.WohnungBezeichnung}" />
+                                        <TextBlock Text=","/>
+                                        <TextBlock Padding="2 0 0 0" Text="{Binding BildInfo.ZimmerBezeichnung}" />
+                                    </StackPanel>
+                                    <Separator Padding="0" Margin="0" MaxHeight="1" Background="#eee"/>
+                                    <TextBlock Text="{Binding Kommentar}" Padding="2 0 2 0" Height="20" Margin="0 1 0 0"/>
+                                </StackPanel>
+                            </Grid>
+                            <Separator Padding="0" Margin="0" MaxHeight="1"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>
-
             </ListView>
         </Grid>
 
-        <Label  DockPanel.Dock="Bottom" x:Name="lblLog" Content=""/>
-        <Grid>
+        <!-- Loganzeige -->
+        <Grid DockPanel.Dock="Bottom" Margin="0 0 5 5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Label  Grid.Column="0" x:Name="lblLog" Content=""/>
+            <CheckBox Grid.Column="1" x:Name="chkLoadImages" Content="Bilder in Liste anzeigen" Margin="1 0 5 0"/>
+        </Grid>
+        
+        <Grid Margin="0 10 5 5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Grid.Column="0" Background="#eeeeee">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Label Grid.Row="0" Grid.Column="0" x:Name="lblGebaeude"/>
-                <Label Grid.Row="0" Grid.Column="1" x:Name="lblEtage"/>
-                <Label Grid.Row="0" Grid.Column="2" x:Name="lblWohnung"/>
-                <Label Grid.Row="0" Grid.Column="3" x:Name="lblZimmer"/>
-                <Label Grid.Row="0" Grid.Column="4" x:Name="lblKommentar"/>
-            </Grid>
-            <Image Grid.Row="1" Grid.Column="0" x:Name="imgBild" Width="Auto" Height="Auto"/>
+            <!-- Infoanzeige -->
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Margin="0 0 0 2">
+                <Label x:Name="lblGebaeude" Background="#eeeeee" Margin="0 0 1 0" Content="" MinWidth="10"/>
+                <Label x:Name="lblEtage" Background="#eeeeee" Margin="0 0 1 0" Content="" MinWidth="10"/>
+                <Label x:Name="lblWohnung" Background="#eeeeee" Margin="0 0 1 0" Content="" MinWidth="10"/>
+                <Label x:Name="lblZimmer" Background="#eeeeee" Margin="0 0 1 0" Content="" MinWidth="10"/>
+                <Label x:Name="lblKommentar" Background="#eeeeee" Margin="0 0 1 0" Content="" MinWidth="10"/>
+            </StackPanel>
+            
+            <!-- Bildanzeige -->
+            <Image Grid.Row="1" Grid.Column="0" x:Name="imgBild" Width="Auto" Height="Auto" />
         </Grid>
-
     </DockPanel>
 </Window>

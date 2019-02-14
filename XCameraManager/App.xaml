@@ -4,6 +4,14 @@
              xmlns:local="clr-namespace:XCameraManager"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <Style TargetType="Label">
+                <Style.Triggers>
+                    <Trigger Property="Content" Value="">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
