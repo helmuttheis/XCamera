@@ -330,11 +330,12 @@ namespace XCameraManager
                 }
                 if ( string.IsNullOrWhiteSpace(szSerarchKommentar) || szKommentar.ToLower().Contains(szSerarchKommentar))
                 bmk.Add(new BildMitKommentar {
-                    BildName = System.IO.Path.GetFileName( bild.Name),
+                    BildName = System.IO.Path.GetFileName(bild.Name),
                     BildInfo = projectSql.GetBildInfo(bild.Name),
                     Kommentar = szKommentar,
                     BildPath = projectSql.GetImageFullName(bild.Name),
-                    ToBeLaoded = LoadVisibility
+                    ToBeLaoded = LoadVisibility,
+                    CaptureDate = "unbekannt"
                 });
             }
             lvBilder.ItemsSource = bmk;
@@ -410,7 +411,7 @@ namespace XCameraManager
         public string Kommentar { get; set; }
         public string BildPath { get; set; }
         public string ToBeLaoded{ get; set; }
-
+        public string CaptureDate { get; set; }
     }
     public class ApplicationCloseCommand : ICommand
     {

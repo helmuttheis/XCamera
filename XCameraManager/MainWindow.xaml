@@ -131,7 +131,7 @@
                 </Grid>
             </StackPanel>
             <!-- Bilderliste -->
-            <ListView  Grid.Column="0" Grid.Row="1" Width="Auto" Margin="0 10 0 5" MaxWidth="345"
+            <ListView  Grid.Column="0" Grid.Row="1" Width="Auto" Margin="0 10 -5 5" MaxWidth="345"
                             ScrollViewer.CanContentScroll="False" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                             x:Name="lvBilder" SelectionChanged="LvBilder_SelectionChanged">
                 <ListView.ItemTemplate>
@@ -155,7 +155,10 @@
                                         <TextBlock Padding="2 0 0 0" Text="{Binding BildInfo.ZimmerBezeichnung}" />
                                     </StackPanel>
                                     <Separator Padding="0" Margin="0" MaxHeight="1" Background="#eee"/>
-                                    <TextBlock Text="{Binding Kommentar}" Padding="2 0 2 0" Height="20" Margin="0 1 0 0"/>
+                                    <StackPanel Margin="0 1 0 0" Height="20" Orientation="Horizontal">
+                                        <TextBlock Text="{Binding CaptureDate}" Padding="2 0 2 0" Foreground="#666"/>
+                                        <TextBlock Text="{Binding Kommentar}" Padding="2 0 2 0" />
+                                    </StackPanel>
                                 </StackPanel>
                             </Grid>
                             <Separator Padding="0" Margin="0" MaxHeight="1"/>
