@@ -134,14 +134,20 @@
             <ListView  Grid.Column="0" Grid.Row="1" Width="Auto" Margin="0 10 -5 5" MaxWidth="345"
                             ScrollViewer.CanContentScroll="False" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
                             x:Name="lvBilder" SelectionChanged="LvBilder_SelectionChanged">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel>
-                            <Grid Height="40" Margin="0 1">
+                            <Grid Height="40" Margin="0 1" MinWidth="320">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="50"/>
-                                    <ColumnDefinition Width="*" MinWidth="270"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
+                                <Rectangle Width="50" MaxHeight="39" Visibility="{Binding ToBeLaoded}"/>
                                 <Image Grid.Column="0" x:Name="imgPreview" Width="Auto" MaxHeight="39" Source="{Binding BildPath, IsAsync=True}" Visibility="{Binding ToBeLaoded}"/>
                                 <StackPanel Orientation="Vertical" Grid.Column="1" MaxHeight="40">
                                     <!--<TextBlock Text="{Binding BildName}" />-->
