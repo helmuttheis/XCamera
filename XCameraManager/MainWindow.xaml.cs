@@ -457,6 +457,33 @@ namespace XCameraManager
            
         }
     }
+    public class ApplicationPatchCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged
+        {
+            // You may not need a body here at all...
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return Application.Current != null && Application.Current.MainWindow != null;
+        }
+
+        public void Execute(object parameter)
+        {
+            // loop through all project
+            var projekte = ProjectUtil.GetProjectList();
+            foreach (var projekt in projekte)
+            {
+                ProjectSql tmpProject = new ProjectSql(projekt);
+                tmpProject.Patch();
+            }
+
+        }
+    }
+
     public static class MyCommands
     {
         private static readonly ICommand appCloseCmd = new ApplicationCloseCommand();
@@ -469,6 +496,11 @@ namespace XCameraManager
         public static ICommand ApplicationConnectCommand
         {
             get { return appConnectCmd; }
+        }
+        private static readonly ICommand appPatchCmd = new ApplicationPatchCommand();
+        public static ICommand ApplicationPatchCommand
+        {
+            get { return appPatchCmd; }
         }
     }
 }

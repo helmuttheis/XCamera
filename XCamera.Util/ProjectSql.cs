@@ -693,6 +693,59 @@ namespace XCamera.Util
             return database.Query<Bild>(szSql);
 
         }
+        public void Patch()
+        {
+            string szSql = "SELECT * FROM Bild where CaptureDate is null";
+            List<Bild> bldList = database.Query<Bild>(szSql);
+            foreach(var bild in bldList)
+            {
+                DateTime dtUseDatTime = DateTime.MinValue;
+                try
+                {
+                    // IMG_20190217_183147.jpg
+                    string szName = Path.GetFileNameWithoutExtension(bild.Name);
+                    string[] teile = szName.Split('_');
+                    if (teile.Length > 1)
+                    {
+                        string yy = teile[teile.Length - 2].Substring(0, 4);
+                        string MM = teile[teile.Length - 2].Substring(4, 2);
+                        string dd = teile[teile.Length - 2].Substring(6, 2);
+
+                        string HH = teile[teile.Length - 1].Substring(0, 2);
+                        string mm = teile[teile.Length - 1].Substring(2, 2);
+                        string ss = teile[teile.Length - 1].Substring(4, 2);
+                        int iyy, iMM, idd, iHH, imm, iss;
+                        if (int.TryParse(yy, out iyy) &&
+                        int.TryParse(MM, out iMM) &&
+                        int.TryParse(dd, out idd) &&
+                        int.TryParse(HH, out iHH) &&
+                        int.TryParse(mm, out imm) &&
+                        int.TryParse(ss, out iss))
+                        {
+                            DateTime dtNew = new DateTime(iyy, iMM, idd, iHH, imm, iss);
+                            dtUseDatTime = dtNew;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                }
+
+                if (dtUseDatTime == DateTime.MinValue)
+                {
+                    FileInfo fi = new FileInfo(GetImageFullName(bild.Name));
+                    dtUseDatTime = fi.CreationTime;
+                }
+
+                if (dtUseDatTime != DateTime.MinValue)
+                {
+                    bild.CaptureDate = dtUseDatTime;
+                    database.Update(bild);
+
+                }
+            }
+
+        }
         public List<Bild> GetBilder(DateTime dtStart, DateTime dtEnd,int gebaeudeId = -1, int etageId = -1, int wohnungId = -1, int zimmerId = -1)
         {
             string szSql = "SELECT * FROM Bild ";

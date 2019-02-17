@@ -25,6 +25,7 @@
             </MenuItem>
             <MenuItem Header="_Tools">
                 <MenuItem  Header="_Verbindung" Command="local:MyCommands.ApplicationConnectCommand" />
+                <MenuItem  Header="_Patch Datenbanken" Command="local:MyCommands.ApplicationPatchCommand" />
             </MenuItem>
         </Menu>
         
