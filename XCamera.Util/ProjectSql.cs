@@ -131,7 +131,7 @@ namespace XCamera.Util
             }
             szProjectFile = Path.Combine(szProjectPath, szProjectName + ".db");
 
-            database = new SQLiteConnection(szProjectFile);
+            database = new SQLiteConnection(szProjectFile,false);
             
             database.CreateTable<Zusatz>();
             database.CreateTable<Gebaeude>();
@@ -184,8 +184,8 @@ namespace XCamera.Util
 
         public void DeleteImage(string szImageName)
         {
-            int bildID = GetBildId(szImageName,DateTime.Now);
-            SetDeleted(bildID);
+            var biResult = GetBildId(szImageName,DateTime.Now);
+            SetDeleted( biResult.BildId);
         }
 
         public Boolean IsDirty()
@@ -197,12 +197,14 @@ namespace XCamera.Util
         {
             return szTempProjectPath;
         }
-        public BildInfo GetBildInfo(string szImageName, DateTime dtCreation)
+        public BildInfo GetBildInfo(string szImageName, DateTime CaptureDate)
         {
             BildInfo bi = new BildInfo();
             bi.BildName = szImageName;
-            bi.BildId = GetBildId(szImageName, dtCreation);
-            bi.bBildIdFound = bBildIdFound;
+            var biResult = GetBildId(szImageName, CaptureDate);
+            bi.BildId = biResult.BildId;
+            bi.bBildIdFound = biResult.bBildIdFound;
+            bi.CaptureDate = biResult.dtCaptureDate;
 
             GetGebaeudeForBild(bi.BildId, bi);
             GetWohnungForBild(bi.BildId, bi);
@@ -283,29 +285,42 @@ namespace XCamera.Util
             return -1;
         }
 
-
-        public Boolean bBildIdFound = false;
-        public int GetBildId(string szImageName, DateTime dtCreation)
+        public class GetBildIdResult
         {
+            public int BildId { get; set; }
+            public Boolean bBildIdFound { get; set; } = false;
+            public DateTime dtCaptureDate { get; set; }
+
+        }
+        public GetBildIdResult GetBildId(string szImageName, DateTime dtCaptureDate)
+        {
+            GetBildIdResult ret = new GetBildIdResult();
             var bildListe = database.Query<Bild>("SELECT * FROM [Bild] WHERE [Name] = '" + szImageName + "'");
-            int bildID;
+            
             if (bildListe.Count > 0)
             {
-                bBildIdFound = true;
-                bildID = bildListe[0].ID;
+                ret.bBildIdFound = true;
+                ret.BildId= bildListe[0].ID;
+                ret.dtCaptureDate = bildListe[0].CaptureDate;
+                if( ret.dtCaptureDate  == DateTime.MinValue)
+                {
+                    // should we update the BILD when the CaptureDate is missing?
+                    ret.dtCaptureDate = dtCaptureDate;
+                }
             }
             else
             {
-                bBildIdFound = false;
+                ret.bBildIdFound = false;
+                ret.dtCaptureDate = dtCaptureDate;
                 Bild bild = new Bild
                 {
                     Name = szImageName,
-                    dtCreation =dtCreation
+                    CaptureDate = ret.dtCaptureDate
                 };
                 database.Insert(bild);
-                bildID = database.ExecuteScalar<int>("select last_insert_rowid();");
+                ret.BildId = database.ExecuteScalar<int>("select last_insert_rowid();");
             }
-            return bildID;
+            return ret;
         }
         public Boolean HasDeleted()
         {
@@ -363,9 +378,9 @@ namespace XCamera.Util
 
         public string GetKommentar(string szImageName)
         {
-            int bildID = GetBildId(szImageName,DateTime.Now);
+            var biResult = GetBildId(szImageName,DateTime.Now);
             
-            return GetKommentar(bildID);
+            return GetKommentar(biResult.BildId);
         }
         public string GetKommentar(int bildId)
         {
@@ -379,9 +394,19 @@ namespace XCamera.Util
         }
         public void SetComment(string szImageName, string szComment)
         {
-            int bildID = GetBildId(szImageName,DateTime.Now);
-            SetComment(bildID, szComment);
+            var biResult = GetBildId(szImageName,DateTime.Now);
+            SetComment(biResult.BildId, szComment);
         }
+        public void SetCaptureDate(int bildId, DateTime captureDate)
+        {
+            Bild bild = GetBild(bildId);
+            if( bild != null )
+            {
+                bild.CaptureDate = captureDate;
+                database.Update(bild);
+            }
+        }
+
         public void SetComment(int bildId, string szComment)
         {
             var kommentarListe = database.Query<Kommentar>("SELECT * FROM [Kommentar] left join Bild_Kommentar WHERE Kommentar.ID = Bild_Kommentar.KommentarID and Bild_Kommentar.BildID = " + bildId.ToString());
@@ -668,11 +693,11 @@ namespace XCamera.Util
             return database.Query<Bild>(szSql);
 
         }
-        public List<Bild> GetBilder(int gebaeudeId = -1, int etageId = -1, int wohnungId = -1, int zimmerId = -1)
+        public List<Bild> GetBilder(DateTime dtStart, DateTime dtEnd,int gebaeudeId = -1, int etageId = -1, int wohnungId = -1, int zimmerId = -1)
         {
             string szSql = "SELECT * FROM Bild ";
             string szWhere = "";
-            if( gebaeudeId >= 0 )
+            if (gebaeudeId >= 0)
             {
                 szSql += " LEFT JOIN BILD_GEBAEUDE on Bild.ID = BILD_GEBAEUDE.BildID ";
                 szWhere = " where ";
@@ -692,10 +717,28 @@ namespace XCamera.Util
                 szSql += " LEFT JOIN BILD_ZIMMER on Bild.ID = BILD_ZIMMER.BildID ";
                 szWhere = " where ";
             }
+            if (dtStart > DateTime.MinValue)
+            {
+                szWhere = " where ";
+            }
+            if (dtEnd < DateTime.MaxValue)
+            {
+                szWhere = " where ";
+            }
             if ( !string.IsNullOrEmpty(szWhere))
             {
                 szSql += szWhere;
                 string szAnd = "";
+                if (dtStart > DateTime.MinValue)
+                {
+                    szSql += szAnd + " BILD.CaptureDate >= '" + dtStart.ToString("yyyy-MM-dd HH:mm:ss") + "'";
+                    szAnd = " and ";
+                }
+                if (dtEnd < DateTime.MaxValue)
+                {
+                    szSql += szAnd + " BILD.CaptureDate <= '" + dtEnd.ToString("yyyy-MM-dd HH:mm:ss") + "'";
+                    szAnd = " and ";
+                }
                 if (gebaeudeId >= 0)
                 {
                     szSql += szAnd + " BILD_GEBAEUDE.GebaeudeID = " + gebaeudeId.ToString();
@@ -717,6 +760,7 @@ namespace XCamera.Util
                     szAnd = " and ";
                 }
             }
+            szSql += " ORDER BY BILD.CaptureDate DESC";
             return database.Query<Bild>(szSql);
         }
     }

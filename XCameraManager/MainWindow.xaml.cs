@@ -30,6 +30,9 @@ namespace XCameraManager
         public MainWindow()
         {
             InitializeComponent();
+            dpStart.Value = dpStart.MinDate;
+            dpEnd.Value = dpEnd.MaxDate;
+
             XCamera.Util.Config.szConfigFile = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             XCamera.Util.Config.szConfigFile = XCamera.Util.Config.szConfigFile.Replace(@"\bin\Debug", "");
             XCamera.Util.Config.szConfigFile = System.IO.Path.Combine(XCamera.Util.Config.szConfigFile, "XCameraManager.xml");
@@ -319,7 +322,7 @@ namespace XCameraManager
 
             string szSerarchKommentar = tbKommentar.Text.Trim().ToLower();
             List<BildMitKommentar> bmk = new List<BildMitKommentar>();
-            List<Bild> bildListe = projectSql.GetBilder(gebaeudeId, etageId, wohnungId, zimmerId);
+            List<Bild> bildListe = projectSql.GetBilder(dpStart.Value, dpEnd.Value,gebaeudeId, etageId, wohnungId, zimmerId);
             foreach (var bild in bildListe)
             {
                 string szKommentar = projectSql.GetKommentar(bild.ID);
@@ -331,11 +334,11 @@ namespace XCameraManager
                 if ( string.IsNullOrWhiteSpace(szSerarchKommentar) || szKommentar.ToLower().Contains(szSerarchKommentar))
                 bmk.Add(new BildMitKommentar {
                     BildName = System.IO.Path.GetFileName(bild.Name),
-                    BildInfo = projectSql.GetBildInfo(bild.Name),
+                    BildInfo = projectSql.GetBildInfo(bild.Name,DateTime.Now),
                     Kommentar = szKommentar,
                     BildPath = projectSql.GetImageFullName(bild.Name),
                     ToBeLaoded = LoadVisibility,
-                    CaptureDate = "unbekannt"
+                    CaptureDate = bild.CaptureDate.ToString()
                 });
             }
             lvBilder.ItemsSource = bmk;
@@ -375,7 +378,7 @@ namespace XCameraManager
              if(bmk != null  )
              {
                 imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.BildName)));
-                BildInfo bi = projectSql.GetBildInfo(bmk.BildName);
+                BildInfo bi = projectSql.GetBildInfo(bmk.BildName, DateTime.Now);
                 lblGebaeude.Content = bi.GebaeudeBezeichnung;
                 lblEtage.Content = bi.EtageBezeichnung;
                 lblWohnung.Content = bi.WohnungBezeichnung;

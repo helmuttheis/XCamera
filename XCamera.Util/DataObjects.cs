@@ -28,7 +28,7 @@ namespace XCamera.Util
         public string ZimmerBezeichnung { get; set; }
         public int KommentarId { get; set; }
         public string KommentarBezeichnung { get; set; }
-        public DateTime dtCreation { get; set; }
+        public DateTime CaptureDate { get; set; }
     }
     public class MetaData
     {
@@ -146,7 +146,7 @@ namespace XCamera.Util
         public int ID { get; set; }
         public string Name { get; set; }
         public int Status { get; set; }
-        public DateTime dtCreation { get; set; }
+        public DateTime CaptureDate { get; set; }
     }
 
 }

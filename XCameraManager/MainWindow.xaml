@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+         xmlns:window="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:local="clr-namespace:XCameraManager"
         mc:Ignorable="d"
         Title="XCameraManager " Height="Auto" Width="800" MinWidth="400">
@@ -66,6 +68,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="100"/>
@@ -98,8 +101,14 @@
 
                     <Label Grid.Column="0" Grid.Row="4" Content="Kommentar" VerticalContentAlignment="Center"/>
                     <TextBox Grid.Column="1" Grid.Row="4" x:Name="tbKommentar" Margin="0 2 0 0" Height="30" VerticalContentAlignment="Center"/>
-
-                    <Button Grid.Column="1" Grid.Row="5"  x:Name="btnSearch" Content="suchen" Click="BtnSearch_Click" Margin="0 2 0 0"/>
+                    
+                    <window:WindowsFormsHost Grid.Column="1" Grid.Row="5">
+                    <wf:DateTimePicker  x:Name="dpStart" Format="Custom" CustomFormat="dd.MM.yyy HH:mm"/>
+                    </window:WindowsFormsHost>
+                    <window:WindowsFormsHost Grid.Column="1" Grid.Row="6">
+                        <wf:DateTimePicker  x:Name="dpEnd" Format="Custom" CustomFormat="dd.MM.yyy HH:mm"/>
+                    </window:WindowsFormsHost>
+                    <Button Grid.Column="1" Grid.Row="7"  x:Name="btnSearch" Content="suchen" Click="BtnSearch_Click" Margin="0 2 0 0"/>
                     
                     <!--
                     <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6"   >
@@ -159,6 +168,8 @@
                                         <TextBlock Padding="2 0 0 0" Text="{Binding BildInfo.WohnungBezeichnung}" />
                                         <TextBlock Text=","/>
                                         <TextBlock Padding="2 0 0 0" Text="{Binding BildInfo.ZimmerBezeichnung}" />
+                                        <TextBlock Text=","/>
+                                        <TextBlock Padding="2 0 0 0" Text="{Binding BildInfo.CaptureDate}" />
                                     </StackPanel>
                                     <Separator Padding="0" Margin="0" MaxHeight="1" Background="#eee"/>
                                     <StackPanel Margin="0 1 0 0" Height="20" Orientation="Horizontal">

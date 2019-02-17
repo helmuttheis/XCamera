@@ -28,7 +28,7 @@ namespace XCamera
 
             images = new ObservableCollection<ImageViewModel>();
 
-            List<Bild> bilder = mainPage.curProjectSql.GetBilder();
+            List<Bild> bilder = mainPage.curProjectSql.GetBilder(DateTime.MinValue,DateTime.MaxValue);
 
             foreach (var bild in bilder)
             {

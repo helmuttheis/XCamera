@@ -123,29 +123,35 @@ namespace XCameraManager
                     try
                     {
                         BildInfo bi = Newtonsoft.Json.JsonConvert.DeserializeObject<BildInfo>(szJson);
+                        if( bi.CaptureDate == null)
+                        {
+                            bi.CaptureDate = DateTime.Now;
+                        }
                         ProjectSql tmpProject = new ProjectSql(szProjectname);
-                        int bildId = tmpProject.GetBildId(bi.BildName);
+                        var biResult = tmpProject.GetBildId(bi.BildName, bi.CaptureDate);
+                        tmpProject.SetCaptureDate(biResult.BildId,bi.CaptureDate);
+                        
                         Gebaeude gebauede = tmpProject.EnsureGebaeude(bi.GebaeudeBezeichnung);
                         Etage etage = tmpProject.EnsureEtage(bi.EtageBezeichnung);
                         Wohnung wohnung = tmpProject.EnsureWohnung(bi.WohnungBezeichnung);
                         Zimmer zimmer = tmpProject.EnsureZimmer(bi.ZimmerBezeichnung);
                         if( gebauede != null )
                         {
-                            tmpProject.SetGebaeude(bildId, gebauede.ID);
+                            tmpProject.SetGebaeude(biResult.BildId, gebauede.ID);
                         }
                         if (etage != null)
                         {
-                            tmpProject.SetEtage(bildId, etage.ID);
+                            tmpProject.SetEtage(biResult.BildId, etage.ID);
                         }
                         if (wohnung != null)
                         {
-                            tmpProject.SetWohnung(bildId, wohnung.ID);
+                            tmpProject.SetWohnung(biResult.BildId, wohnung.ID);
                         }
                         if (zimmer != null)
                         {
-                            tmpProject.SetZimmer(bildId, zimmer.ID);
+                            tmpProject.SetZimmer(biResult.BildId, zimmer.ID);
                         }
-                        tmpProject.SetComment(bildId, bi.KommentarBezeichnung);
+                        tmpProject.SetComment(biResult.BildId, bi.KommentarBezeichnung);
                     }
                     catch (Exception ex)
                     {

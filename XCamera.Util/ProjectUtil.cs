@@ -206,7 +206,7 @@ namespace XCamera.Util
                 // load the DB file
                 ProjectSql tmpProject = new ProjectSql(szLocalProject);
                 // get all images
-                List<Bild> bilder = tmpProject.GetBilder();
+                List<Bild> bilder = tmpProject.GetBilder(DateTime.MinValue, DateTime.MaxValue);
                 foreach (var bild in bilder)
                 {
                     string szImageName = bild.Name;
