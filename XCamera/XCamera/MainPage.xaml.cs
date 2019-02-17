@@ -127,7 +127,7 @@ namespace XCamera
             Overlay overlay = new Overlay(grdOverlay);
             // if (lstPicker == null)
             {
-                BildInfo bi = curProjectSql.GetBildInfo(szImageName);
+                BildInfo bi = curProjectSql.GetBildInfo(szImageName, DateTime.Now);
                 if (lastBi != null)
                 {
                     if (!bi.bBildIdFound)
@@ -216,7 +216,7 @@ namespace XCamera
 
                     curProjectSql.SetComment(szImageName, kommentarEntry.Text);
 
-                    lastBi = curProjectSql.GetBildInfo(szImageName);
+                    lastBi = curProjectSql.GetBildInfo(szImageName, DateTime.Now);
                     overlay.Close();
                 };
 

@@ -184,7 +184,7 @@ namespace XCamera.Util
 
         public void DeleteImage(string szImageName)
         {
-            int bildID = GetBildId(szImageName);
+            int bildID = GetBildId(szImageName,DateTime.Now);
             SetDeleted(bildID);
         }
 
@@ -197,11 +197,11 @@ namespace XCamera.Util
         {
             return szTempProjectPath;
         }
-        public BildInfo GetBildInfo(string szImageName)
+        public BildInfo GetBildInfo(string szImageName, DateTime dtCreation)
         {
             BildInfo bi = new BildInfo();
             bi.BildName = szImageName;
-            bi.BildId = GetBildId(szImageName);
+            bi.BildId = GetBildId(szImageName, dtCreation);
             bi.bBildIdFound = bBildIdFound;
 
             GetGebaeudeForBild(bi.BildId, bi);
@@ -285,7 +285,7 @@ namespace XCamera.Util
 
 
         public Boolean bBildIdFound = false;
-        public int GetBildId(string szImageName)
+        public int GetBildId(string szImageName, DateTime dtCreation)
         {
             var bildListe = database.Query<Bild>("SELECT * FROM [Bild] WHERE [Name] = '" + szImageName + "'");
             int bildID;
@@ -299,7 +299,8 @@ namespace XCamera.Util
                 bBildIdFound = false;
                 Bild bild = new Bild
                 {
-                    Name = szImageName
+                    Name = szImageName,
+                    dtCreation =dtCreation
                 };
                 database.Insert(bild);
                 bildID = database.ExecuteScalar<int>("select last_insert_rowid();");
@@ -362,7 +363,7 @@ namespace XCamera.Util
 
         public string GetKommentar(string szImageName)
         {
-            int bildID = GetBildId(szImageName);
+            int bildID = GetBildId(szImageName,DateTime.Now);
             
             return GetKommentar(bildID);
         }
@@ -378,7 +379,7 @@ namespace XCamera.Util
         }
         public void SetComment(string szImageName, string szComment)
         {
-            int bildID = GetBildId(szImageName);
+            int bildID = GetBildId(szImageName,DateTime.Now);
             SetComment(bildID, szComment);
         }
         public void SetComment(int bildId, string szComment)

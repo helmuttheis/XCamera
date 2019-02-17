@@ -261,7 +261,7 @@ namespace XCamera
                 {
                     cb("send changed data for " + bild.Name);
 
-                    BildInfo bi = tmpProject.GetBildInfo(bild.Name);
+                    BildInfo bi = tmpProject.GetBildInfo(bild.Name, DateTime.Now);
 
                     string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(bi);
                     ProjectUtil.SendJson(szProjectName, szJson);
