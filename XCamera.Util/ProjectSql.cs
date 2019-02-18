@@ -750,6 +750,10 @@ namespace XCamera.Util
         {
             string szSql = "SELECT * FROM Bild ";
             string szWhere = "";
+            if (dtEnd != null)
+            {
+                dtEnd = dtEnd.Value.AddDays(1);
+            }
             if (gebaeudeId >= 0)
             {
                 szSql += " LEFT JOIN BILD_GEBAEUDE on Bild.ID = BILD_GEBAEUDE.BildID ";

@@ -77,31 +77,31 @@
                     </Grid.ColumnDefinitions>
                     
                     <Label Grid.Column="0" Grid.Row="0" Content="Gebäude" VerticalContentAlignment="Center"/>
-                    <ComboBox Grid.Column="1" Grid.Row="0" x:Name="cmbGebaeude"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
+                    <ComboBox Grid.Column="1" Grid.Row="0" x:Name="cmbGebaeude"  IsEditable="True" Height="25" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
                         <ComboBoxItem>robot</ComboBoxItem>
                         <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
                     <Label Grid.Column="0" Grid.Row="1" Content="Etage" VerticalContentAlignment="Center"/>
-                    <ComboBox Grid.Column="1" Grid.Row="1" x:Name="cmbEtage"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
+                    <ComboBox Grid.Column="1" Grid.Row="1" x:Name="cmbEtage"  IsEditable="True" Height="25" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
                         <ComboBoxItem>robot</ComboBoxItem>
                         <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
                     <Label Grid.Column="0" Grid.Row="2" Content="Wohnung" VerticalContentAlignment="Center"/>
-                    <ComboBox Grid.Column="1" Grid.Row="2" x:Name="cmbWohnung"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
+                    <ComboBox Grid.Column="1" Grid.Row="2" x:Name="cmbWohnung"  IsEditable="True" Height="25" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
                         <ComboBoxItem>robot</ComboBoxItem>
                         <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
                     <Label Grid.Column="0" Grid.Row="3" Content="Zimmer" VerticalContentAlignment="Center"/>
-                    <ComboBox Grid.Column="1" Grid.Row="3" x:Name="cmbZimmer"  IsEditable="True" Height="30" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
+                    <ComboBox Grid.Column="1" Grid.Row="3" x:Name="cmbZimmer"  IsEditable="True" Height="25" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
                         <ComboBoxItem>robot</ComboBoxItem>
                         <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
                     <Label Grid.Column="0" Grid.Row="4" Content="Kommentar" VerticalContentAlignment="Center"/>
-                    <TextBox Grid.Column="1" Grid.Row="4" x:Name="tbKommentar" Margin="0 2 0 0" Height="30" VerticalContentAlignment="Center"/>
+                    <TextBox Grid.Column="1" Grid.Row="4" x:Name="tbKommentar" Margin="0 2 0 0" Height="25" VerticalContentAlignment="Center"/>
                     
                     <!--
                     <window:WindowsFormsHost Grid.Column="1" Grid.Row="5">
@@ -111,9 +111,17 @@
                         <wf:DateTimePicker  x:Name="dpEnd" Format="Custom" CustomFormat="dd.MM.yyy HH:mm"/>
                     </window:WindowsFormsHost>
                     -->
-                    <DatePicker Grid.Column="1" Grid.Row="5" x:Name="dpStart"></DatePicker>
-                    <DatePicker Grid.Column="1" Grid.Row="6" x:Name="dpEnd"></DatePicker>
 
+                    <Label Grid.Column="0" Grid.Row="5" Content="Zeitraum" VerticalContentAlignment="Center"/>
+                    <Grid Grid.Column="1" Grid.Row="5" MaxWidth="250" MinHeight="25" Margin="0 2 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <DatePicker Grid.Column="0" Grid.Row="5" x:Name="dpStart" SelectedDateChanged="dpStart_SelectedDateChanged"></DatePicker>
+                        <DatePicker Grid.Column="1" Grid.Row="6" x:Name="dpEnd" SelectedDateChanged="dpEnd_SelectedDateChanged"></DatePicker>
+
+                    </Grid>
                     <Button Grid.Column="1" Grid.Row="7"  x:Name="btnSearch" Content="suchen" Click="BtnSearch_Click" Margin="0 2 0 0"/>
                     
                     <!--
@@ -174,8 +182,6 @@
                                         <TextBlock Padding="2 0 0 0" Text="{Binding BildInfo.WohnungBezeichnung}" />
                                         <TextBlock Text=","/>
                                         <TextBlock Padding="2 0 0 0" Text="{Binding BildInfo.ZimmerBezeichnung}" />
-                                        <TextBlock Text=","/>
-                                        <TextBlock Padding="2 0 0 0" Text="{Binding BildInfo.CaptureDate}" />
                                     </StackPanel>
                                     <Separator Padding="0" Margin="0" MaxHeight="1" Background="#eee"/>
                                     <StackPanel Margin="0 1 0 0" Height="20" Orientation="Horizontal">
@@ -197,8 +203,8 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label  Grid.Column="0" x:Name="lblLog" Content=""/>
-            <CheckBox Grid.Column="1" x:Name="chkLoadImages" Content="Bilder in Liste anzeigen" Margin="1 0 5 0"/>
+            <Label  Grid.Column="0" x:Name="lblLog" Content="" VerticalContentAlignment="Top" Padding="0"/>
+            <CheckBox Grid.Column="1" x:Name="chkLoadImages" Content="Bilder in Liste anzeigen" Margin="1 0 5 0" VerticalAlignment="Center"/>
         </Grid>
         
         <Grid Margin="0 10 5 5">

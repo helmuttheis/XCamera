@@ -325,6 +325,7 @@ namespace XCameraManager
             List<Bild> bildListe = projectSql.GetBilder(dpStart.SelectedDate, dpEnd.SelectedDate, gebaeudeId, etageId, wohnungId, zimmerId);
             foreach (var bild in bildListe)
             {
+                Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
                 string szKommentar = projectSql.GetKommentar(bild.ID);
                 string LoadVisibility = "Collapsed";
                 if (chkLoadImages.IsChecked == true)
@@ -342,6 +343,7 @@ namespace XCameraManager
                 });
             }
             lvBilder.ItemsSource = bmk;
+            Mouse.OverrideCursor = null;
 
             imgBild.Source = null;
         }
@@ -404,6 +406,16 @@ namespace XCameraManager
             {
                 Process.Start(projectSql.szProjectPath);
             }
+        }
+        
+        private void dpStart_SelectedDateChanged(object sender, RoutedEventArgs e)
+        {
+            dpEnd.BlackoutDates.Add(new CalendarDateRange(DateTime.MinValue, dpStart.SelectedDate ?? DateTime.Now));
+        }
+
+        private void dpEnd_SelectedDateChanged(object sender, RoutedEventArgs e)
+        {
+            dpStart.BlackoutDates.Add(new CalendarDateRange(dpEnd.SelectedDate ?? DateTime.Now, DateTime.MaxValue));
         }
 
     }
@@ -475,6 +487,7 @@ namespace XCameraManager
         {
             /// ((MainWindow)Application.Current.MainWindow).Cursor = Cursor.
             // loop through all project
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             var projekte = ProjectUtil.GetProjectList();
             foreach (var projekt in projekte)
             {
@@ -483,6 +496,7 @@ namespace XCameraManager
                 tmpProject.Patch();
             }
             ((MainWindow)Application.Current.MainWindow).ToLog("Patch done");
+            Mouse.OverrideCursor = null;
         }
     }
 
