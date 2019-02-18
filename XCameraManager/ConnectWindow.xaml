@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XCameraManager"
         mc:Ignorable="d"
-        Title="ConnectWindow" Height="450" Width="600" >
+        Title="ConnectWindow" Height="450" Width="600" MinHeight="200" >
     <StackPanel Margin="5">
 
         <Grid>

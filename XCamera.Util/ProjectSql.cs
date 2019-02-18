@@ -746,10 +746,14 @@ namespace XCamera.Util
             }
 
         }
-        public List<Bild> GetBilder(DateTime dtStart, DateTime dtEnd,int gebaeudeId = -1, int etageId = -1, int wohnungId = -1, int zimmerId = -1)
+        public List<Bild> GetBilder(DateTime? dtStart, DateTime? dtEnd,int gebaeudeId = -1, int etageId = -1, int wohnungId = -1, int zimmerId = -1)
         {
             string szSql = "SELECT * FROM Bild ";
             string szWhere = "";
+            if (dtEnd != null)
+            {
+                dtEnd = dtEnd.Value.AddDays(1);
+            }
             if (gebaeudeId >= 0)
             {
                 szSql += " LEFT JOIN BILD_GEBAEUDE on Bild.ID = BILD_GEBAEUDE.BildID ";
@@ -782,14 +786,14 @@ namespace XCamera.Util
             {
                 szSql += szWhere;
                 string szAnd = "";
-                if (dtStart > DateTime.MinValue)
+                if (dtStart != null)
                 {
-                    szSql += szAnd + " BILD.CaptureDate >= '" + dtStart.ToString("yyyy-MM-dd HH:mm:ss") + "'";
+                    szSql += szAnd + " BILD.CaptureDate >= '" + dtStart?.ToString("yyyy-MM-dd") + "'";
                     szAnd = " and ";
                 }
-                if (dtEnd < DateTime.MaxValue)
+                if (dtEnd != null)
                 {
-                    szSql += szAnd + " BILD.CaptureDate <= '" + dtEnd.ToString("yyyy-MM-dd HH:mm:ss") + "'";
+                    szSql += szAnd + " BILD.CaptureDate <= '" + dtEnd?.ToString("yyyy-MM-dd") + "'";
                     szAnd = " and ";
                 }
                 if (gebaeudeId >= 0)

@@ -30,8 +30,8 @@ namespace XCameraManager
         public MainWindow()
         {
             InitializeComponent();
-            dpStart.Value = dpStart.MinDate;
-            dpEnd.Value = dpEnd.MaxDate;
+            dpStart.SelectedDate =null;
+            dpEnd.SelectedDate = null;
 
             XCamera.Util.Config.szConfigFile = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             XCamera.Util.Config.szConfigFile = XCamera.Util.Config.szConfigFile.Replace(@"\bin\Debug", "");
@@ -150,7 +150,7 @@ namespace XCameraManager
         }
         private void NewCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            string szProjectName = new InputBox("text").ShowDialog();
+            string szProjectName = new InputBox("Projektnamen eingeben:").ShowDialog();
             if( !string.IsNullOrWhiteSpace(szProjectName))
             {
                 string szFullProjectPath = System.IO.Path.Combine(Config.current.szBasedir, szProjectName);
@@ -322,9 +322,10 @@ namespace XCameraManager
 
             string szSerarchKommentar = tbKommentar.Text.Trim().ToLower();
             List<BildMitKommentar> bmk = new List<BildMitKommentar>();
-            List<Bild> bildListe = projectSql.GetBilder(dpStart.Value, dpEnd.Value,gebaeudeId, etageId, wohnungId, zimmerId);
+            List<Bild> bildListe = projectSql.GetBilder(dpStart.SelectedDate, dpEnd.SelectedDate, gebaeudeId, etageId, wohnungId, zimmerId);
             foreach (var bild in bildListe)
             {
+                Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
                 string szKommentar = projectSql.GetKommentar(bild.ID);
                 string LoadVisibility = "Collapsed";
                 if (chkLoadImages.IsChecked == true)
@@ -342,6 +343,7 @@ namespace XCameraManager
                 });
             }
             lvBilder.ItemsSource = bmk;
+            Mouse.OverrideCursor = null;
 
             imgBild.Source = null;
         }
@@ -404,6 +406,16 @@ namespace XCameraManager
             {
                 Process.Start(projectSql.szProjectPath);
             }
+        }
+        
+        private void dpStart_SelectedDateChanged(object sender, RoutedEventArgs e)
+        {
+            dpEnd.BlackoutDates.Add(new CalendarDateRange(DateTime.MinValue, dpStart.SelectedDate ?? DateTime.Now));
+        }
+
+        private void dpEnd_SelectedDateChanged(object sender, RoutedEventArgs e)
+        {
+            dpStart.BlackoutDates.Add(new CalendarDateRange(dpEnd.SelectedDate ?? DateTime.Now, DateTime.MaxValue));
         }
 
     }
@@ -473,14 +485,18 @@ namespace XCameraManager
 
         public void Execute(object parameter)
         {
+            /// ((MainWindow)Application.Current.MainWindow).Cursor = Cursor.
             // loop through all project
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             var projekte = ProjectUtil.GetProjectList();
             foreach (var projekt in projekte)
             {
+                ((MainWindow)Application.Current.MainWindow).ToLog("patching " + projekt);
                 ProjectSql tmpProject = new ProjectSql(projekt);
                 tmpProject.Patch();
             }
-
+            ((MainWindow)Application.Current.MainWindow).ToLog("Patch done");
+            Mouse.OverrideCursor = null;
         }
     }
 
