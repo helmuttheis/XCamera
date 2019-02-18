@@ -150,7 +150,7 @@ namespace XCameraManager
         }
         private void NewCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            string szProjectName = new InputBox("text").ShowDialog();
+            string szProjectName = new InputBox("Projektnamen eingeben:").ShowDialog();
             if( !string.IsNullOrWhiteSpace(szProjectName))
             {
                 string szFullProjectPath = System.IO.Path.Combine(Config.current.szBasedir, szProjectName);
