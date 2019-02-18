@@ -30,8 +30,8 @@ namespace XCameraManager
         public MainWindow()
         {
             InitializeComponent();
-            dpStart.Value = dpStart.MinDate;
-            dpEnd.Value = dpEnd.MaxDate;
+            dpStart.SelectedDate =null;
+            dpEnd.SelectedDate = null;
 
             XCamera.Util.Config.szConfigFile = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             XCamera.Util.Config.szConfigFile = XCamera.Util.Config.szConfigFile.Replace(@"\bin\Debug", "");
@@ -322,7 +322,7 @@ namespace XCameraManager
 
             string szSerarchKommentar = tbKommentar.Text.Trim().ToLower();
             List<BildMitKommentar> bmk = new List<BildMitKommentar>();
-            List<Bild> bildListe = projectSql.GetBilder(dpStart.Value, dpEnd.Value,gebaeudeId, etageId, wohnungId, zimmerId);
+            List<Bild> bildListe = projectSql.GetBilder(dpStart.SelectedDate, dpEnd.SelectedDate, gebaeudeId, etageId, wohnungId, zimmerId);
             foreach (var bild in bildListe)
             {
                 string szKommentar = projectSql.GetKommentar(bild.ID);
@@ -473,14 +473,16 @@ namespace XCameraManager
 
         public void Execute(object parameter)
         {
+            /// ((MainWindow)Application.Current.MainWindow).Cursor = Cursor.
             // loop through all project
             var projekte = ProjectUtil.GetProjectList();
             foreach (var projekt in projekte)
             {
+                ((MainWindow)Application.Current.MainWindow).ToLog("patching " + projekt);
                 ProjectSql tmpProject = new ProjectSql(projekt);
                 tmpProject.Patch();
             }
-
+            ((MainWindow)Application.Current.MainWindow).ToLog("Patch done");
         }
     }
 

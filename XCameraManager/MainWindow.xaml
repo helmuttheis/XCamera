@@ -103,12 +103,17 @@
                     <Label Grid.Column="0" Grid.Row="4" Content="Kommentar" VerticalContentAlignment="Center"/>
                     <TextBox Grid.Column="1" Grid.Row="4" x:Name="tbKommentar" Margin="0 2 0 0" Height="30" VerticalContentAlignment="Center"/>
                     
+                    <!--
                     <window:WindowsFormsHost Grid.Column="1" Grid.Row="5">
                     <wf:DateTimePicker  x:Name="dpStart" Format="Custom" CustomFormat="dd.MM.yyy HH:mm"/>
                     </window:WindowsFormsHost>
                     <window:WindowsFormsHost Grid.Column="1" Grid.Row="6">
                         <wf:DateTimePicker  x:Name="dpEnd" Format="Custom" CustomFormat="dd.MM.yyy HH:mm"/>
                     </window:WindowsFormsHost>
+                    -->
+                    <DatePicker Grid.Column="1" Grid.Row="5" x:Name="dpStart"></DatePicker>
+                    <DatePicker Grid.Column="1" Grid.Row="6" x:Name="dpEnd"></DatePicker>
+
                     <Button Grid.Column="1" Grid.Row="7"  x:Name="btnSearch" Content="suchen" Click="BtnSearch_Click" Margin="0 2 0 0"/>
                     
                     <!--
