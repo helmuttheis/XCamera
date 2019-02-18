@@ -264,8 +264,10 @@ namespace XCamera
                     BildInfo bi = tmpProject.GetBildInfo(bild.Name, DateTime.Now);
 
                     string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(bi);
-                    ProjectUtil.SendJson(szProjectName, szJson);
-                    tmpProject.SetStatus(bild.ID, STATUS.NONE);
+                    if(ProjectUtil.SendJson(szProjectName, szJson)) {
+                        tmpProject.SetStatus(bild.ID, STATUS.NONE);
+                    }
+                    
                 }
                 cb("");
 

@@ -169,11 +169,12 @@ namespace XCamera.Util
                     HttpContent httpContent = new StringContent(szJson);
                     response = await httpClient.PostAsync(szServer + "?project=" + szProjectName + "&json=true", httpContent);
                 }).Wait();
-
+                bRet = true;
             }
             catch (Exception ex)
             {
                 Logging.AddError("SendJson " + ex.ToString());
+                bRet = false;
             }
 
             return bRet;
