@@ -54,7 +54,7 @@ namespace XCamera
                 if(deletedFiles.Count > 0)
                 {
                     Overlay overlay = new Overlay(grdOverlay);
-                    overlay.ShowQuestion("Es gibt " + deletedFiles.Count + " Projekte,die zum Löschen vorgemerkt sind." + Environment.NewLine +
+                    overlay.ShowQuestion("Es gibt " + deletedFiles.Count + " Projekte, die zum Löschen vorgemerkt sind." + Environment.NewLine +
                         " Sollen die jetzt gelöscht werden?", () =>
                     {
                         foreach(var deleted in deletedFiles)
@@ -271,7 +271,7 @@ namespace XCamera
                         string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(bi);
                         if (await ProjectUtil.SendJsonAsync(szProjectName, szJson))
                         {
-                            tmpProject.SetStatus(bild.ID, STATUS.NONE);
+                            tmpProject.ClearStatus(bild.ID, STATUS.CHANGED);
                         }
 
                     }

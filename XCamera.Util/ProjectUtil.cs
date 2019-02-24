@@ -170,6 +170,10 @@ namespace XCamera.Util
                 byteArr = File.ReadAllBytes(szSourceFile);
                 HttpContent httpContent = new ByteArrayContent(byteArr);
                 response = await httpClient.PostAsync(szServer + "?project=" + szProjectName + "&file=" + szFileName, httpContent);
+                if( response.StatusCode == HttpStatusCode.OK)
+                {
+                    bRet = true;
+                }
 
             }
             catch (Exception ex)

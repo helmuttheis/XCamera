@@ -120,7 +120,7 @@ namespace XCameraManager
 
 
         }
-        private void LoadProjects()
+        public void LoadProjects()
         {
               var projekte = ProjectUtil.GetProjectList();
               cmbProjects.Items.Clear();
@@ -406,6 +406,7 @@ namespace XCameraManager
             {
                 Process.Start(projectSql.szProjectPath);
             }
+            LoadProjects();
         }
         
         private void dpStart_SelectedDateChanged(object sender, RoutedEventArgs e)
@@ -466,7 +467,7 @@ namespace XCameraManager
             // 
            ConnectWindow connectWindow = new ConnectWindow();
            connectWindow.ShowDialog();
-           
+            ((MainWindow)Application.Current.MainWindow).LoadProjects();
         }
     }
     public class ApplicationPatchCommand : ICommand
