@@ -157,6 +157,28 @@ namespace XCamera.Util
 
             return bRet;
         }
+        public static async Task<Boolean> SendFileAsync(string szProjectName, string szFileName)
+        {
+            Boolean bRet = false;
+            byte[] byteArr = null;
+            HttpResponseMessage response = null;
+
+            try
+            {
+                string szSourceFile = Path.Combine(ProjectPath(szProjectName), szFileName);
+
+                byteArr = File.ReadAllBytes(szSourceFile);
+                HttpContent httpContent = new ByteArrayContent(byteArr);
+                response = await httpClient.PostAsync(szServer + "?project=" + szProjectName + "&file=" + szFileName, httpContent);
+
+            }
+            catch (Exception ex)
+            {
+                Logging.AddError("SendFile " + ex.ToString());
+            }
+
+            return bRet;
+        }
         public static Boolean SendJson(string szProjectName, string szJson)
         {
             Boolean bRet = false;
@@ -169,6 +191,25 @@ namespace XCamera.Util
                     HttpContent httpContent = new StringContent(szJson);
                     response = await httpClient.PostAsync(szServer + "?project=" + szProjectName + "&json=true", httpContent);
                 }).Wait();
+                bRet = true;
+            }
+            catch (Exception ex)
+            {
+                Logging.AddError("SendJson " + ex.ToString());
+                bRet = false;
+            }
+
+            return bRet;
+        }
+        public static async Task<Boolean> SendJsonAsync(string szProjectName, string szJson)
+        {
+            Boolean bRet = false;
+            HttpResponseMessage response = null;
+
+            try
+            {
+                HttpContent httpContent = new StringContent(szJson);
+                response = await httpClient.PostAsync(szServer + "?project=" + szProjectName + "&json=true", httpContent);
                 bRet = true;
             }
             catch (Exception ex)
