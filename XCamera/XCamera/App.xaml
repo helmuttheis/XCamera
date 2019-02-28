@@ -13,6 +13,9 @@
             <Style TargetType="Entry">
                 <Setter Property="WidthRequest" Value="200"/>
             </Style>
+            <Style TargetType="Label">
+                <Setter Property="VerticalTextAlignment" Value="Center"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

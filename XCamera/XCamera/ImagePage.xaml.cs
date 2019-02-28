@@ -46,9 +46,10 @@ namespace XCamera
                             fileStream.CopyTo(memoryStream);
                         }
                         memoryStream.Position = 0;
-
+                        BildInfo bildInfo = mainPage.curProjectSql.GetBildInfo(szFullImageName, DateTime.Now);
                         images.Add(new ImageViewModel
                         {
+                            BildInfo = mainPage.curProjectSql.GetBildInfo(szImageName, DateTime.Now),
                             Comment = mainPage.curProjectSql.GetKommentar(szImageName),
                             ImageSource = ImageSource.FromStream(() => memoryStream),
                             ImageName = szImageName
@@ -95,6 +96,7 @@ namespace XCamera
 
     public class ImageViewModel
     {
+        public BildInfo BildInfo { get; set; }
         public string Comment { get; set; }
         public string ImageName { get; set; }
         public ImageSource ImageSource { get; set; }
