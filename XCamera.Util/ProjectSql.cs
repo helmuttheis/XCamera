@@ -324,6 +324,8 @@ namespace XCamera.Util
         }
         public Boolean HasDeleted()
         {
+            string szSql = "select Count(*) from BILD where status & 1";
+            int iCnt = database.ExecuteScalar<int>(szSql);
             return false;
         }
         public void ClearDeleted()
@@ -371,6 +373,16 @@ namespace XCamera.Util
             if (bild != null)
             {
                 bild.Status = (int)bsSet;
+                database.Update(bild);
+
+            }
+        }
+        public void ClearStatus(int bildID, STATUS bsSet)
+        {
+            Bild bild = GetBild(bildID);
+            if (bild != null)
+            {
+                bild.Status &= ~(int)bsSet;
                 database.Update(bild);
 
             }
@@ -782,10 +794,13 @@ namespace XCamera.Util
             {
                 szWhere = " where ";
             }
+            string szAnd = "";
+            // we exclude the deleted images at the end, so we need always the where clause
+            szWhere = " where ";
+
             if ( !string.IsNullOrEmpty(szWhere))
             {
                 szSql += szWhere;
-                string szAnd = "";
                 if (dtStart != null)
                 {
                     szSql += szAnd + " BILD.CaptureDate >= '" + dtStart?.ToString("yyyy-MM-dd") + "'";
@@ -816,7 +831,11 @@ namespace XCamera.Util
                     szSql += szAnd + " BILD_ZIMMER.ZimmerID = " + zimmerId.ToString();
                     szAnd = " and ";
                 }
+                // exclude the deleted images
+                szSql += szAnd + " not status & 1";
+                szAnd = " and ";
             }
+
             szSql += " ORDER BY BILD.CaptureDate DESC";
             return database.Query<Bild>(szSql);
         }

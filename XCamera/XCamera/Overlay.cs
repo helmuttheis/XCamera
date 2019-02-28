@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 using XCamera.Util;
 
@@ -57,6 +58,14 @@ namespace XCamera
             };
             ((ContentView)grdOverlay.Parent).IsVisible = true;
 
+        }
+        public void ShowRunMessage(string szMessage)
+        {
+            Reset();
+
+            AddLabel(szMessage);
+            ((ContentView)grdOverlay.Parent).IsVisible = true;
+            Task.Delay(199).Wait();
         }
         // public static void ShowWait(ContentView overlay, Grid grdOverlay,string szMessage)
         // {

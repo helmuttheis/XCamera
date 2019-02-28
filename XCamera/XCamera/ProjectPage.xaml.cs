@@ -54,7 +54,7 @@ namespace XCamera
                 if(deletedFiles.Count > 0)
                 {
                     Overlay overlay = new Overlay(grdOverlay);
-                    overlay.ShowQuestion("Es gibt " + deletedFiles.Count + " Projekte,die zum Löschen vorgemerkt sind." + Environment.NewLine +
+                    overlay.ShowQuestion("Es gibt " + deletedFiles.Count + " Projekte, die zum Löschen vorgemerkt sind." + Environment.NewLine +
                         " Sollen die jetzt gelöscht werden?", () =>
                     {
                         foreach(var deleted in deletedFiles)
@@ -239,7 +239,7 @@ namespace XCamera
             }
         }
         // private void DownloadProject
-        private void SendProject(string szProjectName, Action<string> cb)
+        private async Task SendProject(string szProjectName, Action<Boolean,string> cb)
         {
             if (projects.Any(proj => { return proj.Equals(szProjectName); }))
             {
@@ -248,28 +248,40 @@ namespace XCamera
 
                 ProjectSql tmpProject = new ProjectSql(szProjectName);
                 List<Bild> bilder =  tmpProject.GetBilderChanged();
-
+                Boolean bError = false;
                 // send all changed images
                 foreach (var bild in bilder)
                 {
-                    cb("send " + bild.Name);
-                    ProjectUtil.SendFile(szProjectName, Path.GetFileName(bild.Name));
-
-                }
-                // send all changed data
-                foreach (var bild in bilder)
-                {
-                    cb("send changed data for " + bild.Name);
-
-                    BildInfo bi = tmpProject.GetBildInfo(bild.Name, DateTime.Now);
-
-                    string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(bi);
-                    if(ProjectUtil.SendJson(szProjectName, szJson)) {
-                        tmpProject.SetStatus(bild.ID, STATUS.NONE);
+                    cb(false,"send " + bild.Name);
+                    bError = ! await ProjectUtil.SendFileAsync(szProjectName, Path.GetFileName(bild.Name));
+                    if( bError)
+                    {
+                        break;
                     }
-                    
                 }
-                cb("");
+                if (!bError)
+                {
+                    // send all changed data
+                    foreach (var bild in bilder)
+                    {
+                        cb(false, "send changed data for " + bild.Name);
+
+                        BildInfo bi = tmpProject.GetBildInfo(bild.Name, DateTime.Now);
+
+                        string szJson = Newtonsoft.Json.JsonConvert.SerializeObject(bi);
+                        if (await ProjectUtil.SendJsonAsync(szProjectName, szJson))
+                        {
+                            tmpProject.ClearStatus(bild.ID, STATUS.CHANGED);
+                        }
+
+                    }
+                }
+                string szMessage = "";
+                if( bError)
+                {
+                    szMessage = "Es gab einen internen Fehler.";
+                }
+                cb(true, szMessage);
 
             }
         }
@@ -320,7 +332,7 @@ namespace XCamera
             }
         }
 
-        private void BtnSend_Clicked(object sender, EventArgs e)
+        private async void BtnSend_Clicked(object sender, EventArgs e)
         {
             if (bIsRemote)
             {
@@ -330,7 +342,18 @@ namespace XCamera
             {
                 string szProject = (sender as Button).CommandParameter.ToString();
 
-                SendProject(szProject, SetStatusLine);
+                Overlay overlay = new Overlay(grdOverlay);
+                overlay.ShowRunMessage("Versuche das Projekt an den Server " + Config.current.szIP + " zu senden ...");
+
+                await SendProject(szProject,(bFinished, szStr) => {
+                    if (bFinished)
+                    {
+                        Device.BeginInvokeOnMainThread(() => {
+                            overlay.Close();
+                        });
+                    }
+                    SetStatusLine(szStr);
+                });
             }
         }
         private void SetStatusLine(string szMessage)
