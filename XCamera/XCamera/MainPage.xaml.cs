@@ -89,6 +89,20 @@ namespace XCamera
 
                         File.Copy(curPhoto.Path, szFullImageName);
 
+                        string szDelPath = Path.GetDirectoryName(curPhoto.Path);
+                        string[] files = Directory.GetFiles(szDelPath, "*.*");
+                        try
+                        {
+                            foreach(var file in files)
+                            {
+                                File.Delete(file);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            
+                        }
+
                         var memoryStream = new MemoryStream();
 
                         using (var fileStream = new FileStream(szFullImageName, FileMode.Open, FileAccess.Read))

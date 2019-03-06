@@ -31,6 +31,7 @@ namespace XCamera
             "XCamera.Resources.styles.css"));
 
             string szTemp = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+
             Logging.szLogFile = System.IO.Path.Combine(szTemp, "XCamera.log");
             XCamera.Util.Config.szConfigFile = System.IO.Path.Combine(szTemp,  "XCamera.xml");
             ProjectUtil.szBasePath = szTemp;

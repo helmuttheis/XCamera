@@ -181,6 +181,10 @@ namespace XCamera.Util
         {
             return Path.Combine(szProjectPath, szImage);
         }
+        public string GetImageFullThumbName(string szImage)
+        {
+            return Path.Combine(szProjectPath, "thumb_" +Path.GetFileName(szImage));
+        }
 
         public void DeleteImage(string szImageName)
         {

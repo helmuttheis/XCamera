@@ -35,10 +35,11 @@ namespace XCamera
                 if (!string.IsNullOrEmpty(bild.Name))
                 {
                     string szImageName = bild.Name;
-                    string szFullImageName = mainPage.curProjectSql.GetImageFullName(szImageName);
-
-                    if (File.Exists(szFullImageName))
+                    string szFullThumbName = mainPage.curProjectSql.GetImageFullThumbName(szImageName);
+                    
+                    if ( !File.Exists(szFullThumbName))
                     {
+                        string szFullImageName = mainPage.curProjectSql.GetImageFullName(szImageName);
                         var memoryStream = new MemoryStream();
 
                         using (var fileStream = new FileStream(szFullImageName, FileMode.Open, FileAccess.Read))
@@ -46,6 +47,27 @@ namespace XCamera
                             fileStream.CopyTo(memoryStream);
                         }
                         memoryStream.Position = 0;
+                        Task.Run(async () =>
+                        {
+                            Byte[] bytes = await Global.resizeImage.ResizeImage(memoryStream.GetBuffer(), 256f, 256f);
+                            using (var fileStream = new FileStream(szFullThumbName, FileMode.Create, FileAccess.Write))
+                            {
+                                fileStream.Write(bytes, 0, bytes.Length);
+                            }
+                        }).Wait();
+                    }
+
+                    if (File.Exists(szFullThumbName))
+                    {
+                        var memoryStream = new MemoryStream();
+
+                        using (var fileStream = new FileStream(szFullThumbName, FileMode.Open, FileAccess.Read))
+                        {
+                            fileStream.CopyTo(memoryStream);
+                        }
+                        memoryStream.Position = 0;
+
+                        string szFullImageName = mainPage.curProjectSql.GetImageFullName(szImageName);
                         BildInfo bildInfo = mainPage.curProjectSql.GetBildInfo(szFullImageName, DateTime.Now);
                         images.Add(new ImageViewModel
                         {

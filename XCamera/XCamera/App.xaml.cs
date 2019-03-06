@@ -7,8 +7,9 @@ namespace XCamera
 {
     public partial class App : Application
     {
-        public App()
+        public App(IResizeImage resizeImage)
         {
+            Global.resizeImage = resizeImage;
             InitializeComponent();
             MainPage = new NavigationPage( new ProjectPage());
         }

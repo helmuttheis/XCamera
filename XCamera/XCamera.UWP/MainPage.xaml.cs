@@ -21,7 +21,7 @@ namespace XCamera.UWP
         {
             this.InitializeComponent();
             FFImageLoading.Forms.Platform.CachedImageRenderer.Init();
-            LoadApplication(new XCamera.App());
+            LoadApplication(new XCamera.App( new ResizeImageUWP()));
         }
     }
 }
