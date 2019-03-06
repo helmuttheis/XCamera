@@ -16,15 +16,18 @@ namespace XCamera.Droid
 {
     public class ResizeImageDroid: IResizeImage
     {
-        public async Task<byte[]> ResizeImage(byte[] imageData, float width, float height)
+        public async Task<byte[]> ResizeImage(byte[] imageData, int scale)
         {
             await Task.Delay(10);
-            return ResizeImageAndroid(imageData, width, height);
+            return ResizeImageAndroid(imageData, scale);
         }
-        public byte[] ResizeImageAndroid(byte[] imageData, float width, float height)
+        public byte[] ResizeImageAndroid(byte[] imageData, int scale)
         {
             // Load the bitmap
             Bitmap originalImage = BitmapFactory.DecodeByteArray(imageData, 0, imageData.Length);
+
+            int width = (int)(originalImage.Width / scale);
+            int height = (int)(originalImage.Height / scale);
             Bitmap resizedImage = Bitmap.CreateScaledBitmap(originalImage, (int)width, (int)height, false);
 
             using (MemoryStream ms = new MemoryStream())

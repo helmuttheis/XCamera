@@ -12,15 +12,16 @@ namespace XCamera.iOS
 {
     public class ResizeImageIOS: IResizeImage
     {
-        public async Task<byte[]> ResizeImage(byte[] imageData, float width, float height)
+        public async Task<byte[]> ResizeImage(byte[] imageData, int scale)
         {
-            return IntResizeImageIOS(imageData, width, height);
+            return IntResizeImageIOS(imageData, scale);
         }
-        public  byte[] IntResizeImageIOS(byte[] imageData, float width, float height)
+        public  byte[] IntResizeImageIOS(byte[] imageData, int scale)
         {
             UIImage originalImage = ImageFromByteArray(imageData);
             UIImageOrientation orientation = originalImage.Orientation;
-
+            int width = (int)(originalImage.CGImage.Width / scale);
+            int height = (int)(originalImage.CGImage.Height / scale);
             //create a 24bit RGB image
             using (CGBitmapContext context = new CGBitmapContext(IntPtr.Zero,
                                                  (int)width, (int)height, 8,

@@ -49,7 +49,7 @@ namespace XCamera
                         memoryStream.Position = 0;
                         Task.Run(async () =>
                         {
-                            Byte[] bytes = await Global.resizeImage.ResizeImage(memoryStream.GetBuffer(), 256f, 256f);
+                            Byte[] bytes = await Global.resizeImage.ResizeImage(memoryStream.GetBuffer(), 10);
                             using (var fileStream = new FileStream(szFullThumbName, FileMode.Create, FileAccess.Write))
                             {
                                 fileStream.Write(bytes, 0, bytes.Length);

@@ -12,6 +12,6 @@ namespace XCamera
     }
     public interface IResizeImage
     {
-        Task<byte[]> ResizeImage(byte[] imageData, float width, float height);
+        Task<byte[]> ResizeImage(byte[] imageData, int scale);
     }
 }

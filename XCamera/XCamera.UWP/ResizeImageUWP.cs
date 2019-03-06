@@ -9,12 +9,12 @@ namespace XCamera.UWP
 {
     public class ResizeImageUWP:IResizeImage
     {
-        public async Task<byte[]> ResizeImage(byte[] imageData, float width, float height)
+        public async Task<byte[]> ResizeImage(byte[] imageData, int scale)
         {
-            return await ResizeImageWindows(imageData, width, height);
+            return await ResizeImageWindows(imageData, scale);
         }
         
-        public async Task<byte[]> ResizeImageWindows(byte[] imageData, float width, float height)
+        public async Task<byte[]> ResizeImageWindows(byte[] imageData, int scale)
         {
             byte[] resizedData;
 
@@ -26,8 +26,9 @@ namespace XCamera.UWP
                     var resizedStream = new InMemoryRandomAccessStream();
                     var encoder = await BitmapEncoder.CreateForTranscodingAsync(resizedStream, decoder);
                     encoder.BitmapTransform.InterpolationMode = BitmapInterpolationMode.Linear;
-                    encoder.BitmapTransform.ScaledHeight = (uint)height;
-                    encoder.BitmapTransform.ScaledWidth = (uint)width;
+                    
+                    encoder.BitmapTransform.ScaledHeight = (uint)(decoder.OrientedPixelHeight / scale);
+                    encoder.BitmapTransform.ScaledWidth = (uint)(decoder.OrientedPixelWidth / scale);
                     await encoder.FlushAsync();
                     resizedStream.Seek(0);
                     resizedData = new byte[resizedStream.Size];
