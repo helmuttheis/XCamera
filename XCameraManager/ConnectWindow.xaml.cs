@@ -58,14 +58,21 @@ namespace XCameraManager
         private void BtnConnect_Click(object sender, RoutedEventArgs e)
         {
             string szIP = cmbIP.SelectedValue.ToString();
-            
-            webServer = new WebServer(SendResponse, "http://" + szIP + ":" + tbPort.Text.Trim() + "/xcamera/");
-            webServer.Run();
-            XCamera.Util.Config.current.szIP = szIP;
-            XCamera.Util.Config.current.szPort = tbPort.Text.Trim();
-            btnDisconnect.IsEnabled = true;
-            btnConnect.IsEnabled = false;
-            ShowInfo("Server wurde erfolgreich gestartet.");
+            try
+            {
+                webServer = new WebServer(SendResponse, "http://" + szIP + ":" + tbPort.Text.Trim() + "/xcamera/");
+                webServer.Run();
+                XCamera.Util.Config.current.szIP = szIP;
+                XCamera.Util.Config.current.szPort = tbPort.Text.Trim();
+                btnDisconnect.IsEnabled = true;
+                btnConnect.IsEnabled = false;
+                ShowInfo("Server wurde erfolgreich gestartet.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Server wurde nicht gestartet: " + ex.ToString());
+                ShowInfo("Server wurde nicht gestartet: " + ex.ToString());
+            }
 
         }
         public  wsResponse SendResponse(HttpListenerRequest request)

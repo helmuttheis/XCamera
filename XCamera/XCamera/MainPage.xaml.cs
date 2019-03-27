@@ -15,6 +15,12 @@ namespace XCamera
 {
     public partial class MainPage : ContentPage
     {
+        private const string ID_GEBAEUDE = "ID_GEBAEUDE";
+        private const string ID_ETAGE = "ID_ETAGE";
+        private const string ID_WOHNUNG = "ID_WOHNUNG";
+        private const string ID_ZIMMER = "ID_ZIMMER";
+        private const string ID_KOMMENTAR = "ID_KOMMENTAR";
+
         // public string szFullImageName { get; set; }
         public string szImageName { get; set; }
         public Boolean bShowMetadata { get; set; } = false;
@@ -155,7 +161,7 @@ namespace XCamera
                 List<Gebaeude> gebaeudeListe = curProjectSql.GetGebaeudeListe();
                 overlay.Reset();
                 grdOverlay.Children.Clear();
-                Picker pGebaeude = overlay.AddPicker(overlay.iRow.ToString(), "Gebäude", true, (picker, szEntry) => {
+                Picker pGebaeude = overlay.AddPicker(overlay.iRow.ToString(), "Gebäude", ID_GEBAEUDE, true, (picker, szEntry) => {
                     Gebaeude newGebaeude = curProjectSql.EnsureGebaeude(szEntry);
                     if (!gebaeudeListe.Any(g => g.ID == newGebaeude.ID))
                     {
@@ -170,7 +176,7 @@ namespace XCamera
                 pGebaeude.SelectedItem = gebaeudeListe.Find(x => x.ID == bi.GebaeudeId);
 
                 List<Etage> etageListe = curProjectSql.GetEtagenListe();
-                Picker pEtage = overlay.AddPicker(overlay.iRow.ToString(), "Etage", true, (picker, szEntry) => {
+                Picker pEtage = overlay.AddPicker(overlay.iRow.ToString(), "Etage",ID_ETAGE, true, (picker, szEntry) => {
                     Etage newEtage = curProjectSql.EnsureEtage(szEntry);
                     if (!etageListe.Any(g => g.ID == newEtage.ID))
                     {
@@ -185,7 +191,7 @@ namespace XCamera
                 pEtage.SelectedItem = etageListe.Find(x => x.ID == bi.EtageId);
 
                 List<Wohnung> wohnungListe = curProjectSql.GetWohnungListe();
-                Picker pWohnung = overlay.AddPicker(overlay.iRow.ToString(), "Wohnung", true, (picker, szEntry) => {
+                Picker pWohnung = overlay.AddPicker(overlay.iRow.ToString(), "Wohnung",ID_WOHNUNG,  true, (picker, szEntry) => {
                     Wohnung newWohnung = curProjectSql.EnsureWohnung(szEntry);
                     if (!wohnungListe.Any(g => g.ID == newWohnung.ID))
                     {
@@ -200,7 +206,7 @@ namespace XCamera
                 pWohnung.SelectedItem = wohnungListe.Find(x => x.ID == bi.WohnungId);
 
                 List<Zimmer> zimmerListe = curProjectSql.GetZimmerListe();
-                Picker pZimmer = overlay.AddPicker(overlay.iRow.ToString(), "Zimmer", true, (picker, szEntry) => {
+                Picker pZimmer = overlay.AddPicker(overlay.iRow.ToString(), "Zimmer",ID_ZIMMER, true, (picker, szEntry) => {
                     Zimmer newZimmer = curProjectSql.EnsureZimmer(szEntry);
                     if (!zimmerListe.Any(g => g.ID == newZimmer.ID))
                     {
@@ -214,7 +220,7 @@ namespace XCamera
                 pZimmer.ItemDisplayBinding = new Binding("Bezeichnung");
                 pZimmer.SelectedItem = zimmerListe.Find(x => x.ID == bi.ZimmerId);
 
-                kommentarEntry = overlay.AddInput("", "", bi.KommentarBezeichnung);
+                kommentarEntry = overlay.AddInput("", "", bi.KommentarBezeichnung,"COMMENT");
                 var submitButton = overlay.AddButton("speichern");
                 submitButton.Clicked += (senderx, e2) =>
                 {
@@ -222,6 +228,35 @@ namespace XCamera
                     var selEtage = pEtage.SelectedItem as Etage;
                     var selWohnung = pWohnung.SelectedItem as Wohnung;
                     var selZimmer = pZimmer.SelectedItem as Zimmer;
+
+                    foreach(var child in grdOverlay.Children)
+                    {
+                        Entry entry = child as Entry;
+                        if( entry != null && entry.IsVisible )
+                        {
+                            if (entry.StyleId.Equals(ID_GEBAEUDE) &&  selGebaeude == null)
+                            {
+                                ((IEntryController)entry).SendCompleted();
+                                selGebaeude = pGebaeude.SelectedItem as Gebaeude;
+                            }
+                            else if (entry.StyleId.Equals(ID_ETAGE) && selEtage == null)
+                            {
+                                ((IEntryController)entry).SendCompleted();
+                                selEtage = pEtage.SelectedItem as Etage;
+                            }
+                            else if (entry.StyleId.Equals(ID_WOHNUNG) && selWohnung == null)
+                            {
+                                ((IEntryController)entry).SendCompleted();
+                                selWohnung = pWohnung.SelectedItem as Wohnung;
+                            }
+                            else if (entry.StyleId.Equals(ID_ZIMMER) && selZimmer == null)
+                            {
+                                ((IEntryController)entry).SendCompleted();
+                                selZimmer = pZimmer.SelectedItem as Zimmer;
+                            }
+                        }
+                    }
+
 
                     curProjectSql.SetGebaeude(bi.BildId, selGebaeude != null ? selGebaeude.ID : -1);
                     curProjectSql.SetEtage(bi.BildId, selEtage != null ? selEtage.ID : -1);

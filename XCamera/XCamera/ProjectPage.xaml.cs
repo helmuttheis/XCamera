@@ -21,7 +21,10 @@ namespace XCamera
         private List<string> projects;
         private List<string> remoteProjects;
 
-
+        private const string ID_IP = "ID_IP";
+        private const string ID_URL = "ID_URL";
+        private const string ID_NAME = "ID_NAME";
+        
         private Boolean bFirstRun = true;
         public ProjectPage ()
 		{
@@ -119,8 +122,8 @@ namespace XCamera
             }
             Overlay overlay = new Overlay(grdOverlay);
             overlay.Reset();
-            Entry entryServer = overlay.AddInput("IP Adresse", "Url", Config.current.szIP);
-            Entry entryPort = overlay.AddInput("Port", "Port",Config.current.szPort);
+            Entry entryServer = overlay.AddInput("IP Adresse", "Url", Config.current.szIP, ID_IP);
+            Entry entryPort = overlay.AddInput("Port", "Port",Config.current.szPort, ID_URL);
             var submitButton = overlay.AddButton("verbinden");
             overlay.AddRowDefinitions();
             overlay.AddCancelX();
@@ -181,7 +184,7 @@ namespace XCamera
         {
             Overlay overlay = new Overlay(grdOverlay);
             overlay.Reset();
-            Entry entryProject = overlay.AddInput("Projekt", "Name", "");
+            Entry entryProject = overlay.AddInput("Projekt", "Name", "",ID_NAME);
             var submitButton = overlay.AddButton( "anlegen");
             overlay.AddRowDefinitions();
             overlay.AddCancelX();

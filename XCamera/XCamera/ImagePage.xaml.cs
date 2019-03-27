@@ -67,8 +67,7 @@ namespace XCamera
                         }
                         memoryStream.Position = 0;
 
-                        string szFullImageName = mainPage.curProjectSql.GetImageFullName(szImageName);
-                        BildInfo bildInfo = mainPage.curProjectSql.GetBildInfo(szFullImageName, DateTime.Now);
+                        // string szFullImageName = mainPage.curProjectSql.GetImageFullName(szImageName);
                         images.Add(new ImageViewModel
                         {
                             BildInfo = mainPage.curProjectSql.GetBildInfo(szImageName, DateTime.Now),

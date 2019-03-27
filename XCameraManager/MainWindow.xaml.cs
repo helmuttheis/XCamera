@@ -386,9 +386,25 @@ namespace XCameraManager
                 lblWohnung.Content = bi.WohnungBezeichnung;
                 lblZimmer.Content = bi.ZimmerBezeichnung;
                 lblKommentar.Content = bi.KommentarBezeichnung;
+
+                
              }
         }
+        public void Publish()
+        {
+            PublishWindow pw = new PublishWindow();
 
+            pw.AddTitle(projectSql.szProjectName);
+            foreach(var bild in lvBilder.Items)
+            {
+                BildMitKommentar bmk = bild as BildMitKommentar;
+                if( bmk != null)
+                {
+                    pw.AddBild(bmk.Kommentar,  projectSql.GetImageFullName(bmk.BildName));
+                }
+            }
+            pw.Show();
+        }
         private void CmbProjects_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
              string szProjectName = cmbProjects.SelectedItem as string;
@@ -470,6 +486,25 @@ namespace XCameraManager
             ((MainWindow)Application.Current.MainWindow).LoadProjects();
         }
     }
+    public class ApplicationPublishCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged
+        {
+            // You may not need a body here at all...
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return Application.Current != null && Application.Current.MainWindow != null;
+        }
+
+        public void Execute(object parameter)
+        {
+            ((MainWindow)Application.Current.MainWindow).Publish();
+        }
+    }
     public class ApplicationPatchCommand : ICommand
     {
         public event EventHandler CanExecuteChanged
@@ -503,6 +538,12 @@ namespace XCameraManager
 
     public static class MyCommands
     {
+        private static readonly ICommand appPublishCmd = new ApplicationPublishCommand();
+        public static ICommand ApplicationPublishCommand
+        {
+            get { return appPublishCmd; }
+        }
+
         private static readonly ICommand appCloseCmd = new ApplicationCloseCommand();
         public static ICommand ApplicationCloseCommand
         {

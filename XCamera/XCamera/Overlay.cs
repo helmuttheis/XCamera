@@ -88,10 +88,10 @@ namespace XCamera
                 grdOverlay.RowDefinitions.Add(rd);
             }
         }
-        public Entry AddInput(string szLabel, string szPlaceholder, string szDefaultValue)
+        public Entry AddInput(string szLabel, string szPlaceholder, string szDefaultValue, string szEntryId)
         {
             var label = new Label { Text = szLabel };
-            var entry = new Entry { Placeholder = szPlaceholder };
+            var entry = new Entry { Placeholder = szPlaceholder, StyleId = szEntryId };
             if (!string.IsNullOrWhiteSpace(szDefaultValue))
             {
                 entry.Text = szDefaultValue;
@@ -103,16 +103,17 @@ namespace XCamera
             return entry;
         }
         
-        public Picker AddPicker(string szId, string szLabel, Boolean bEditable=false, Action<Picker,string> addItem =null)
+        public Picker AddPicker(string szId, string szLabel, string szEntryId, Boolean bEditable=false, Action<Picker,string> addItem =null)
         {
             var label = new Label { Text = szLabel };
             var picker = new Picker {  };
             var entry = new Entry
             {
-                IsVisible = false
+                IsVisible = false,
+                StyleId = szEntryId
             };
             var button = new Button { Text = "+", IsVisible = bEditable };
-
+           
             entry.Completed += (sender, e) => {
                 entry.IsVisible = false;
                 picker.IsVisible = true;
