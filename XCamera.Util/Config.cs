@@ -105,6 +105,25 @@ namespace XCamera.Util
                 Save();
             }
         }
+        public string szWordTemplate
+        {
+            get
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "wordtemplate");
+                string szTemplate = oneNode.InnerText.Trim();
+                if (!Path.IsPathRooted(szTemplate))
+                {
+                    szTemplate = Path.Combine(Path.GetDirectoryName(szConfigFile), szTemplate);
+                }
+                return szTemplate;
+            }
+            set
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "wordtemplate");
+                oneNode.InnerText = value;
+                Save();
+            }
+        }
         public void SetProjectStatus(string szProjectName,STATUS status)
         {
             XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "status","project",szProjectName);

@@ -11,6 +11,7 @@ using System.Windows.Media.Imaging;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using XCamera.Util;
 using A = DocumentFormat.OpenXml.Drawing;
 using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
@@ -96,25 +97,33 @@ namespace XCameraManager
         }
         public static void FillTable(string fileName, string szTitle, Dictionary<string, BildMitKommentar> dictBilder)
         {
-            File.Copy(@"d:\tmp\XCamera\template.docx", fileName, true);
-            using (WordprocessingDocument wordDocument
-                = WordprocessingDocument.Open(fileName, true))
+            try
             {
-                MainDocumentPart mainPart = wordDocument.MainDocumentPart;
-                var para = mainPart.Document.Descendants<Paragraph>().FirstOrDefault();
-                if( para != null)
+                File.Copy(Config.current.szWordTemplate, fileName, true);
+                using (WordprocessingDocument wordDocument
+                    = WordprocessingDocument.Open(fileName, true))
                 {
-                    var text = para.Descendants<Text>().FirstOrDefault();
-                    text.Text = szTitle;
-                }
+                    MainDocumentPart mainPart = wordDocument.MainDocumentPart;
+                    var para = mainPart.Document.Descendants<Paragraph>().FirstOrDefault();
+                    if (para != null)
+                    {
+                        var text = para.Descendants<Text>().FirstOrDefault();
+                        text.Text = szTitle;
+                    }
 
-                var table = mainPart.Document.Descendants<Table>().FirstOrDefault();
-                if (table != null)
-                {
-                    AddInTable(mainPart, table, dictBilder);
+                    var table = mainPart.Document.Descendants<Table>().FirstOrDefault();
+                    if (table != null)
+                    {
+                        AddInTable(mainPart, table, dictBilder);
+                    }
+                    wordDocument.Save();
                 }
-                wordDocument.Save();
             }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
         }
         private static void AddInTable(MainDocumentPart mainPart,Table table, Dictionary<string, BildMitKommentar> dictBilder)
         {
