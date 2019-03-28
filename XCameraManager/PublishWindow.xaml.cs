@@ -25,7 +25,7 @@ namespace XCameraManager
         private Table table;
 
         private string szTitel;
-        private Dictionary<string, string> dictBilder;
+        private Dictionary<string, BildMitKommentar> dictBilder;
 
         public PublishWindow()
         {
@@ -33,7 +33,7 @@ namespace XCameraManager
             doc = new FlowDocument();
 
             fdViewer.Document = doc;
-            dictBilder = new Dictionary<string, string>();
+            dictBilder = new Dictionary<string, BildMitKommentar>();
 
         }
         public void AddTitle(string szTitle)
@@ -62,12 +62,13 @@ namespace XCameraManager
             table.RowGroups[0].Rows.Add(new TableRow());
 
         }
-        public void AddBild(string szTitle, string szFilename)
+        public void AddBild(string szFilename, BildMitKommentar bmk)
         {
             if (!dictBilder.ContainsKey(szFilename))
             {
-                dictBilder.Add(szFilename, szTitle);
+                dictBilder.Add(szFilename, bmk);
             }
+#if false
             table.RowGroups[0].Rows.Add(new TableRow());
 
             // Alias the current working row for easy reference.
@@ -101,6 +102,7 @@ namespace XCameraManager
             bc.Child = sp;
             currentRow.Cells.Add(new TableCell(bc));
             currentRow.Cells.Add(new TableCell(new Paragraph(new Run(szFilename))));
+#endif
         }
         public BitmapImage ConvertByteArrayToBitMapImage(byte[] imageByteArray)
         {
@@ -119,6 +121,10 @@ namespace XCameraManager
 
         public void Save(string szFileName, string dataFormat)
         {
+            if(dataFormat.Equals("docx",StringComparison.InvariantCultureIgnoreCase))
+            {
+                Docx.CreateTable(szFileName, this.szTitel, dictBilder);
+            }
         }
 
         public void SaveHtml(string szFileName, string dataFormat)
@@ -176,8 +182,9 @@ namespace XCameraManager
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
             
             // Set filter for file extension and default file extension 
-            dlg.DefaultExt = ".html";
-            dlg.Filter = "HTML (*.html)|*.html|Word (*.rtf)|*.rtf|XAML (*.xaml)|*.xaml";
+            dlg.DefaultExt = ".docx";
+            dlg.AddExtension = true;
+            dlg.Filter = "Word (*.docx)|*.docx|HTML(*.html) | *.html | Word (*.rtf)|*.rtf|XAML (*.xaml)|*.xaml";
             
             // Display OpenFileDialog by calling ShowDialog method 
             Nullable<bool> result = dlg.ShowDialog();
@@ -199,6 +206,10 @@ namespace XCameraManager
                 {
                     szDataformat = DataFormats.Xaml;
                 }
+                else if (szExt.Equals(".docx", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    szDataformat = "Docx";
+                }
                 if (!string.IsNullOrWhiteSpace(szDataformat))
                 {
                     Save(dlg.FileName,szDataformat);
@@ -213,5 +224,8 @@ namespace XCameraManager
          //      pd.PrintDocument((((IDocumentPaginatorSource)fdViewer.Document).DocumentPaginator), "printing as paginator");
          //  }
         }
+        // Insert a table into a word processing document.
+        
+
     }
 }

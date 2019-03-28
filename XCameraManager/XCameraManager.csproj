@@ -97,6 +97,7 @@
     <Compile Include="ConnectWindow.xaml.cs">
       <DependentUpon>ConnectWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Docx.cs" />
     <Compile Include="InputBox.cs" />
     <Compile Include="PublishWindow.xaml.cs">
       <DependentUpon>PublishWindow.xaml</DependentUpon>

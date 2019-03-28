@@ -392,18 +392,47 @@ namespace XCameraManager
         }
         public void Publish()
         {
-            PublishWindow pw = new PublishWindow();
+            //  PublishWindow pw = new PublishWindow();
+            //
+            //  pw.AddTitle(projectSql.szProjectName);
+            //  foreach(var bild in lvBilder.Items)
+            //  {
+            //      BildMitKommentar bmk = bild as BildMitKommentar;
+            //      if( bmk != null)
+            //      {
+            //          pw.AddBild( projectSql.GetImageFullName(bmk.BildName), bmk);
+            //      }
+            //  }
+            //  pw.Show();
 
-            pw.AddTitle(projectSql.szProjectName);
-            foreach(var bild in lvBilder.Items)
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+
+            // Set filter for file extension and default file extension 
+            dlg.DefaultExt = ".docx";
+            dlg.AddExtension = true;
+            dlg.Filter = "Word (*.docx)|*.docx|Alle (*.*)|*.*";
+
+            // Display OpenFileDialog by calling ShowDialog method 
+            Nullable<bool> result = dlg.ShowDialog();
+
+            // Get the selected file name and display in a TextBox 
+            if (result == true)
             {
-                BildMitKommentar bmk = bild as BildMitKommentar;
-                if( bmk != null)
+                Dictionary<string, BildMitKommentar> dictBilder = new Dictionary<string, BildMitKommentar>();
+                foreach (var bild in lvBilder.Items)
                 {
-                    pw.AddBild(bmk.Kommentar,  projectSql.GetImageFullName(bmk.BildName));
+                    BildMitKommentar bmk = bild as BildMitKommentar;
+                    if (bmk != null)
+                    {
+                        string szFullName = projectSql.GetImageFullName(bmk.BildName);
+                        if (!dictBilder.ContainsKey(szFullName))
+                        {
+                            dictBilder.Add(szFullName, bmk);
+                        }
+                    }
                 }
+                Docx.FillTable(dlg.FileName, projectSql.szProjectName, dictBilder);
             }
-            pw.Show();
         }
         private void CmbProjects_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
