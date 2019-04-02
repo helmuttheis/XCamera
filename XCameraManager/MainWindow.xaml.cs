@@ -55,7 +55,7 @@ namespace XCameraManager
                 {
                     Gebaeude gebaeude = cmbGebaeude.SelectedItem as Gebaeude;
 
-                    if (gebaeude == null)
+                    if (gebaeude == null && !string.IsNullOrWhiteSpace(cmbGebaeude.Text.ToString()) )
                     {
                         // add the new value
                         projectSql.AddGebaeude(cmbGebaeude.Text.ToString());
@@ -72,7 +72,7 @@ namespace XCameraManager
                 {
                     Etage etage = cmbEtage.SelectedItem as Etage;
 
-                    if (etage == null)
+                    if (etage == null && !string.IsNullOrWhiteSpace(cmbEtage.Text.ToString()))
                     {
                         // add the new value
                         projectSql.AddEtage(cmbEtage.Text.ToString());
@@ -89,7 +89,7 @@ namespace XCameraManager
                 {
                     Wohnung wohnung = cmbWohnung.SelectedItem as Wohnung;
 
-                    if (wohnung == null)
+                    if (wohnung == null && !string.IsNullOrWhiteSpace(cmbWohnung.Text.ToString()))
                     {
                         // add the new value
                         projectSql.AddWohnung(cmbWohnung.Text.ToString());
@@ -106,13 +106,13 @@ namespace XCameraManager
                 {
                     Zimmer zimmer = cmbZimmer.SelectedItem as Zimmer;
 
-                    if (zimmer == null)
+                    if (zimmer == null && !string.IsNullOrWhiteSpace(cmbZimmer.Text.ToString()))
                     {
                         // add the new value
                         projectSql.AddZimmer(cmbZimmer.Text.ToString());
                         zimmer = projectSql.GetZimmer(cmbZimmer.Text.ToString());
                         cmbZimmer.Items.Add(zimmer);
-                        //cmbZimmer.SelectedItem = zimmer;
+                        cmbZimmer.SelectedItem = zimmer;
                     }
                 }
                 return;
@@ -120,14 +120,24 @@ namespace XCameraManager
 
 
         }
-        public void LoadProjects()
+        public void LoadProjects(string szProjectname = "")
         {
-              var projekte = ProjectUtil.GetProjectList();
-              cmbProjects.Items.Clear();
-              foreach (var projekt in projekte)
-              {
-                  cmbProjects.Items.Add(projekt);
-              }
+            var projekte = ProjectUtil.GetProjectList();
+            cmbProjects.Items.Clear();
+            int iSelectedProject = -1;
+            foreach (var projekt in projekte)
+            {
+                if (projekt.Equals(szProjectname))
+                {
+                    iSelectedProject = cmbProjects.Items.Count;
+                }
+                cmbProjects.Items.Add(projekt);
+            }
+            if(iSelectedProject >= 0 )
+            {
+                cmbProjects.SelectedIndex = iSelectedProject;
+            }
+
         }
         private void BtnSelectBasedir_Click(object sender, RoutedEventArgs e)
         {
@@ -163,15 +173,17 @@ namespace XCameraManager
                         // project.Close();
                     }
                     ProjectUtil.szBasePath = Config.current.szBasedir;
-                    //ProjectSql.szProjectName = szProjectName;
-                    // create the SQLite database
-                    SetTitle(szProjectName);
 
-                    projectSql = new ProjectSql(szProjectName);
-                    if (MessageBox.Show("Sollen Demodaten erzeugt werden?", this.Title, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
-                    {
-                        GenerateSampleData();
-                    }
+                    SetTitle(szProjectName);
+                    LoadProjects(szProjectName);
+                    OpenProject(szProjectName);
+                    // projectSql = new ProjectSql(szProjectName);
+
+
+                   // if (MessageBox.Show("Sollen Demodaten erzeugt werden?", this.Title, MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                   // {
+                   //     GenerateSampleData();
+                   // }
                 }
                 else
                 {
@@ -392,24 +404,18 @@ namespace XCameraManager
         }
         public void Publish()
         {
-            //  PublishWindow pw = new PublishWindow();
-            //
-            //  pw.AddTitle(projectSql.szProjectName);
-            //  foreach(var bild in lvBilder.Items)
-            //  {
-            //      BildMitKommentar bmk = bild as BildMitKommentar;
-            //      if( bmk != null)
-            //      {
-            //          pw.AddBild( projectSql.GetImageFullName(bmk.BildName), bmk);
-            //      }
-            //  }
-            //  pw.Show();
+            if(lvBilder.Items.Count == 0)
+            {
+                
+                return;
+            }
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
 
             // Set filter for file extension and default file extension 
             dlg.DefaultExt = ".docx";
             dlg.AddExtension = true;
+            dlg.InitialDirectory = Config.current.szBasedir;
             dlg.Filter = "Word (*.docx)|*.docx|Alle (*.*)|*.*";
 
             // Display OpenFileDialog by calling ShowDialog method 
@@ -451,7 +457,7 @@ namespace XCameraManager
             {
                 Process.Start(projectSql.szProjectPath);
             }
-            LoadProjects();
+            // LoadProjects();
         }
         
         private void dpStart_SelectedDateChanged(object sender, RoutedEventArgs e)
@@ -526,7 +532,8 @@ namespace XCameraManager
 
         public bool CanExecute(object parameter)
         {
-            return Application.Current != null && Application.Current.MainWindow != null;
+            return Application.Current != null && Application.Current.MainWindow != null 
+                && ((MainWindow)Application.Current.MainWindow).lvBilder.Items.Count > 0;
         }
 
         public void Execute(object parameter)

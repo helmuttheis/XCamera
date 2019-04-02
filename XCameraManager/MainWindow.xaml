@@ -18,9 +18,7 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Projekt">
                 <MenuItem Header="Neu" Command="New" />
-                <MenuItem Header="Öffnen" Command="Open" />
-                <MenuItem Header="als Dokument" Command="local:MyCommands.ApplicationPublishCommand" />
-                <MenuItem Header="Schließen" Command="Close" />
+                <MenuItem Header="Als Word-Dokument" Command="local:MyCommands.ApplicationPublishCommand" />
                 <Separator />
                 <MenuItem Header="_Beenden" Command="local:MyCommands.ApplicationCloseCommand"/>
             </MenuItem>
@@ -51,11 +49,14 @@
                     </Grid.ColumnDefinitions>
                     <Label   Grid.Column="0" Grid.Row="0" Content="Verzeichnis"  />
                     <TextBox Grid.Column="1" Grid.Row="0"  x:Name="tbBasedir" Text=""  />
-                    <Button  Grid.Column="2" Grid.Row="0" x:Name="btnSelectBasedir" Content="..." Click="BtnSelectBasedir_Click"/>
+                    <Button  Grid.Column="2" Grid.Row="0" x:Name="btnSelectBasedir" 
+                             ToolTip="Basisverzeichnis für die Projekte festlegen."
+                             Content="..." Click="BtnSelectBasedir_Click"/>
 
                     <Label   Grid.Column="0" Grid.Row="1" Content="Projekte"  />
                     <ComboBox Grid.Column="1" Grid.Row="1"  x:Name="cmbProjects" SelectionChanged="CmbProjects_SelectionChanged"/>
-                    <Button  Grid.Column="2" Grid.Row="1" x:Name="btnOpenProjectdir" Content="..." Click="BtnOpenProjectdir_Click"/>
+                    <Button  Grid.Column="2" Grid.Row="1" x:Name="btnOpenProjectdir"
+                             ToolTip="Projektverzeichnis öffnen" Content="..." Click="BtnOpenProjectdir_Click"/>
                 </Grid>
                 
                 <!-- ComboBoxen -->
