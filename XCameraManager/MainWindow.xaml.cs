@@ -294,10 +294,11 @@ namespace XCameraManager
             projectSql = new ProjectSql(szProjectName);
             cmbGebaeude.Items.Clear();
             List<Gebaeude> gebaeudeListe = projectSql.GetGebaeudeListe();
-            foreach (var gebaeude in gebaeudeListe)
+            /*foreach (var gebaeude in gebaeudeListe)
             {
                 cmbGebaeude.Items.Add(gebaeude);
-            }
+            }*/
+            cmbGebaeude.ItemsSource = gebaeudeListe;
             cmbEtage.Items.Clear();
             List<Etage> etageListe = projectSql.GetEtagenListe();
             foreach (var etage in etageListe)
@@ -359,7 +360,10 @@ namespace XCameraManager
 
             imgBild.Source = null;
         }
+        private void BtnDeleteTag_Click(object sender, RoutedEventArgs e)
+        {
 
+        }
 
         private void OpenCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
