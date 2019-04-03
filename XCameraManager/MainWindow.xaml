@@ -77,27 +77,104 @@
                         <ColumnDefinition Width="100"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
+
                     
                     <Label Grid.Column="0" Grid.Row="0" Content="Gebäude" VerticalContentAlignment="Center"/>
                     <ComboBox Grid.Column="1" Grid.Row="0" x:Name="cmbGebaeude"  IsEditable="True" Height="25" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid MinWidth="225" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Bezeichnung}" HorizontalAlignment="Stretch"/>
+                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                        <Image Source=".\Resources\DeleteIcon.png" MaxWidth="12" Opacity="0.6"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
                         <ComboBoxItem>robot</ComboBoxItem>
                         <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
                     <Label Grid.Column="0" Grid.Row="1" Content="Etage" VerticalContentAlignment="Center"/>
                     <ComboBox Grid.Column="1" Grid.Row="1" x:Name="cmbEtage"  IsEditable="True" Height="25" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid MinWidth="225" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Bezeichnung}" HorizontalAlignment="Stretch"/>
+                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                        <Image Source=".\Resources\DeleteIcon.png" MaxWidth="12" Opacity="0.6"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
                         <ComboBoxItem>robot</ComboBoxItem>
                         <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
                     <Label Grid.Column="0" Grid.Row="2" Content="Wohnung" VerticalContentAlignment="Center"/>
                     <ComboBox Grid.Column="1" Grid.Row="2" x:Name="cmbWohnung"  IsEditable="True" Height="25" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid MinWidth="225" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Bezeichnung}" HorizontalAlignment="Stretch"/>
+                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                        <Image Source=".\Resources\DeleteIcon.png" MaxWidth="12" Opacity="0.6"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
                         <ComboBoxItem>robot</ComboBoxItem>
                         <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
                     <Label Grid.Column="0" Grid.Row="3" Content="Zimmer" VerticalContentAlignment="Center"/>
                     <ComboBox Grid.Column="1" Grid.Row="3" x:Name="cmbZimmer"  IsEditable="True" Height="25" IsTextSearchCaseSensitive="False" Margin="0 2 0 0" VerticalContentAlignment="Center">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid MinWidth="225" >
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Bezeichnung}" HorizontalAlignment="Stretch"/>
+                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                        <Image Source=".\Resources\DeleteIcon.png" MaxWidth="12" Opacity="0.6"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
                         <ComboBoxItem>robot</ComboBoxItem>
                         <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
