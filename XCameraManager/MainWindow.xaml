@@ -19,6 +19,7 @@
             <MenuItem Header="_Projekt">
                 <MenuItem Header="Neu" Command="New" />
                 <MenuItem Header="Als Word-Dokument" Command="local:MyCommands.ApplicationPublishCommand" />
+                <MenuItem Header="Verwalten" Command="local:MyCommands.ApplicationManageCommand" />
                 <Separator />
                 <MenuItem Header="_Beenden" Command="local:MyCommands.ApplicationCloseCommand"/>
             </MenuItem>

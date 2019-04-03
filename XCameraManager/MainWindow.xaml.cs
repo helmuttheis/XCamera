@@ -406,7 +406,6 @@ namespace XCameraManager
         {
             if(lvBilder.Items.Count == 0)
             {
-                
                 return;
             }
 
@@ -439,6 +438,11 @@ namespace XCameraManager
                 }
                 Docx.FillTable(dlg.FileName, projectSql.szProjectName, dictBilder);
             }
+        }
+        public void Manage()
+        {
+            ManageWindow manageWindow = new ManageWindow(projectSql);
+            manageWindow.ShowDialog();
         }
         private void CmbProjects_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -541,6 +545,26 @@ namespace XCameraManager
             ((MainWindow)Application.Current.MainWindow).Publish();
         }
     }
+    public class ApplicationManageCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged
+        {
+            // You may not need a body here at all...
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return Application.Current != null && Application.Current.MainWindow != null
+                && ((MainWindow)Application.Current.MainWindow).spProject.IsEnabled;
+        }
+
+        public void Execute(object parameter)
+        {
+            ((MainWindow)Application.Current.MainWindow).Manage();
+        }
+    }
     public class ApplicationPatchCommand : ICommand
     {
         public event EventHandler CanExecuteChanged
@@ -578,6 +602,12 @@ namespace XCameraManager
         public static ICommand ApplicationPublishCommand
         {
             get { return appPublishCmd; }
+        }
+
+        private static readonly ICommand appManageCmd = new ApplicationManageCommand();
+        public static ICommand ApplicationManageCommand
+        {
+            get { return appManageCmd; }
         }
 
         private static readonly ICommand appCloseCmd = new ApplicationCloseCommand();

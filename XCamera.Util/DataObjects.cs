@@ -148,5 +148,10 @@ namespace XCamera.Util
         public int Status { get; set; }
         public DateTime CaptureDate { get; set; }
     }
-
+    public class Grouped
+    {
+        public int iCnt { get; set; }
+        public int ID { get; set; }
+        public string Bezeichnung { get; set; }
+    }
 }

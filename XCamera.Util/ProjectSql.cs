@@ -671,6 +671,41 @@ namespace XCamera.Util
         {
             return database.Table<Gebaeude>().Where(x => x.Bezeichnung.Equals(szBezeichnung)).SingleOrDefault();
         }
+        public List<Grouped> GetUsedGebaeude()
+        {
+            string szSql = "SELECT Count(*) as iCnt, ID, Bezeichnung FROM Gebaeude ";
+            szSql += " LEFT JOIN BILD_GEBAEUDE on Gebaeude.ID = BILD_GEBAEUDE.GebaeudeID ";
+            szSql += " Group BY ID";
+            return database.Query<Grouped>(szSql).ToList();
+        }
+        public List<Grouped> GetUsedEtage()
+        {
+            string szSql = "SELECT Count(*) as iCnt, ID, Bezeichnung FROM Etage ";
+            szSql += " LEFT JOIN BILD_ETAGE on Etage.ID = BILD_ETAGE.EtageID ";
+            szSql += " Group BY ID";
+            return database.Query<Grouped>(szSql).ToList();
+        }
+        public List<Grouped> GetUsedZimmer()
+        {
+            string szSql = "SELECT Count(*) as iCnt, ID, Bezeichnung FROM Zimmer ";
+            szSql += " LEFT JOIN BILD_ZIMMER on Zimmer.ID = BILD_ZIMMER.ZimmerID ";
+            szSql += " Group BY ID";
+            return database.Query<Grouped>(szSql).ToList();
+        }
+        public List<Grouped> GetUsedWohnung()
+        {
+            string szSql = "SELECT Count(*) as iCnt, ID, Bezeichnung FROM Wohnung ";
+            szSql += " LEFT JOIN BILD_WOHNUNG on Wohnung.ID = BILD_WOHNUNG.WohnungID ";
+            szSql += " Group BY ID";
+            return database.Query<Grouped>(szSql).ToList();
+        }
+        public List<Grouped> GetUsedKommentar()
+        {
+            string szSql = "SELECT Count(*) as iCnt, ID, Bezeichnung FROM Kommentar ";
+            szSql += " LEFT JOIN BILD_KOMMENTAR on Kommentar.ID = BILD_KOMMENTAR.KommentarID ";
+            szSql += " Group BY ID";
+            return database.Query<Grouped>(szSql).ToList();
+        }
         public Bild GetBild(int id)
         {
             return database.Table<Bild>().Where(x => x.ID == id).SingleOrDefault();
