@@ -99,19 +99,19 @@ namespace XCamera.Util
                 ProjectSql tmpProject = new ProjectSql(szProjectName);
                 foreach (var gebaeude in remoteMetaData.gebaeudeListe)
                 {
-                    tmpProject.EnsureGebaeude(gebaeude.Bezeichnung);
+                    tmpProject.sqlGebaeude.Ensure(gebaeude.Bezeichnung);
                 }
                 foreach (var etage in remoteMetaData.etageListe)
                 {
-                    tmpProject.EnsureEtage(etage.Bezeichnung);
+                    tmpProject.sqlEtage.Ensure(etage.Bezeichnung);
                 }
                 foreach (var wohnung in remoteMetaData.wohnungiste)
                 {
-                    tmpProject.EnsureWohnung(wohnung.Bezeichnung);
+                    tmpProject.sqlWohnung.Ensure(wohnung.Bezeichnung);
                 }
                 foreach (var zimmer in remoteMetaData.zimmerListe)
                 {
-                    tmpProject.EnsureZimmer(zimmer.Bezeichnung);
+                    tmpProject.sqlZimmer.Ensure(zimmer.Bezeichnung);
                 }
 
             }

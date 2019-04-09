@@ -138,25 +138,25 @@ namespace XCameraManager
                         var biResult = tmpProject.GetBildId(bi.BildName, bi.CaptureDate);
                         tmpProject.SetCaptureDate(biResult.BildId,bi.CaptureDate);
                         
-                        Gebaeude gebauede = tmpProject.EnsureGebaeude(bi.GebaeudeBezeichnung);
-                        Etage etage = tmpProject.EnsureEtage(bi.EtageBezeichnung);
-                        Wohnung wohnung = tmpProject.EnsureWohnung(bi.WohnungBezeichnung);
-                        Zimmer zimmer = tmpProject.EnsureZimmer(bi.ZimmerBezeichnung);
+                        Gebaeude gebauede = tmpProject.sqlGebaeude.Ensure(bi.GebaeudeBezeichnung) as Gebaeude;
+                        Etage etage = tmpProject.sqlEtage.Ensure(bi.EtageBezeichnung) as Etage;
+                        Wohnung wohnung = tmpProject.sqlWohnung.Ensure(bi.WohnungBezeichnung) as Wohnung;
+                        Zimmer zimmer = tmpProject.sqlZimmer.Ensure(bi.ZimmerBezeichnung) as Zimmer;
                         if( gebauede != null )
                         {
-                            tmpProject.SetGebaeude(biResult.BildId, gebauede.ID);
+                            tmpProject.sqlGebaeude.Set(biResult.BildId, gebauede.ID);
                         }
                         if (etage != null)
                         {
-                            tmpProject.SetEtage(biResult.BildId, etage.ID);
+                            tmpProject.sqlEtage.Set(biResult.BildId, etage.ID);
                         }
                         if (wohnung != null)
                         {
-                            tmpProject.SetWohnung(biResult.BildId, wohnung.ID);
+                            tmpProject.sqlWohnung.Set(biResult.BildId, wohnung.ID);
                         }
                         if (zimmer != null)
                         {
-                            tmpProject.SetZimmer(biResult.BildId, zimmer.ID);
+                            tmpProject.sqlZimmer.Set(biResult.BildId, zimmer.ID);
                         }
                         tmpProject.SetComment(biResult.BildId, bi.KommentarBezeichnung);
                     }

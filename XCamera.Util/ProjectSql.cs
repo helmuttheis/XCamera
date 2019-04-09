@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace XCamera.Util
 {
 
-    public class ProjectSql
+    public partial class ProjectSql
     {
         /// <summary>
         /// build the project path, create the directory if it does not exist
@@ -119,7 +119,12 @@ namespace XCamera.Util
         public string szProjectFile { get; set; }
         public string szTempProjectPath { get; set; }
 
-        readonly SQLiteConnection database;
+        public SqlGebaeude sqlGebaeude { get; set; }
+        public SqlEtage sqlEtage { get; set; }
+        public SqlWohnung sqlWohnung { get; set; }
+        public SqlZimmer sqlZimmer { get; set; }
+
+        public SQLiteConnection database { get; set; }
 
         public ProjectSql(string szProjectNameToLoad)
         {
@@ -151,7 +156,10 @@ namespace XCamera.Util
             {
                 Config.current.SetProjectStatus(this.szProjectName, STATUS.CHANGED);
             }
-
+            sqlGebaeude = new SqlGebaeude(this);
+            sqlEtage = new SqlEtage(this);
+            sqlWohnung = new SqlWohnung(this);
+            sqlZimmer = new SqlZimmer(this);
         }
         
         public string[] ListAllFiles()
@@ -162,10 +170,10 @@ namespace XCamera.Util
         public MetaData GetMetaData()
         {
             MetaData metaData = new MetaData();
-            metaData.gebaeudeListe = GetGebaeudeListe();
-            metaData.etageListe = GetEtagenListe();
-            metaData.wohnungiste = GetWohnungListe();
-            metaData.zimmerListe = GetZimmerListe();
+            metaData.gebaeudeListe = sqlGebaeude.GetListe();
+            metaData.etageListe = sqlEtage.GetListe();
+            metaData.wohnungiste = sqlWohnung.GetListe();
+            metaData.zimmerListe = sqlZimmer.GetListe();
             metaData.kommentarListe = GetKommentarListe();
 
             return metaData;
@@ -210,83 +218,13 @@ namespace XCamera.Util
             bi.bBildIdFound = biResult.bBildIdFound;
             bi.CaptureDate = biResult.dtCaptureDate;
 
-            GetGebaeudeForBild(bi.BildId, bi);
-            GetWohnungForBild(bi.BildId, bi);
-            GetEtageForBild(bi.BildId, bi);
-            GetZimmerForBild(bi.BildId, bi);
+            sqlGebaeude.GetForBild(bi.BildId, bi);
+            sqlWohnung.GetForBild(bi.BildId, bi);
+            sqlEtage.GetForBild(bi.BildId, bi);
+            sqlZimmer.GetForBild(bi.BildId, bi);
             GetKommentarForBild(bi.BildId, bi);
 
             return bi;
-        }
-        public int GetGebaeudeForBild(int bildId, BildInfo bi = null)
-        {
-            var ret = database.Table<Bild_Gebaeude>().Where(x => x.BildID == bildId).SingleOrDefault();
-            if (ret != null)
-            {
-                if (bi != null)
-                {
-                    bi.GebaeudeId = ret.GebaeudeID;
-                    bi.GebaeudeBezeichnung = GetGebaeude(ret.GebaeudeID).Bezeichnung;
-                }
-                return ret.GebaeudeID;
-            }
-            return -1;
-        }
-        public int GetEtageForBild(int bildId, BildInfo bi = null)
-        {
-            var ret = database.Table<Bild_Etage>().Where(x => x.BildID == bildId).SingleOrDefault();
-            if (ret != null)
-            {
-                if (bi != null)
-                {
-                    bi.EtageId = ret.EtageID;
-                    bi.EtageBezeichnung = GetEtage(ret.EtageID).Bezeichnung;
-                }
-                return ret.EtageID;
-            }
-            return -1;
-        }
-        public int GetWohnungForBild(int bildId, BildInfo bi = null)
-        {
-            var ret = database.Table<Bild_Wohnung>().Where(x => x.BildID == bildId).SingleOrDefault();
-            if (ret != null)
-            {
-                if (bi != null)
-                {
-                    bi.WohnungId = ret.WohnungID;
-                    bi.WohnungBezeichnung = GetWohnung(ret.WohnungID).Bezeichnung;
-                }
-                return ret.WohnungID;
-            }
-            return -1;
-        }
-        public int GetZimmerForBild(int bildId, BildInfo bi = null)
-        {
-            var ret = database.Table<Bild_Zimmer>().Where(x => x.BildID == bildId).SingleOrDefault();
-            if (ret != null)
-            {
-                if( bi != null )
-                {
-                    bi.ZimmerId = ret.ZimmerID;
-                    bi.ZimmerBezeichnung = GetZimmer(ret.ZimmerID).Bezeichnung;
-                }
-                return ret.ZimmerID;
-            }
-            return -1;
-        }
-        public int GetKommentarForBild(int bildId, BildInfo bi = null)
-        {
-            var ret = database.Table<Bild_Kommentar>().Where(x => x.BildID == bildId).SingleOrDefault();
-            if (ret != null)
-            {
-                if (bi != null)
-                {
-                    bi.KommentarId = ret.KommentarID;
-                    bi.KommentarBezeichnung = GetKommentar(ret.BildID);
-                }
-                return ret.KommentarID;
-            }
-            return -1;
         }
 
         public class GetBildIdResult
@@ -391,28 +329,7 @@ namespace XCamera.Util
 
             }
         }
-
-        public string GetKommentar(string szImageName)
-        {
-            var biResult = GetBildId(szImageName,DateTime.Now);
-            
-            return GetKommentar(biResult.BildId);
-        }
-        public string GetKommentar(int bildId)
-        {
-            var kommentarListe = database.Query<Kommentar>("SELECT * FROM [Kommentar] left join Bild_Kommentar WHERE Kommentar.ID = Bild_Kommentar.KommentarID and Bild_Kommentar.BildID = " + bildId.ToString());
-                
-            if (kommentarListe.Count > 0 )
-            {
-                return kommentarListe[0].Bezeichnung;
-            }
-            return "";
-        }
-        public void SetComment(string szImageName, string szComment)
-        {
-            var biResult = GetBildId(szImageName,DateTime.Now);
-            SetComment(biResult.BildId, szComment);
-        }
+        
         public void SetCaptureDate(int bildId, DateTime captureDate)
         {
             Bild bild = GetBild(bildId);
@@ -422,141 +339,7 @@ namespace XCamera.Util
                 database.Update(bild);
             }
         }
-
-        public void SetComment(int bildId, string szComment)
-        {
-            var kommentarListe = database.Query<Kommentar>("SELECT * FROM [Kommentar] left join Bild_Kommentar WHERE Kommentar.ID = Bild_Kommentar.KommentarID and Bild_Kommentar.BildID = " + bildId.ToString());
-
-            if (kommentarListe.Count == 0)
-            {
-                Kommentar kommentar = new Kommentar();
-                kommentar.Bezeichnung = szComment;
-                database.Insert(kommentar);
-                int kommentarID = database.ExecuteScalar<int>("select last_insert_rowid();");
-                Bild_Kommentar bk = new Bild_Kommentar { BildID = bildId, KommentarID = kommentarID };
-                database.Insert(bk);
-            }
-            else
-            {
-                Kommentar kommentar = kommentarListe[0];
-                kommentar.Bezeichnung = szComment;
-                database.Update(kommentar);
-            }
-            SetChanged(bildId);
-        }
-        public void SetGebaeude(int bildId, int gebaeudeId)
-        {
-            if (gebaeudeId < 0)
-            {
-                database.Delete<Bild_Gebaeude>(bildId);
-            }
-            else
-            {
-                var liste = database.Query<Bild_Gebaeude>(
-                    "SELECT * FROM [Bild_Gebaeude] WHERE BildID = " + bildId.ToString());
-
-                if (liste.Count == 0)
-                {
-                    var eintrag = new Bild_Gebaeude();
-                    eintrag.BildID = bildId;
-                    eintrag.GebaeudeID = gebaeudeId;
-                    database.Insert(eintrag);
-
-                }
-                else
-                {
-                    var eintrag = liste[0];
-                    eintrag.GebaeudeID = gebaeudeId;
-                    database.Update(eintrag);
-                }
-            }
-            SetChanged(bildId);
-
-        }
-        public void SetEtage(int bildId, int etageId)
-        {
-            if (etageId < 0)
-            {
-                database.Delete<Bild_Etage>(bildId);
-            }
-            else
-            {
-                var liste = database.Query<Bild_Etage>(
-                "SELECT * FROM [Bild_Etage] WHERE BildID = " + bildId.ToString());
-
-                if (liste.Count == 0)
-                {
-                    var eintrag = new Bild_Etage();
-                    eintrag.BildID = bildId;
-                    eintrag.EtageID = etageId;
-                    database.Insert(eintrag);
-                }
-                else
-                {
-                    var eintrag = liste[0];
-                    eintrag.EtageID = etageId;
-                    database.Update(eintrag);
-                }
-            }
-            SetChanged(bildId);
-        }
-        public void SetWohnung(int bildId, int wohnungId)
-        {
-            if (wohnungId < 0)
-            {
-                database.Delete<Bild_Wohnung>(bildId);
-            }
-            else
-            {
-                var liste = database.Query<Bild_Wohnung>(
-                "SELECT * FROM [Bild_Wohnung] WHERE BildID = " + bildId.ToString());
-
-                if (liste.Count == 0)
-                {
-                    var eintrag = new Bild_Wohnung();
-                    eintrag.BildID = bildId;
-                    eintrag.WohnungID = wohnungId;
-                    database.Insert(eintrag);
-
-                }
-                else
-                {
-                    var eintrag = liste[0];
-                    eintrag.WohnungID = wohnungId;
-                    database.Update(eintrag);
-                }
-            }
-            SetChanged(bildId);
-        }
-        public void SetZimmer(int bildId, int zimmerId)
-        {
-            if (zimmerId < 0)
-            {
-                database.Delete<Bild_Zimmer>(bildId);
-            }
-            else
-            {
-
-                var liste = database.Query<Bild_Zimmer>(
-                "SELECT * FROM [Bild_Zimmer] WHERE BildID = " + bildId.ToString());
-
-                if (liste.Count == 0)
-                {
-                    var eintrag = new Bild_Zimmer();
-                    eintrag.BildID = bildId;
-                    eintrag.ZimmerID = zimmerId;
-                    database.Insert(eintrag);
-
-                }
-                else
-                {
-                    var eintrag = liste[0];
-                    eintrag.ZimmerID = zimmerId;
-                    database.Update(eintrag);
-                }
-            }
-            SetChanged(bildId);
-        }
+        
         public int AddBild(string szImageName)
         {
             Bild bild = new Bild();
@@ -564,180 +347,11 @@ namespace XCamera.Util
             database.Insert(bild);
             return database.ExecuteScalar<int>("select last_insert_rowid();");
         }
-        public int AddGebaeude(string szGebaeude)
-        {
-            Gebaeude gebaeude = new Gebaeude();
-            gebaeude.Bezeichnung = szGebaeude;
-            database.Insert(gebaeude);
-            return database.ExecuteScalar<int>("select last_insert_rowid();");
-        }
-        public Gebaeude EnsureGebaeude(string szGebaeude)
-        {
-            if (string.IsNullOrWhiteSpace(szGebaeude))
-            {
-                return null;
-            }
-
-            Gebaeude gebaeude = GetGebaeude(szGebaeude);
-            if (gebaeude == null)
-            {
-                gebaeude = GetGebaeude(AddGebaeude(szGebaeude));
-            }
-            return gebaeude;
-        }
-        public Etage EnsureEtage(string szEtage)
-        {
-            if (string.IsNullOrWhiteSpace(szEtage))
-            {
-                return null;
-            }
-
-            Etage etage = GetEtage(szEtage);
-            if (etage == null)
-            {
-                etage = GetEtage(AddEtage(szEtage));
-            }
-            return etage;
-        }
-        public Wohnung EnsureWohnung(string szWohnung)
-        {
-            if (string.IsNullOrWhiteSpace(szWohnung))
-            {
-                return null;
-            }
-
-            Wohnung wohnung = GetWohnung(szWohnung);
-            if (wohnung == null)
-            {
-                wohnung = GetWohnung(AddWohnung(szWohnung));
-            }
-            return wohnung;
-        }
-        public Zimmer EnsureZimmer(string szZimmer)
-        {
-            if( string.IsNullOrWhiteSpace(szZimmer) )
-            {
-                return null;
-            }
-            Zimmer zimmer = GetZimmer(szZimmer);
-            if (zimmer == null)
-            {
-                zimmer = GetZimmer(AddZimmer(szZimmer));
-            }
-            return zimmer;
-        }
-        public int AddEtage(string szEtage)
-        {
-            Etage etage = new Etage();
-            etage.Bezeichnung = szEtage;
-            database.Insert(etage);
-            return database.ExecuteScalar<int>("select last_insert_rowid();");
-        }
-        public int AddWohnung(string szWohnung)
-        {
-            Wohnung wohnung = new Wohnung();
-            wohnung.Bezeichnung = szWohnung;
-            database.Insert(wohnung);
-            return database.ExecuteScalar<int>("select last_insert_rowid();");
-        }
-        public int AddZimmer(string szZimmer)
-        {
-            Zimmer zimmer = new Zimmer();
-            zimmer.Bezeichnung = szZimmer;
-            database.Insert(zimmer);
-            return database.ExecuteScalar<int>("select last_insert_rowid();");
-        }
-        public List<Gebaeude> GetGebaeudeListe()
-        {
-            return database.Table<Gebaeude>().ToList();
-        }
-        public List<Etage> GetEtagenListe()
-        {
-            return database.Table<Etage>().ToList();
-        }
-        public List<Wohnung> GetWohnungListe()
-        {
-            return database.Table<Wohnung>().ToList();
-        }
-        public List<Zimmer> GetZimmerListe()
-        {
-            return database.Table<Zimmer>().ToList();
-        }
-        public List<Kommentar> GetKommentarListe()
-        {
-            return database.Table<Kommentar>().ToList();
-        }
-        public Gebaeude GetGebaeude(string szBezeichnung)
-        {
-            return database.Table<Gebaeude>().Where(x => x.Bezeichnung.Equals(szBezeichnung)).SingleOrDefault();
-        }
-        public List<Grouped> GetUsedGebaeude()
-        {
-            string szSql = "SELECT Count(*) as iCnt, ID, Bezeichnung FROM Gebaeude ";
-            szSql += " LEFT JOIN BILD_GEBAEUDE on Gebaeude.ID = BILD_GEBAEUDE.GebaeudeID ";
-            szSql += " Group BY ID";
-            return database.Query<Grouped>(szSql).ToList();
-        }
-        public List<Grouped> GetUsedEtage()
-        {
-            string szSql = "SELECT Count(*) as iCnt, ID, Bezeichnung FROM Etage ";
-            szSql += " LEFT JOIN BILD_ETAGE on Etage.ID = BILD_ETAGE.EtageID ";
-            szSql += " Group BY ID";
-            return database.Query<Grouped>(szSql).ToList();
-        }
-        public List<Grouped> GetUsedZimmer()
-        {
-            string szSql = "SELECT Count(*) as iCnt, ID, Bezeichnung FROM Zimmer ";
-            szSql += " LEFT JOIN BILD_ZIMMER on Zimmer.ID = BILD_ZIMMER.ZimmerID ";
-            szSql += " Group BY ID";
-            return database.Query<Grouped>(szSql).ToList();
-        }
-        public List<Grouped> GetUsedWohnung()
-        {
-            string szSql = "SELECT Count(*) as iCnt, ID, Bezeichnung FROM Wohnung ";
-            szSql += " LEFT JOIN BILD_WOHNUNG on Wohnung.ID = BILD_WOHNUNG.WohnungID ";
-            szSql += " Group BY ID";
-            return database.Query<Grouped>(szSql).ToList();
-        }
-        public List<Grouped> GetUsedKommentar()
-        {
-            string szSql = "SELECT Count(*) as iCnt, ID, Bezeichnung FROM Kommentar ";
-            szSql += " LEFT JOIN BILD_KOMMENTAR on Kommentar.ID = BILD_KOMMENTAR.KommentarID ";
-            szSql += " Group BY ID";
-            return database.Query<Grouped>(szSql).ToList();
-        }
         public Bild GetBild(int id)
         {
             return database.Table<Bild>().Where(x => x.ID == id).SingleOrDefault();
         }
-        public Gebaeude GetGebaeude(int id)
-        {
-            return database.Table<Gebaeude>().Where(x => x.ID == id).SingleOrDefault();
-        }
-        public Etage GetEtage(string szBezeichnung)
-        {
-            return database.Table<Etage>().Where(x => x.Bezeichnung.Equals(szBezeichnung)).SingleOrDefault();
-        }
-        public Etage GetEtage(int id)
-        {
-            return database.Table<Etage>().Where(x => x.ID == id).SingleOrDefault();
-        }
-        public Wohnung GetWohnung(string szBezeichnung)
-        {
-            return database.Table<Wohnung>().Where(x => x.Bezeichnung.Equals(szBezeichnung)).SingleOrDefault();
-        }
-        public Wohnung GetWohnung(int id)
-        {
-            return database.Table<Wohnung>().Where(x => x.ID == id).SingleOrDefault();
-        }
-        public Zimmer GetZimmer(string szBezeichnung)
-        {
-            return database.Table<Zimmer>().Where(x => x.Bezeichnung.Equals(szBezeichnung)).SingleOrDefault();
-        }
-        public Zimmer GetZimmer(int id)
-        {
-            return database.Table<Zimmer>().Where(x => x.ID == id).SingleOrDefault();
-        }
+        
         public List<Bild> GetBilderChanged()
         {
             string szSql = "SELECT * FROM Bild where Status & " + (int)STATUS.CHANGED;

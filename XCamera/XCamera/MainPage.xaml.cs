@@ -158,11 +158,11 @@ namespace XCamera
                         bi.ZimmerId = lastBi.ZimmerId;
                     }
                 }
-                List<Gebaeude> gebaeudeListe = curProjectSql.GetGebaeudeListe();
+                List<Gebaeude> gebaeudeListe = curProjectSql.sqlGebaeude.GetListe();
                 overlay.Reset();
                 grdOverlay.Children.Clear();
                 Picker pGebaeude = overlay.AddPicker(overlay.iRow.ToString(), "Gebäude", ID_GEBAEUDE, true, (picker, szEntry) => {
-                    Gebaeude newGebaeude = curProjectSql.EnsureGebaeude(szEntry);
+                    Gebaeude newGebaeude = curProjectSql.sqlGebaeude.Ensure(szEntry) as Gebaeude;
                     if (!gebaeudeListe.Any(g => g.ID == newGebaeude.ID))
                     {
                         gebaeudeListe.Add(newGebaeude);
@@ -175,9 +175,9 @@ namespace XCamera
                 pGebaeude.ItemDisplayBinding = new Binding("Bezeichnung");
                 pGebaeude.SelectedItem = gebaeudeListe.Find(x => x.ID == bi.GebaeudeId);
 
-                List<Etage> etageListe = curProjectSql.GetEtagenListe();
+                List<Etage> etageListe = curProjectSql.sqlEtage.GetListe();
                 Picker pEtage = overlay.AddPicker(overlay.iRow.ToString(), "Etage",ID_ETAGE, true, (picker, szEntry) => {
-                    Etage newEtage = curProjectSql.EnsureEtage(szEntry);
+                    Etage newEtage = curProjectSql.sqlEtage.Ensure(szEntry) as Etage;
                     if (!etageListe.Any(g => g.ID == newEtage.ID))
                     {
                         etageListe.Add(newEtage);
@@ -190,9 +190,9 @@ namespace XCamera
                 pEtage.ItemDisplayBinding = new Binding("Bezeichnung");
                 pEtage.SelectedItem = etageListe.Find(x => x.ID == bi.EtageId);
 
-                List<Wohnung> wohnungListe = curProjectSql.GetWohnungListe();
+                List<Wohnung> wohnungListe = curProjectSql.sqlWohnung.GetListe();
                 Picker pWohnung = overlay.AddPicker(overlay.iRow.ToString(), "Wohnung",ID_WOHNUNG,  true, (picker, szEntry) => {
-                    Wohnung newWohnung = curProjectSql.EnsureWohnung(szEntry);
+                    Wohnung newWohnung = curProjectSql.sqlWohnung.Ensure(szEntry) as Wohnung;
                     if (!wohnungListe.Any(g => g.ID == newWohnung.ID))
                     {
                         wohnungListe.Add(newWohnung);
@@ -205,9 +205,9 @@ namespace XCamera
                 pWohnung.ItemDisplayBinding = new Binding("Bezeichnung");
                 pWohnung.SelectedItem = wohnungListe.Find(x => x.ID == bi.WohnungId);
 
-                List<Zimmer> zimmerListe = curProjectSql.GetZimmerListe();
+                List<Zimmer> zimmerListe = curProjectSql.sqlZimmer.GetListe();
                 Picker pZimmer = overlay.AddPicker(overlay.iRow.ToString(), "Zimmer",ID_ZIMMER, true, (picker, szEntry) => {
-                    Zimmer newZimmer = curProjectSql.EnsureZimmer(szEntry);
+                    Zimmer newZimmer = curProjectSql.sqlZimmer.Ensure(szEntry) as Zimmer;
                     if (!zimmerListe.Any(g => g.ID == newZimmer.ID))
                     {
                         zimmerListe.Add(newZimmer);
@@ -258,10 +258,10 @@ namespace XCamera
                     }
 
 
-                    curProjectSql.SetGebaeude(bi.BildId, selGebaeude != null ? selGebaeude.ID : -1);
-                    curProjectSql.SetEtage(bi.BildId, selEtage != null ? selEtage.ID : -1);
-                    curProjectSql.SetWohnung(bi.BildId, selWohnung != null ? selWohnung.ID : -1);
-                    curProjectSql.SetZimmer(bi.BildId, selZimmer != null ? selZimmer.ID : -1);
+                    curProjectSql.sqlGebaeude.Set(bi.BildId, selGebaeude != null ? selGebaeude.ID : -1);
+                    curProjectSql.sqlEtage.Set(bi.BildId, selEtage != null ? selEtage.ID : -1);
+                    curProjectSql.sqlWohnung.Set(bi.BildId, selWohnung != null ? selWohnung.ID : -1);
+                    curProjectSql.sqlZimmer.Set(bi.BildId, selZimmer != null ? selZimmer.ID : -1);
 
                     curProjectSql.SetComment(szImageName, kommentarEntry.Text);
 

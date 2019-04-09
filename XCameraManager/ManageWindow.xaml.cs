@@ -45,19 +45,19 @@ namespace XCameraManager
                 string szSelected = cmbTable.SelectedItem.ToString();
                 if (szSelected.Equals("Gebäude"))
                 {
-                    grdData.ItemsSource = projectSql.GetUsedGebaeude();
+                    grdData.ItemsSource = projectSql.sqlGebaeude.GetUsed();
                 }
                 else if (szSelected.Equals("Etage"))
                 {
-                    grdData.ItemsSource = projectSql.GetUsedEtage();
+                    grdData.ItemsSource = projectSql.sqlEtage.GetUsed();
                 }
                 else if (szSelected.Equals("Wohnung"))
                 {
-                    grdData.ItemsSource = projectSql.GetUsedWohnung();
+                    grdData.ItemsSource = projectSql.sqlWohnung.GetUsed();
                 }
                 else if (szSelected.Equals("Zimmer"))
                 {
-                    grdData.ItemsSource = projectSql.GetUsedZimmer();
+                    grdData.ItemsSource = projectSql.sqlZimmer.GetUsed();
                 }
                 else
                 {

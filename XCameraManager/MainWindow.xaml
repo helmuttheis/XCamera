@@ -95,14 +95,14 @@
                                         <ColumnDefinition Width="12"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Bezeichnung}" HorizontalAlignment="Stretch"/>
-                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" 
+                                            BorderThickness="0" Tag="{Binding .}"
+                                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
                                         <Image Source=".\Resources\DeleteIcon.png" MaxWidth="12" Opacity="0.6"/>
                                     </Button>
                                 </Grid>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
-                        <ComboBoxItem>robot</ComboBoxItem>
-                        <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
                     <Label Grid.Column="0" Grid.Row="1" Content="Etage" VerticalContentAlignment="Center"/>
@@ -120,14 +120,14 @@
                                         <ColumnDefinition Width="12"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Bezeichnung}" HorizontalAlignment="Stretch"/>
-                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" 
+                                             Tag="{Binding .}"
+                                            BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
                                         <Image Source=".\Resources\DeleteIcon.png" MaxWidth="12" Opacity="0.6"/>
                                     </Button>
                                 </Grid>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
-                        <ComboBoxItem>robot</ComboBoxItem>
-                        <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
                     <Label Grid.Column="0" Grid.Row="2" Content="Wohnung" VerticalContentAlignment="Center"/>
@@ -145,14 +145,14 @@
                                         <ColumnDefinition Width="12"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Bezeichnung}" HorizontalAlignment="Stretch"/>
-                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" 
+                                             Tag="{Binding .}"
+                                            BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
                                         <Image Source=".\Resources\DeleteIcon.png" MaxWidth="12" Opacity="0.6"/>
                                     </Button>
                                 </Grid>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
-                        <ComboBoxItem>robot</ComboBoxItem>
-                        <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
                     <Label Grid.Column="0" Grid.Row="3" Content="Zimmer" VerticalContentAlignment="Center"/>
@@ -170,14 +170,14 @@
                                         <ColumnDefinition Width="12"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Bezeichnung}" HorizontalAlignment="Stretch"/>
-                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" 
+                                             Tag="{Binding .}"
+                                            BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
                                         <Image Source=".\Resources\DeleteIcon.png" MaxWidth="12" Opacity="0.6"/>
                                     </Button>
                                 </Grid>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>
-                        <ComboBoxItem>robot</ComboBoxItem>
-                        <ComboBoxItem>Robot</ComboBoxItem>
                     </ComboBox>
 
                     <Label Grid.Column="0" Grid.Row="4" Content="Kommentar" VerticalContentAlignment="Center"/>

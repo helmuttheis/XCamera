@@ -58,9 +58,14 @@ namespace XCameraManager
                     if (gebaeude == null && !string.IsNullOrWhiteSpace(cmbGebaeude.Text.ToString()) )
                     {
                         // add the new value
-                        projectSql.AddGebaeude(cmbGebaeude.Text.ToString());
-                        gebaeude = projectSql.GetGebaeude(cmbGebaeude.Text.ToString());
-                        cmbGebaeude.Items.Add(gebaeude);
+                        gebaeude = projectSql.sqlGebaeude.Get(cmbGebaeude.Text.ToString()) as Gebaeude;
+                        if (gebaeude == null)
+                        {
+                            projectSql.sqlGebaeude.Add(cmbGebaeude.Text.ToString());
+                            gebaeude = projectSql.sqlGebaeude.Get(cmbGebaeude.Text.ToString()) as Gebaeude;
+                        }
+                        cmbGebaeude.ItemsSource = null;
+                        cmbGebaeude.ItemsSource = projectSql.sqlGebaeude.GetListe();
                         cmbGebaeude.SelectedItem = gebaeude;
                     }
                 }
@@ -75,9 +80,14 @@ namespace XCameraManager
                     if (etage == null && !string.IsNullOrWhiteSpace(cmbEtage.Text.ToString()))
                     {
                         // add the new value
-                        projectSql.AddEtage(cmbEtage.Text.ToString());
-                        etage = projectSql.GetEtage(cmbEtage.Text.ToString());
-                        cmbEtage.Items.Add(etage);
+                        etage = projectSql.sqlEtage.Get(cmbEtage.Text.ToString()) as Etage;
+                        if (etage == null)
+                        {
+                            projectSql.sqlEtage.Add(cmbEtage.Text.ToString());
+                            etage = projectSql.sqlEtage.Get(cmbEtage.Text.ToString()) as Etage;
+                        }
+                        cmbEtage.ItemsSource = null;
+                        cmbEtage.ItemsSource = projectSql.sqlEtage.GetListe();
                         cmbEtage.SelectedItem = etage;
                     }
                 }
@@ -92,9 +102,14 @@ namespace XCameraManager
                     if (wohnung == null && !string.IsNullOrWhiteSpace(cmbWohnung.Text.ToString()))
                     {
                         // add the new value
-                        projectSql.AddWohnung(cmbWohnung.Text.ToString());
-                        wohnung = projectSql.GetWohnung(cmbWohnung.Text.ToString());
-                        cmbWohnung.Items.Add(wohnung);
+                        wohnung = projectSql.sqlWohnung.Get(cmbWohnung.Text.ToString()) as Wohnung;
+                        if (wohnung == null)
+                        {
+                            projectSql.sqlWohnung.Add(cmbWohnung.Text.ToString());
+                            wohnung = projectSql.sqlWohnung.Get(cmbWohnung.Text.ToString()) as Wohnung;
+                        }
+                        cmbWohnung.ItemsSource = null;
+                        cmbWohnung.ItemsSource = projectSql.sqlWohnung.GetListe();
                         cmbWohnung.SelectedItem = wohnung;
                     }
                 }
@@ -109,16 +124,19 @@ namespace XCameraManager
                     if (zimmer == null && !string.IsNullOrWhiteSpace(cmbZimmer.Text.ToString()))
                     {
                         // add the new value
-                        projectSql.AddZimmer(cmbZimmer.Text.ToString());
-                        zimmer = projectSql.GetZimmer(cmbZimmer.Text.ToString());
-                        cmbZimmer.Items.Add(zimmer);
+                        zimmer = projectSql.sqlZimmer.Get(cmbZimmer.Text.ToString()) as Zimmer;
+                        if (zimmer == null)
+                        {
+                            projectSql.sqlZimmer.Add(cmbZimmer.Text.ToString());
+                            zimmer = projectSql.sqlZimmer.Get(cmbZimmer.Text.ToString()) as Zimmer;
+                        }
+                        cmbZimmer.ItemsSource = null;
+                        cmbZimmer.ItemsSource = projectSql.sqlZimmer.GetListe();
                         cmbZimmer.SelectedItem = zimmer;
                     }
                 }
                 return;
             };
-
-
         }
         public void LoadProjects(string szProjectname = "")
         {
@@ -202,22 +220,22 @@ namespace XCameraManager
             List<string> keys = new List<string>(gebaeude.Keys);
             foreach (string key in keys)
             {
-                gebaeude[key] = projectSql.AddGebaeude(key);
+                gebaeude[key] = projectSql.sqlGebaeude.Add(key);
             }
             keys = new List<string>(etagen.Keys);
             foreach (string key in keys)
             {
-                etagen[key] = projectSql.AddEtage(key);
+                etagen[key] = projectSql.sqlEtage.Add(key);
             }
             keys = new List<string>(wohnungen.Keys);
             foreach (string key in keys)
             {
-                wohnungen[key] = projectSql.AddWohnung(key);
+                wohnungen[key] = projectSql.sqlWohnung.Add(key);
             }
             keys = new List<string>(zimmer.Keys);
             foreach (string key in keys)
             {
-                zimmer[key] = projectSql.AddZimmer(key);
+                zimmer[key] = projectSql.sqlZimmer.Add(key);
             }
             
             using (Font font1 = new Font("Arial", 48, System.Drawing.FontStyle.Bold, GraphicsUnit.Point))
@@ -243,10 +261,10 @@ namespace XCameraManager
                                 }
                                 a.Save(szFullImgName, ImageFormat.Jpeg);
                                 int bildId = projectSql.AddBild(szImgName + ".jpg");
-                                projectSql.SetGebaeude(bildId, gebaeude[haus]);
-                                projectSql.SetEtage(bildId, etagen[etage]);
-                                projectSql.SetWohnung(bildId, wohnungen[wohnung]);
-                                projectSql.SetZimmer(bildId, zimmer[raum]);
+                                projectSql.sqlGebaeude.Set(bildId, gebaeude[haus]);
+                                projectSql.sqlEtage.Set(bildId, etagen[etage]);
+                                projectSql.sqlWohnung.Set(bildId, wohnungen[wohnung]);
+                                projectSql.sqlZimmer.Set(bildId, zimmer[raum]);
                                 projectSql.SetComment(bildId, szImgName);
                                 projectSql.SetStatus(bildId, STATUS.NONE);
                             }
@@ -292,32 +310,19 @@ namespace XCameraManager
             SetTitle(szProjectName);
 
             projectSql = new ProjectSql(szProjectName);
-            cmbGebaeude.Items.Clear();
-            List<Gebaeude> gebaeudeListe = projectSql.GetGebaeudeListe();
-            /*foreach (var gebaeude in gebaeudeListe)
-            {
-                cmbGebaeude.Items.Add(gebaeude);
-            }*/
-            cmbGebaeude.ItemsSource = gebaeudeListe;
-            cmbEtage.Items.Clear();
-            List<Etage> etageListe = projectSql.GetEtagenListe();
-            foreach (var etage in etageListe)
-            {
-                cmbEtage.Items.Add(etage);
-            }
-            cmbWohnung.Items.Clear();
-            List<Wohnung> wohnungListe = projectSql.GetWohnungListe();
-            foreach (var wohnung in wohnungListe)
-            {
-                cmbWohnung.Items.Add(wohnung);
-            }
 
-            cmbZimmer.Items.Clear();
-            List<Zimmer> zimmerListe = projectSql.GetZimmerListe();
-            foreach (var zimmer in zimmerListe)
-            {
-                cmbZimmer.Items.Add(zimmer);
-            }
+            cmbGebaeude.ItemsSource = null;
+            cmbGebaeude.ItemsSource = projectSql.sqlGebaeude.GetListe();
+
+            cmbEtage.ItemsSource = null;
+            cmbEtage.ItemsSource = projectSql.sqlEtage.GetListe();
+
+            cmbWohnung.ItemsSource = null;
+            cmbWohnung.ItemsSource = projectSql.sqlWohnung.GetListe();
+
+            cmbZimmer.ItemsSource = null;
+            cmbZimmer.ItemsSource = projectSql.sqlZimmer.GetListe();
+
             spProject.IsEnabled = true;
         }
         private void BtnSearch_Click(object sender, RoutedEventArgs e)
@@ -362,7 +367,92 @@ namespace XCameraManager
         }
         private void BtnDeleteTag_Click(object sender, RoutedEventArgs e)
         {
+            var gebaeude = ((Button)sender).Tag as Gebaeude;
+            if( gebaeude != null )
+            {
+                if ( !projectSql.sqlGebaeude.Delete(gebaeude))
+                {
+                    MessageBox.Show("Das Gebäude kann nicht gelöscht werden, da es noch benutzt wird.");
+                    cmbGebaeude.SelectedItem = gebaeude;
+                }
+                else
+                {
+                    cmbGebaeude.ItemsSource = null;
+                    cmbGebaeude.Text = "";
+                    cmbGebaeude.ItemsSource = projectSql.sqlGebaeude.GetListe();
+                    cmbGebaeude.SelectedIndex = -1;
+                }
+                return;
+            }
+            var etage = ((Button)sender).Tag as Etage;
+            if (etage != null)
+            {
+                if (!projectSql.sqlEtage.Delete(etage))
+                {
+                    MessageBox.Show("Die Etage kann nicht gelöscht werden, da sie noch benutzt wird.");
+                    cmbEtage.SelectedItem = etage;
+                }
+                else
+                {
+                    cmbEtage.ItemsSource = null;
+                    cmbEtage.Text = "";
+                    cmbEtage.ItemsSource = projectSql.sqlEtage.GetListe();
+                    cmbEtage.SelectedIndex = -1;
+                }
+                return;
+            }
+            var wohnung = ((Button)sender).Tag as Wohnung;
+            if (wohnung != null)
+            {
+                if (!projectSql.sqlWohnung.Delete(wohnung))
+                {
+                    MessageBox.Show("Die Wohnung kann nicht gelöscht werden, da sie noch benutzt wird.");
+                    cmbWohnung.SelectedItem = wohnung;
+                }
+                else
+                {
+                    // cmbWohnung.Items.Clear();
+                    cmbWohnung.ItemsSource = null;
+                    cmbWohnung.Text = "";
 
+                    cmbWohnung.ItemsSource = projectSql.sqlWohnung.GetListe();
+                    cmbWohnung.SelectedIndex = -1;
+                }
+                return;
+            }
+            var zimmer = ((Button)sender).Tag as Zimmer;
+            if (zimmer != null)
+            {
+                if (!projectSql.sqlZimmer.Delete(zimmer))
+                {
+                    MessageBox.Show("Das Zimmer kann nicht gelöscht werden, da es noch benutzt wird.");
+                    cmbZimmer.SelectedItem = zimmer;
+                }
+                else
+                {
+                    // cmbZimmer.Items.Clear();
+                    cmbZimmer.ItemsSource = null;
+                    cmbZimmer.Text = "";
+
+                    cmbZimmer.ItemsSource = projectSql.sqlZimmer.GetListe();
+                    cmbZimmer.SelectedIndex = - 1;
+
+                }
+                return;
+            }
+            var kommentar = ((Button)sender).Tag as Kommentar;
+            if (kommentar != null)
+            {
+                if (!projectSql.DeleteKommentar(kommentar))
+                {
+                    MessageBox.Show("Die Kommentar kann nicht gelöscht werden, da er noch benutzt wird.");
+                }
+                else
+                {
+                   
+                }
+                return;
+            }
         }
 
         private void OpenCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)

@@ -13,6 +13,11 @@ namespace XCamera.Util
         NEW=2,
         CHANGED=4
     }
+    public interface IDbObject
+    {
+        int ID { get; set; }
+        string Bezeichnung { get; set; }
+    }
     public class BildInfo
     {
         public int BildId { get; set; }
@@ -55,7 +60,7 @@ namespace XCamera.Util
         public int ZusatzID { get; set; }
     }
 
-    public class Gebaeude
+    public class Gebaeude: IDbObject
     {
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
@@ -74,7 +79,7 @@ namespace XCamera.Util
         public int GebaeudeID { get; set; }
     }
 
-    public class Etage
+    public class Etage : IDbObject
     {
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
@@ -92,7 +97,7 @@ namespace XCamera.Util
         public int EtageID { get; set; }
     }
 
-    public class Wohnung
+    public class Wohnung : IDbObject
     {
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
@@ -109,7 +114,7 @@ namespace XCamera.Util
         public int BildID { get; set; }
         public int WohnungID { get; set; }
     }
-    public class Zimmer
+    public class Zimmer : IDbObject
     {
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
@@ -126,7 +131,7 @@ namespace XCamera.Util
         public int BildID { get; set; }
         public int ZimmerID { get; set; }
     }
-    public class Kommentar
+    public class Kommentar : IDbObject
     {
         [PrimaryKey, AutoIncrement]
         public int ID { get; set; }
