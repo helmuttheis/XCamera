@@ -30,6 +30,11 @@ navigationpage {
     margin:25;
     padding:20,5,5,10;
 }
+#grdOverlay2 {
+    background-color: white;
+    margin: 25;
+    padding: 20,5,5,10;
+}
 #OverlayCancelX {
     color: black;
     background-color: lightgray;
@@ -42,6 +47,18 @@ navigationpage {
     background-color: white;
 }
 #viewOverlay  Picker {
+    height: 24;
+    background-color: white;
+}
+#viewOverlay2 {
+    background-color: lightskyblue;
+}
+
+#viewOverlay2 Label {
+    background-color: white;
+}
+
+#viewOverlay2 Picker {
     height: 24;
     background-color: white;
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -16,7 +17,10 @@ namespace XCamera
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
 	public partial class ProjectPage : ContentPage
-	{
+    {
+      //  public FlagToBoolean flagToBoolean = new FlagToBoolean();
+
+
         private Boolean bIsRemote = false;
         private List<string> projects;
         private List<string> remoteProjects;
@@ -48,6 +52,7 @@ namespace XCamera
 
             lstProjects.SelectedItem = projects.Find(proj => { return proj.Equals(XCamera.Util.Config.current.szCurProject); });
 
+           // this.BindingContext = this;
 		}
         protected override void OnAppearing()
         {
@@ -106,15 +111,17 @@ namespace XCamera
         }
         private void BtnConnect_Clicked(object sender, EventArgs e)
         {
-            
             if ( bIsRemote )
             {
                 bIsRemote = false;
                 FlagToBoolean.bVisible = !bIsRemote;
+                FlagToBoolean.bIsConnected = bIsRemote;
+                
                 UpdateBtnConnect();
                 projects = ProjectUtil.GetProjectList();
                 lstProjects.StyleId = bIsRemote.ToString();
 
+                lstProjects.ItemsSource = null;
                 lstProjects.ItemsSource = projects;
                 lstProjects.SelectedItem = projects.Find(proj => { return proj.Equals(XCamera.Util.Config.current.szCurProject); });
 
@@ -124,11 +131,12 @@ namespace XCamera
             overlay.Reset();
             Entry entryServer = overlay.AddInput("IP Adresse", "Url", Config.current.szIP, ID_IP);
             Entry entryPort = overlay.AddInput("Port", "Port",Config.current.szPort, ID_URL);
-            var submitButton = overlay.AddButton("verbinden");
+            var uploadButton = overlay.AddButton("senden");
+            var downloadButton = overlay.AddButton("empfangen");
             overlay.AddRowDefinitions();
             overlay.AddCancelX();
 
-            submitButton.Clicked += async (senderx, e2) =>
+            uploadButton.Clicked += async (senderx, e2) =>
             {
                 string szIp = "";
                 string szPort = "";
@@ -149,33 +157,82 @@ namespace XCamera
                     ProjectUtil.szServer = "http://" + szIp + ":" + szPort + "/xcamera";
                     bIsRemote = true;
                     FlagToBoolean.bVisible = !bIsRemote;
+                    FlagToBoolean.bIsConnected = bIsRemote;
+
+                    UpdateBtnConnect();
+
+                    lstProjects.ItemsSource = null;
+                    lstProjects.ItemsSource = projects;
+                    // close the overlay
+                    overlay.Close();
+                }
+            };
+            downloadButton.Clicked += async (senderx, e2) =>
+            {
+                string szIp = "";
+                string szPort = "";
+                if (entryServer.Text != null)
+                {
+                    szIp = entryServer.Text.Trim();
+                }
+                if (entryPort.Text != null)
+                {
+                    szPort = entryPort.Text.Trim();
+                }
+                if (string.IsNullOrWhiteSpace(szIp))
+                {
+                    await DisplayAlert("", "Die IP Adresse darf nicht leer sein.", "Weiter");
+                }
+                else
+                {
+                    ProjectUtil.szServer = "http://" + szIp + ":" + szPort + "/xcamera";
+                    bIsRemote = true;
+                    FlagToBoolean.bVisible = !bIsRemote;
+                    FlagToBoolean.bIsConnected = bIsRemote;
 
                     lstProjects.StyleId = bIsRemote.ToString();
                     UpdateBtnConnect();
                     remoteProjects = new List<string>();
+                    lblStatus.Text = "Verbidung mit " + ProjectUtil.szServer + " wird aufgebaut ...";
+
+                    Overlay overlay2 = new Overlay(grdOverlay2);
+                    overlay2.ShowRunMessage("Versuche eine Verbindung mit dem Server " + Config.current.szIP + " aufzubauen ...");
+
                     try
                     {
-                        remoteProjects = ProjectUtil.GetRemoteProjectList();
+                        remoteProjects = await ProjectUtil.GetRemoteProjectListAsync();
                     }
                     catch (Exception ex)
                     {
                         // could not connect 
                         lblStatus.Text = "Keine Verbidung mit " + ProjectUtil.szServer;
                     }
-                    if( remoteProjects.Count > 0)
+                    finally
                     {
-                        lblStatus.Text = "Verbidung mit " + ProjectUtil.szServer;
-                        Config.current.szIP = szIp;
-                        Config.current.szPort = szPort;
+                        overlay2.Close();
+                        if (remoteProjects.Count > 0)
+                        {
+                            lblStatus.Text = "Verbidung mit " + ProjectUtil.szServer;
+                            Config.current.szIP = szIp;
+                            Config.current.szPort = szPort;
+                            lstProjects.ItemsSource = null;
+                            lstProjects.ItemsSource = remoteProjects;
+
+                            // close the overlay
+                            overlay.Close();
+                        }
+                        else
+                        {
+                            bIsRemote = false;
+                            FlagToBoolean.bVisible = !bIsRemote;
+                            FlagToBoolean.bIsConnected = bIsRemote;
+
+                            lstProjects.StyleId = bIsRemote.ToString();
+                            UpdateBtnConnect();
+                        }
                     }
-
-                    lstProjects.ItemsSource = remoteProjects;
-
-                    // close the overlay
-                    overlay.Close();
                 }
             };
-
             overlay.Show();
 
         }
@@ -340,10 +397,6 @@ namespace XCamera
         {
             if (bIsRemote)
             {
-
-            }
-            else
-            {
                 string szProject = (sender as Button).CommandParameter.ToString();
 
                 Overlay overlay = new Overlay(grdOverlay);
@@ -409,19 +462,60 @@ namespace XCamera
             }
         }
     }
-    class FlagToBoolean : IValueConverter
+    public class FlagToBoolean : IValueConverter, INotifyPropertyChanged
     {
-        public static Boolean bVisible = true;
+        public static Boolean bVisible { get; set; } = true;
+        public static Boolean bIsConnected { get; set; } = false;
+
+      // public bool _bIsConnected = false;
+      // public bool bIsConnected
+      // {
+      //     get
+      //     {
+      //         return _bIsConnected;
+      //     }
+      //     set
+      //     {
+      //         if (_bIsConnected != value)
+      //         {
+      //             _bIsConnected = value;
+      //             RaisePropertyChanged("bIsConnected");
+      //         }
+      //     }
+      // }
+
         public object Convert(object value, Type targetType,
                               object parameter, CultureInfo culture)
         {
+            if (parameter != null && parameter is string)
+            {
+                if (parameter.Equals("send"))
+                {
+                    return bIsConnected;
+                }
+                return !bIsConnected;
+            }
             return bVisible ;
         }
 
         public object ConvertBack(object value, Type targetType,
                                   object parameter, CultureInfo culture)
         {
+            if (parameter != null && parameter is string)
+            {
+                if (parameter.Equals("send"))
+                {
+                    return bIsConnected;
+                }
+                return !bIsConnected;
+            }
             return bVisible;
         }
+        void RaisePropertyChanged(string prop)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(prop));
+        }
+        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

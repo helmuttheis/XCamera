@@ -25,9 +25,9 @@
                                     <StackLayout class="projectViewCell" Orientation="Horizontal" HorizontalOptions="Fill" Margin="0,5" Padding="5,2">
                                     <Label Text = "{Binding .}" FontSize="24" HorizontalOptions="FillAndExpand"/>
                                     <Button Text="senden" x:Name="btnSend" Clicked="BtnSend_Clicked" CommandParameter="{Binding .}" 
-                                            IsVisible="{Binding .,Converter={StaticResource bVisible}}"/>
+                                            IsVisible="{Binding .,Mode=OneWay,Converter={StaticResource bVisible}, ConverterParameter=send, UpdateSourceEventName=local:flagToBoolean.PropertyChanged} "/>
                                     <Button Text="löschen" x:Name="btnDelete" Clicked="BtnDelete_Clicked" CommandParameter="{Binding .}" 
-                                            IsVisible="{Binding .,Converter={StaticResource bVisible}}"/>
+                                            IsVisible="{Binding .,Mode=OneWay,Converter={StaticResource bVisible}, ConverterParameter=delete, UpdateSourceEventName=local:flagToBoolean.PropertyChanged}"/>
                                 </StackLayout>
                             </ViewCell>
                         </DataTemplate>
@@ -56,8 +56,25 @@
                         <ColumnDefinition Width="40"/>
                     </Grid.ColumnDefinitions>
                 </Grid>
+            </ContentView>
+            <!-- Overlay2 -->
+            <ContentView x:Name="viewOverlay2"
+                 AbsoluteLayout.LayoutBounds="1, 1, 1, 1"
+                 AbsoluteLayout.LayoutFlags="All"
+                 IsVisible="False"
+                 BackgroundColor="#C0808080"
+                 Padding="10,10,10,10">
 
-
+                <Grid x:Name="grdOverlay2"
+                        HorizontalOptions="Center" 
+                        VerticalOptions="Center" 
+                        Padding="20,5,5,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="40"/>
+                    </Grid.ColumnDefinitions>
+                </Grid>
             </ContentView>
         </AbsoluteLayout>
     </ContentPage.Content>

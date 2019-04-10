@@ -86,6 +86,24 @@ namespace XCamera.Util
 
             return projList;
         }
+        public static async Task<List<string>> GetRemoteProjectListAsync()
+        {
+            string szJson = "";
+            List<string> projList = new List<string>();
+
+            szJson = await httpClient.GetStringAsync(szServer);
+            //  [{"szProjectName":"Test1","lSize":11496036},{"szProjectName":"Test2","lSize":11496036}]
+            List<JsonProject> remoteProjects = JsonConvert.DeserializeObject<List<JsonProject>>(szJson);
+            foreach (var project in remoteProjects)
+            {
+                if (ProjectUtil.IsValidName(project.szProjectName))
+                {
+                    projList.Add(project.szProjectName);
+                }
+            }
+
+            return projList;
+        }
         public static void GetRemoteMetaData(string szProjectName)
         {
             string szJson = "";
