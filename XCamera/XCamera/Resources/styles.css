@@ -8,7 +8,7 @@ navigationpage {
     -xf-bar-background-color: lightgray;
 }
 
-^contentpage {
+#contentpage {
     background-color: lightgray;
 }
 

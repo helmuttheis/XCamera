@@ -114,8 +114,8 @@ namespace XCamera
             if ( bIsRemote )
             {
                 bIsRemote = false;
-                FlagToBoolean.bVisible = !bIsRemote;
                 FlagToBoolean.bIsConnected = bIsRemote;
+                FlagToBoolean.bIsConnectedToSend = bIsRemote;
                 
                 UpdateBtnConnect();
                 projects = ProjectUtil.GetProjectList();
@@ -156,8 +156,8 @@ namespace XCamera
                 {
                     ProjectUtil.szServer = "http://" + szIp + ":" + szPort + "/xcamera";
                     bIsRemote = true;
-                    FlagToBoolean.bVisible = !bIsRemote;
                     FlagToBoolean.bIsConnected = bIsRemote;
+                    FlagToBoolean.bIsConnectedToSend = bIsRemote;
 
                     UpdateBtnConnect();
 
@@ -187,13 +187,13 @@ namespace XCamera
                 {
                     ProjectUtil.szServer = "http://" + szIp + ":" + szPort + "/xcamera";
                     bIsRemote = true;
-                    FlagToBoolean.bVisible = !bIsRemote;
                     FlagToBoolean.bIsConnected = bIsRemote;
+                    FlagToBoolean.bIsConnectedToSend = !bIsRemote;
 
                     lstProjects.StyleId = bIsRemote.ToString();
                     UpdateBtnConnect();
                     remoteProjects = new List<string>();
-                    lblStatus.Text = "Verbidung mit " + ProjectUtil.szServer + " wird aufgebaut ...";
+                    lblStatus.Text = "Verbindung mit " + ProjectUtil.szServer + " wird aufgebaut ...";
 
                     Overlay overlay2 = new Overlay(grdOverlay2);
                     overlay2.ShowRunMessage("Versuche eine Verbindung mit dem Server " + Config.current.szIP + " aufzubauen ...");
@@ -205,14 +205,14 @@ namespace XCamera
                     catch (Exception ex)
                     {
                         // could not connect 
-                        lblStatus.Text = "Keine Verbidung mit " + ProjectUtil.szServer;
+                        lblStatus.Text = "Keine Verbindung mit " + ProjectUtil.szServer;
                     }
                     finally
                     {
                         overlay2.Close();
                         if (remoteProjects.Count > 0)
                         {
-                            lblStatus.Text = "Verbidung mit " + ProjectUtil.szServer;
+                            lblStatus.Text = "Verbindung mit " + ProjectUtil.szServer;
                             Config.current.szIP = szIp;
                             Config.current.szPort = szPort;
                             lstProjects.ItemsSource = null;
@@ -224,8 +224,8 @@ namespace XCamera
                         else
                         {
                             bIsRemote = false;
-                            FlagToBoolean.bVisible = !bIsRemote;
                             FlagToBoolean.bIsConnected = bIsRemote;
+                            FlagToBoolean.bIsConnectedToSend = bIsRemote;
 
                             lstProjects.StyleId = bIsRemote.ToString();
                             UpdateBtnConnect();
@@ -351,7 +351,7 @@ namespace XCamera
         {
             if (lstProjects.SelectedItem != null)
             {
-                if (bIsRemote)
+                if (bIsRemote && !FlagToBoolean.bIsConnectedToSend)
                 {
                     string szProjectName = lstProjects.SelectedItem.ToString();
                     if (  ProjectSql.DbExists(szProjectName) )
@@ -372,7 +372,7 @@ namespace XCamera
                         DownloadProject(szProjectName);
                     }
                 }
-                else
+                else if( !bIsRemote )
                 {
                     XCamera.Util.Config.current.szCurProject = lstProjects.SelectedItem.ToString();
                     Navigation.PushAsync(new MainPage());
@@ -385,11 +385,20 @@ namespace XCamera
             {
                 btnConnect.Text = "trennen";
                 btnNew.IsEnabled = false;
+                if( FlagToBoolean.bIsConnectedToSend)
+                {
+                    lblCaption.Text = "Projektliste zum Senden";
+                }
+                else
+                {
+                    lblCaption.Text = "Projektliste zum Empfangen";
+                }
             }
             else
             {
                 btnConnect.Text = "verbinden";
                 btnNew.IsEnabled = true;
+                lblCaption.Text = "Projektliste zum Bearbeiten";
             }
         }
 
@@ -400,7 +409,7 @@ namespace XCamera
                 string szProject = (sender as Button).CommandParameter.ToString();
 
                 Overlay overlay = new Overlay(grdOverlay);
-                overlay.ShowRunMessage("Versuche das Projekt an den Server " + Config.current.szIP + " zu senden ...");
+                overlay.ShowRunMessage("Versuche das Projekt " + szProject + " an den Server " + Config.current.szIP + " zu senden ...");
 
                 await SendProject(szProject,(bFinished, szStr) => {
                     if (bFinished)
@@ -464,25 +473,8 @@ namespace XCamera
     }
     public class FlagToBoolean : IValueConverter, INotifyPropertyChanged
     {
-        public static Boolean bVisible { get; set; } = true;
-        public static Boolean bIsConnected { get; set; } = false;
-
-      // public bool _bIsConnected = false;
-      // public bool bIsConnected
-      // {
-      //     get
-      //     {
-      //         return _bIsConnected;
-      //     }
-      //     set
-      //     {
-      //         if (_bIsConnected != value)
-      //         {
-      //             _bIsConnected = value;
-      //             RaisePropertyChanged("bIsConnected");
-      //         }
-      //     }
-      // }
+        public static Boolean bIsConnected { get; set; } = true;
+        public static Boolean bIsConnectedToSend { get; set; } = false;
 
         public object Convert(object value, Type targetType,
                               object parameter, CultureInfo culture)
@@ -491,11 +483,11 @@ namespace XCamera
             {
                 if (parameter.Equals("send"))
                 {
-                    return bIsConnected;
+                    return bIsConnectedToSend;
                 }
                 return !bIsConnected;
             }
-            return bVisible ;
+            return bIsConnected;
         }
 
         public object ConvertBack(object value, Type targetType,
@@ -505,11 +497,11 @@ namespace XCamera
             {
                 if (parameter.Equals("send"))
                 {
-                    return bIsConnected;
+                    return bIsConnectedToSend;
                 }
                 return !bIsConnected;
             }
-            return bVisible;
+            return bIsConnected;
         }
         void RaisePropertyChanged(string prop)
         {
