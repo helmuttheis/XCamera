@@ -24,11 +24,13 @@
                             <ViewCell>
                                     <StackLayout class="projectViewCell" Orientation="Horizontal" HorizontalOptions="Fill" Margin="0,5" Padding="5,2">
                                     <Label Text = "{Binding .}" FontSize="24" HorizontalOptions="FillAndExpand"/>
-                                    <Button Text="senden" x:Name="btnSend" Clicked="BtnSend_Clicked" CommandParameter="{Binding .}" 
+                                        <!--
+                                        <Button Text="senden" x:Name="btnSend" Clicked="BtnSend_Clicked" CommandParameter="{Binding .}" 
                                             IsVisible="{Binding .,Mode=OneWay,Converter={StaticResource bVisible}, ConverterParameter=send, UpdateSourceEventName=local:flagToBoolean.PropertyChanged} "/>
-                                    <Button Text="löschen" x:Name="btnDelete" Clicked="BtnDelete_Clicked" CommandParameter="{Binding .}" 
+ -->
+                                        <Button Text="löschen" x:Name="btnDelete" Clicked="BtnDelete_Clicked" CommandParameter="{Binding .}" 
                                             IsVisible="{Binding .,Mode=OneWay,Converter={StaticResource bVisible}, ConverterParameter=delete, UpdateSourceEventName=local:flagToBoolean.PropertyChanged}"/>
-                                </StackLayout>
+                                        </StackLayout>
                             </ViewCell>
                         </DataTemplate>
                     </ListView.ItemTemplate>

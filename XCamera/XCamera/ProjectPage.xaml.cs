@@ -223,12 +223,15 @@ namespace XCamera
                         }
                         else
                         {
+                            // revert the state
                             bIsRemote = false;
                             FlagToBoolean.bIsConnected = bIsRemote;
                             FlagToBoolean.bIsConnectedToSend = bIsRemote;
 
                             lstProjects.StyleId = bIsRemote.ToString();
                             UpdateBtnConnect();
+
+                            // here we could add an error text to overlay
                         }
                     }
                 }
@@ -296,11 +299,12 @@ namespace XCamera
                 XCamera.Util.Config.current.szCurProject = szProjectName;
                 new ProjectSql(XCamera.Util.Config.current.szCurProject);
 
+                // change the state to edit instead of send/download.
                 BtnConnect_Clicked(null, null);
             }
         }
         // private void DownloadProject
-        private async Task SendProject(string szProjectName, Action<Boolean,string> cb)
+        private async Task SendProjectAsync(string szProjectName, Action<Boolean, Boolean, string> cb)
         {
             if (projects.Any(proj => { return proj.Equals(szProjectName); }))
             {
@@ -313,7 +317,7 @@ namespace XCamera
                 // send all changed images
                 foreach (var bild in bilder)
                 {
-                    cb(false,"send " + bild.Name);
+                    cb(false, false, "send " + bild.Name);
                     bError = ! await ProjectUtil.SendFileAsync(szProjectName, Path.GetFileName(bild.Name));
                     if( bError)
                     {
@@ -325,7 +329,7 @@ namespace XCamera
                     // send all changed data
                     foreach (var bild in bilder)
                     {
-                        cb(false, "send changed data for " + bild.Name);
+                        cb(false, false, "send changed data for " + bild.Name);
 
                         BildInfo bi = tmpProject.GetBildInfo(bild.Name, DateTime.Now);
 
@@ -342,7 +346,7 @@ namespace XCamera
                 {
                     szMessage = "Es gab einen internen Fehler.";
                 }
-                cb(true, szMessage);
+                cb(true, bError, szMessage);
 
             }
         }
@@ -351,16 +355,16 @@ namespace XCamera
         {
             if (lstProjects.SelectedItem != null)
             {
+                string szProjectName = lstProjects.SelectedItem.ToString();
                 if (bIsRemote && !FlagToBoolean.bIsConnectedToSend)
                 {
-                    string szProjectName = lstProjects.SelectedItem.ToString();
                     if (  ProjectSql.DbExists(szProjectName) )
                     {
                         ProjectSql tmpProject = new ProjectSql(szProjectName);
                         if(tmpProject.IsDirty())
                         {
                             Overlay overlay = new Overlay(grdOverlay);
-                            overlay.ShowMessage("Das Projekt enthält noch geänderte Daten, die noch nicht gesichert wurden.");
+                            overlay.ShowMessage("Das Projekt enthält geänderte Daten, die noch nicht gesichert wurden.");
                         }
                         else
                         {
@@ -371,6 +375,32 @@ namespace XCamera
                     {
                         DownloadProject(szProjectName);
                     }
+                }
+                else if( bIsRemote && FlagToBoolean.bIsConnectedToSend)
+                {
+                    Overlay overlay = new Overlay(grdOverlay);
+                    overlay.ShowRunMessage("Versuche das Projekt " + szProjectName + " an den Server " + Config.current.szIP + " zu senden ...");
+
+                    Task.Run(async () =>
+                    {
+                        await SendProjectAsync(szProjectName, (bFinished, bError, szStr) =>
+                        {
+                            /* bFinished == true the sending is completed
+                             * bError == true an error occured
+                             * szStr   the message or error text
+                             */
+                            if (bFinished)
+                            {
+                                // the overlay does not have the cancel X, so we have to close it here
+                                Device.BeginInvokeOnMainThread(() =>
+                                {
+                                    overlay.Close();
+                                });
+                            }
+                            SetStatusLine(szStr);
+                        });
+                    });
+
                 }
                 else if( !bIsRemote )
                 {
@@ -401,7 +431,7 @@ namespace XCamera
                 lblCaption.Text = "Projektliste zum Bearbeiten";
             }
         }
-
+#if false
         private async void BtnSend_Clicked(object sender, EventArgs e)
         {
             if (bIsRemote)
@@ -411,7 +441,7 @@ namespace XCamera
                 Overlay overlay = new Overlay(grdOverlay);
                 overlay.ShowRunMessage("Versuche das Projekt " + szProject + " an den Server " + Config.current.szIP + " zu senden ...");
 
-                await SendProject(szProject,(bFinished, szStr) => {
+                await SendProjectAsync(szProject,(bFinished, bError, szStr) => {
                     if (bFinished)
                     {
                         Device.BeginInvokeOnMainThread(() => {
@@ -422,6 +452,7 @@ namespace XCamera
                 });
             }
         }
+#endif
         private void SetStatusLine(string szMessage)
         {
             Device.BeginInvokeOnMainThread(() => {
