@@ -292,7 +292,11 @@ namespace XCamera
             }
             if( bLoad )
             {
-                ProjectUtil.GetRemoteMetaData(szProjectName);
+                SetStatusLine("");
+                ProjectUtil.GetRemoteMetaData(szProjectName,(msg)=>
+                {
+                    AddStatusLine(msg);
+                });
                 projects.Add(szProjectName);
                 lstProjects.ItemsSource = null;
                 lstProjects.ItemsSource = projects;
@@ -310,14 +314,15 @@ namespace XCamera
             {
                 // ToDo: open the overlay with the server settings
                 // here we expect the current settings to be correct.
-
+                cb(false, false, "sende Projekt " + szProjectName);
                 ProjectSql tmpProject = new ProjectSql(szProjectName);
                 List<Bild> bilder =  tmpProject.GetBilderChanged();
                 Boolean bError = false;
                 // send all changed images
+                cb(false, false, "sende " + bilder.Count.ToString() + " Bilder");
                 foreach (var bild in bilder)
                 {
-                    cb(false, false, "send " + bild.Name);
+                    cb(false, false, "sende " + bild.Name);
                     bError = ! await ProjectUtil.SendFileAsync(szProjectName, Path.GetFileName(bild.Name));
                     if( bError)
                     {
@@ -329,7 +334,7 @@ namespace XCamera
                     // send all changed data
                     foreach (var bild in bilder)
                     {
-                        cb(false, false, "send changed data for " + bild.Name);
+                        cb(false, false, "sende geänderte Daten für " + bild.Name);
 
                         BildInfo bi = tmpProject.GetBildInfo(bild.Name, DateTime.Now);
 
@@ -383,6 +388,7 @@ namespace XCamera
 
                     Task.Run(async () =>
                     {
+                        SetStatusLine("");
                         await SendProjectAsync(szProjectName, (bFinished, bError, szStr) =>
                         {
                             /* bFinished == true the sending is completed
@@ -397,7 +403,7 @@ namespace XCamera
                                     overlay.Close();
                                 });
                             }
-                            SetStatusLine(szStr);
+                            AddStatusLine(szStr);
                         });
                     });
 
@@ -457,6 +463,12 @@ namespace XCamera
         {
             Device.BeginInvokeOnMainThread(() => {
                 lblStatus.Text = szMessage;
+            });
+        }
+        private void AddStatusLine(string szMessage)
+        {
+            Device.BeginInvokeOnMainThread(() => {
+                lblStatus.Text += Environment.NewLine + szMessage;
             });
         }
         private void DeleteProject(Boolean bForce,string szProjectName)

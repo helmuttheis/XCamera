@@ -104,29 +104,35 @@ namespace XCamera.Util
 
             return projList;
         }
-        public static void GetRemoteMetaData(string szProjectName)
+        public static void GetRemoteMetaData(string szProjectName, Action<string> log)
         {
             string szJson = "";
             try
             {
+                log("Daten werden vom Server geladen ..");
                 Task.Run(async () =>
                 {
                     szJson = await httpClient.GetStringAsync(szServer + "?project=" + szProjectName + "&file=" + szProjectName + ".db");
                 }).Wait();
                 var remoteMetaData = JsonConvert.DeserializeObject<MetaData>(szJson);
                 ProjectSql tmpProject = new ProjectSql(szProjectName);
+
+                log(remoteMetaData.gebaeudeListe.Count.ToString() + " Gebäude");
                 foreach (var gebaeude in remoteMetaData.gebaeudeListe)
                 {
                     tmpProject.sqlGebaeude.Ensure(gebaeude.Bezeichnung);
                 }
+                log(remoteMetaData.etageListe.Count.ToString() + " Etagen");
                 foreach (var etage in remoteMetaData.etageListe)
                 {
                     tmpProject.sqlEtage.Ensure(etage.Bezeichnung);
                 }
+                log(remoteMetaData.wohnungiste.Count.ToString() + " Wohnungen");
                 foreach (var wohnung in remoteMetaData.wohnungiste)
                 {
                     tmpProject.sqlWohnung.Ensure(wohnung.Bezeichnung);
                 }
+                log(remoteMetaData.zimmerListe.Count.ToString() + " Zimmer");
                 foreach (var zimmer in remoteMetaData.zimmerListe)
                 {
                     tmpProject.sqlZimmer.Ensure(zimmer.Bezeichnung);
