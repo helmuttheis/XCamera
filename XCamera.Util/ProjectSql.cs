@@ -185,9 +185,13 @@ namespace XCamera.Util
 
             return imgList;
         }
-        public string GetImageFullName(string szImage)
+        public string GetImageFullName(string szImage, string szAdditionalDir="")
         {
-            return Path.Combine(szProjectPath, szImage);
+            if (string.IsNullOrWhiteSpace(szAdditionalDir))
+            {
+                return Path.Combine(szProjectPath, szImage);
+            }
+            return Path.Combine(szProjectPath, szAdditionalDir, szImage);
         }
         public string GetImageFullThumbName(string szImage)
         {

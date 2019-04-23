@@ -204,7 +204,7 @@ namespace XCameraManager
                 {
                     try
                     {
-                        string szFullPath = System.IO.Path.Combine(XCamera.Util.Config.current.szBasedir, szProjectname);
+                        string szFullPath = System.IO.Path.Combine(XCamera.Util.Config.current.szBasedir, "Fotos", szProjectname);
                         if (!Directory.Exists(szFullPath))
                         {
                             Directory.CreateDirectory(szFullPath);

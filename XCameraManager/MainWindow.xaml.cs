@@ -355,7 +355,7 @@ namespace XCameraManager
                     BildName = System.IO.Path.GetFileName(bild.Name),
                     BildInfo = projectSql.GetBildInfo(bild.Name,DateTime.Now),
                     Kommentar = szKommentar,
-                    BildPath = projectSql.GetImageFullName(bild.Name),
+                    BildPath = projectSql.GetImageFullName(bild.Name,"Fotos"),
                     ToBeLaoded = LoadVisibility,
                     CaptureDate = bild.CaptureDate.ToString()
                 });
@@ -485,7 +485,7 @@ namespace XCameraManager
              BildMitKommentar bmk = lvBilder.SelectedItem as BildMitKommentar;
              if(bmk != null  )
              {
-                imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.BildName)));
+                imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.BildName,"Fotos")));
                 BildInfo bi = projectSql.GetBildInfo(bmk.BildName, DateTime.Now);
                 lblGebaeude.Content = bi.GebaeudeBezeichnung;
                 lblEtage.Content = bi.EtageBezeichnung;
@@ -523,7 +523,7 @@ namespace XCameraManager
                     BildMitKommentar bmk = bild as BildMitKommentar;
                     if (bmk != null)
                     {
-                        string szFullName = projectSql.GetImageFullName(bmk.BildName);
+                        string szFullName = projectSql.GetImageFullName(bmk.BildName,"Fotos");
                         if (!dictBilder.ContainsKey(szFullName))
                         {
                             dictBilder.Add(szFullName, bmk);
@@ -531,6 +531,13 @@ namespace XCameraManager
                     }
                 }
                 Docx.FillTable(dlg.FileName, projectSql.szProjectName, dictBilder);
+                if( MessageBox.Show("Die Worddatei " + dlg.FileName + " wurde erzeugt." + Environment.NewLine +
+                    "Soll sie in Word angezeigt werden?",
+                    "XCameraManager",
+                    MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
+                    Process.Start(dlg.FileName);
+                }
             }
         }
         public void Manage()

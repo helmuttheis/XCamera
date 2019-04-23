@@ -111,6 +111,10 @@ namespace XCamera.Util
             {
                 XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "wordtemplate");
                 string szTemplate = oneNode.InnerText.Trim();
+                if( string.IsNullOrWhiteSpace(szTemplate))
+                {
+                    szTemplate = "template.docx";
+                }
                 if (!Path.IsPathRooted(szTemplate))
                 {
                     szTemplate = Path.Combine(Path.GetDirectoryName(szConfigFile), szTemplate);
