@@ -516,7 +516,7 @@ namespace XCamera
     }
     public class FlagToBoolean : IValueConverter, INotifyPropertyChanged
     {
-        public static Boolean bIsConnected { get; set; } = true;
+        public static Boolean bIsConnected { get; set; } = false;
         public static Boolean bIsConnectedToSend { get; set; } = false;
 
         public object Convert(object value, Type targetType,

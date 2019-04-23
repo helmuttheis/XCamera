@@ -78,7 +78,7 @@ namespace XCameraManager
                     ShowInfo("Server wurde nicht gestartet: " + ex.ToString());
                     ShowInfo(szCommand);
                     if (MessageBox.Show("Die Anwendung darf den benötigten Port nicht öffnen." + Environment.NewLine +
-                        "Soll versucht werden die Einstellunge vorzunehmen?",
+                        "Soll versucht werden die Einstellungen vorzunehmen?",
                         "Firewalleinstellungen", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
                         RunAs(szCommand);
