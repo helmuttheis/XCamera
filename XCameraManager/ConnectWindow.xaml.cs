@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -68,12 +69,40 @@ namespace XCameraManager
                 btnConnect.IsEnabled = false;
                 ShowInfo("Server wurde erfolgreich gestartet.");
             }
+            catch(HttpListenerException ex)
+            {
+                if( ex.ErrorCode == 5)
+                {
+                    string szCommand = @"netsh http add urlacl url=http://" + szIP + ":" + tbPort.Text.Trim() + "/ " + @"user=%USERDOMAIN%\%USERNAME%"; //  listen=yes
+                    szCommand = Environment.ExpandEnvironmentVariables(szCommand);
+                    ShowInfo("Server wurde nicht gestartet: " + ex.ToString());
+                    ShowInfo(szCommand);
+                    if (MessageBox.Show("Die Anwendung darf den benötigten Port nicht öffnen." + Environment.NewLine +
+                        "Soll versucht werden die Einstellunge vorzunehmen?",
+                        "Firewalleinstellungen", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        RunAs(szCommand);
+                    }
+
+                }
+            }
             catch (Exception ex)
             {
                 MessageBox.Show("Server wurde nicht gestartet: " + ex.ToString());
                 ShowInfo("Server wurde nicht gestartet: " + ex.ToString());
             }
 
+        }
+        private void RunAs(string szCommand)
+        {
+            Process q = new Process();
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.FileName = "cmd.exe";
+            info.UseShellExecute = true;
+            info.Arguments = "/c " + szCommand;
+            info.Verb = "runas";
+            q.StartInfo = info;
+            q.Start();
         }
         public  wsResponse SendResponse(HttpListenerRequest request)
         {
@@ -343,6 +372,11 @@ namespace XCameraManager
                 tbBasedir.Text = folderDlg.SelectedPath;
                 XCamera.Util.Config.current.szBasedir = folderDlg.SelectedPath;
             }
+        }
+
+        private void BtnOpenPort_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
