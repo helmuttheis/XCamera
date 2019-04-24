@@ -95,8 +95,11 @@ namespace XCameraManager
                 body.Append(table);
             }
         }
-        public static void FillTable(string fileName, string szTitle, Dictionary<string, BildMitKommentar> dictBilder)
+        public static string szError { get; set; }
+        public static Boolean FillTable(string fileName, string szTitle, Dictionary<string, BildMitKommentar> dictBilder)
         {
+            Boolean bRet = false;
+            szError = "";
             try
             {
                 File.Copy(Config.current.szWordTemplate, fileName, true);
@@ -117,13 +120,15 @@ namespace XCameraManager
                         AddInTable(mainPart, table, dictBilder);
                     }
                     wordDocument.Save();
+                    bRet = true;
                 }
             }
             catch (Exception ex)
             {
-                throw;
+                szError = "FillTable: " + ex.ToString();
+                Logging.AddError(szError);
             }
-
+            return bRet;
         }
         private static void AddInTable(MainDocumentPart mainPart,Table table, Dictionary<string, BildMitKommentar> dictBilder)
         {

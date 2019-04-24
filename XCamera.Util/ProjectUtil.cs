@@ -287,8 +287,7 @@ namespace XCamera.Util
             }
             catch (Exception ex)
             {
-
-                throw;
+                Logging.AddError("CopyProject: " + ex.ToString());
             }
 
         }
@@ -311,8 +310,9 @@ namespace XCamera.Util
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Logging.AddError("DownloadFileAsync: " + ex.ToString());
                 //Handle Exception
                 return null;
             }

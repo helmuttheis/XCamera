@@ -530,13 +530,19 @@ namespace XCameraManager
                         }
                     }
                 }
-                Docx.FillTable(dlg.FileName, projectSql.szProjectName, dictBilder);
-                if( MessageBox.Show("Die Worddatei " + dlg.FileName + " wurde erzeugt." + Environment.NewLine +
-                    "Soll sie in Word angezeigt werden?",
-                    "XCameraManager",
-                    MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (Docx.FillTable(dlg.FileName, projectSql.szProjectName, dictBilder))
                 {
-                    Process.Start(dlg.FileName);
+                    if (MessageBox.Show("Die Worddatei " + dlg.FileName + " wurde erzeugt." + Environment.NewLine +
+                        "Soll sie in Word angezeigt werden?",
+                        "XCameraManager",
+                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        Process.Start(dlg.FileName);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Fehler beim Erstellen der Word-Datei: " + Docx.szError);
                 }
             }
         }
