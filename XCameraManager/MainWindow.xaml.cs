@@ -745,6 +745,47 @@ namespace XCameraManager
         }
     }
 
+    public class ApplicationDocCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged
+        {
+            // You may not need a body here at all...
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return Application.Current != null && Application.Current.MainWindow != null;
+        }
+
+        public void Execute(object parameter)
+        {
+            Process.Start(new ProcessStartInfo("https://github.com/helmuttheis/XCamera/wiki"));
+        }
+    }
+
+    public class ApplicationInfoCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged
+        {
+            // You may not need a body here at all...
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return Application.Current != null && Application.Current.MainWindow != null;
+        }
+
+        public void Execute(object parameter)
+        {
+            InfoWindow infoWindow = new InfoWindow();
+            infoWindow.ShowDialog();
+        }
+    }
+
     public static class MyCommands
     {
         private static readonly ICommand appPublishCmd = new ApplicationPublishCommand();
@@ -779,6 +820,16 @@ namespace XCameraManager
         public static ICommand ApplicationLokalCommand
         {
             get { return appLokalCmd; }
+        }
+        private static readonly ICommand appDocCmd = new ApplicationDocCommand();
+        public static ICommand ApplicationDocCommand
+        {
+            get { return appDocCmd; }
+        }
+        private static readonly ICommand appInfoCmd = new ApplicationInfoCommand();
+        public static ICommand ApplicationInfoCommand
+        {
+            get { return appInfoCmd; }
         }
     }
 }

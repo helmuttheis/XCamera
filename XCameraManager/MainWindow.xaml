@@ -16,6 +16,11 @@
     <DockPanel LastChildFill="True">
         <!-- Top menu -->
         <Menu DockPanel.Dock="Top">
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <DockPanel HorizontalAlignment="Stretch"/>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
             <MenuItem Header="_Projekt">
                 <MenuItem Header="Neu" Command="New" />
                 <MenuItem Header="Als Word-Dokument" Command="local:MyCommands.ApplicationPublishCommand" />
@@ -27,6 +32,10 @@
                 <MenuItem  Header="_Verbindung" Command="local:MyCommands.ApplicationConnectCommand" />
                 <MenuItem  Header="_Patch Datenbanken" Command="local:MyCommands.ApplicationPatchCommand" />
                 <MenuItem  Header="_XCamera Lokal freischalten" Command="local:MyCommands.ApplicationLokalCommand" />
+            </MenuItem>
+            <MenuItem Header="_Hilfe" HorizontalAlignment="Right">
+                <MenuItem  Header="_Online Dokumentation" Command="local:MyCommands.ApplicationDocCommand" />
+                <MenuItem  Header="_Info" Command="local:MyCommands.ApplicationInfoCommand" />
             </MenuItem>
         </Menu>
         

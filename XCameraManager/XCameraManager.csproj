@@ -114,6 +114,9 @@
       <DependentUpon>ConnectWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Docx.cs" />
+    <Compile Include="InfoWindow.xaml.cs">
+      <DependentUpon>InfoWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="InputBox.cs" />
     <Compile Include="ManageWindow.xaml.cs">
       <DependentUpon>ManageWindow.xaml</DependentUpon>
@@ -124,6 +127,9 @@
     <Compile Include="WebServer.cs" />
     <Page Include="ConnectWindow.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="InfoWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="MainWindow.xaml">
