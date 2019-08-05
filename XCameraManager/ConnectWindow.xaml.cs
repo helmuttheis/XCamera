@@ -71,7 +71,7 @@ namespace XCameraManager
             }
             catch(HttpListenerException ex)
             {
-                if( ex.ErrorCode == 5)
+                if(ex.ErrorCode == 5)
                 {
                     string szCommand = @"netsh http add urlacl url=http://" + szIP + ":" + tbPort.Text.Trim() + "/ " + @"user=%USERDOMAIN%\%USERNAME%"; //  listen=yes
                     szCommand = Environment.ExpandEnvironmentVariables(szCommand);

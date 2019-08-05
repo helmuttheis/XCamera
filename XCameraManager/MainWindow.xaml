@@ -26,6 +26,7 @@
             <MenuItem Header="_Tools">
                 <MenuItem  Header="_Verbindung" Command="local:MyCommands.ApplicationConnectCommand" />
                 <MenuItem  Header="_Patch Datenbanken" Command="local:MyCommands.ApplicationPatchCommand" />
+                <MenuItem  Header="_XCamera Lokal freischalten" Command="local:MyCommands.ApplicationLokalCommand" />
             </MenuItem>
         </Menu>
         

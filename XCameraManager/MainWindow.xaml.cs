@@ -703,6 +703,48 @@ namespace XCameraManager
         }
     }
 
+    public class ApplicationLokalCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged
+        {
+            // You may not need a body here at all...
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return Application.Current != null && Application.Current.MainWindow != null;
+        }
+
+        public void Execute(object parameter)
+        {
+
+            string szCommand = "CheckNetIsolation.exe LoopbackExempt -a -n=13b20aa7-cdd8-4f1c-addb-9b2e991d4a31_tejrjx29myjjt";
+            try
+            {
+                Process q = new Process();
+                ProcessStartInfo info = new ProcessStartInfo();
+                info.FileName = "cmd.exe";
+                info.UseShellExecute = true;
+                info.Arguments = "/c " + szCommand;
+                q.StartInfo = info;
+                q.Start();
+            }
+            catch (Exception ex)
+            {
+                Process q = new Process();
+                ProcessStartInfo info = new ProcessStartInfo();
+                info.FileName = "cmd.exe";
+                info.UseShellExecute = true;
+                info.Arguments = "/c " + szCommand;
+                info.Verb = "runas";
+                q.StartInfo = info;
+                q.Start();
+            }
+        }
+    }
+
     public static class MyCommands
     {
         private static readonly ICommand appPublishCmd = new ApplicationPublishCommand();
@@ -732,6 +774,11 @@ namespace XCameraManager
         public static ICommand ApplicationPatchCommand
         {
             get { return appPatchCmd; }
+        }
+        private static readonly ICommand appLokalCmd = new ApplicationLokalCommand();
+        public static ICommand ApplicationLokalCommand
+        {
+            get { return appLokalCmd; }
         }
     }
 }
