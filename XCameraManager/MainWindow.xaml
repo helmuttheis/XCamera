@@ -28,14 +28,15 @@
                 <Separator />
                 <MenuItem Header="_Beenden" Command="local:MyCommands.ApplicationCloseCommand"/>
             </MenuItem>
-            <MenuItem Header="_Tools">
-                <MenuItem  Header="_Verbindung" Command="local:MyCommands.ApplicationConnectCommand" />
-                <MenuItem  Header="_Patch Datenbanken" Command="local:MyCommands.ApplicationPatchCommand" />
-                <MenuItem  Header="_XCamera Lokal freischalten" Command="local:MyCommands.ApplicationLokalCommand" />
+            <MenuItem Header="_Extras">
+                <MenuItem Header="_Verbindung" Command="local:MyCommands.ApplicationConnectCommand" />
+                <MenuItem Header="_Patch Datenbanken" Command="local:MyCommands.ApplicationPatchCommand" />
+                <MenuItem Header="_Daten Verschieben" Command="local:MyCommands.ApplicationMoveDataCommand" />
+                <MenuItem Header="_XCamera Lokal freischalten" Command="local:MyCommands.ApplicationLokalCommand" />
             </MenuItem>
             <MenuItem Header="_Hilfe" HorizontalAlignment="Right">
-                <MenuItem  Header="_Online Dokumentation" Command="local:MyCommands.ApplicationDocCommand" />
-                <MenuItem  Header="_Info" Command="local:MyCommands.ApplicationInfoCommand" />
+                <MenuItem Header="_Online Dokumentation" Command="local:MyCommands.ApplicationDocCommand" />
+                <MenuItem Header="_Info" Command="local:MyCommands.ApplicationInfoCommand" />
             </MenuItem>
         </Menu>
         

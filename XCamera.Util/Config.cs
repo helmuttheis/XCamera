@@ -39,6 +39,7 @@ namespace XCamera.Util
                 xmlDoc.LoadXml("<Settings></Settings>");
             }
             settingsNode = xmlDoc.SelectSingleNode("//Settings");
+            SaveDefault();
         }
         public string szCurProject 
         {
@@ -128,6 +129,45 @@ namespace XCamera.Util
                 Save();
             }
         }
+
+        public string szPicSuffix
+        {
+            get
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "pathPicSuffix");
+                string szPicSuffix = oneNode.InnerText.Trim();
+                if(string.IsNullOrEmpty(szPicSuffix))
+                {
+                    szPicSuffix = "";
+                }
+                return szPicSuffix;
+            }
+            set
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "pathPicSuffix");
+                oneNode.InnerText = value;
+                Save();
+            }
+        }
+        public string szDbSuffix
+        {
+            get
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "pathDbSuffix");
+                string szSuffix = oneNode.InnerText.Trim();
+                if (string.IsNullOrEmpty(szSuffix))
+                {
+                    szSuffix = "";
+                }
+                return szSuffix;
+            }
+            set
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "pathDbSuffix");
+                oneNode.InnerText = value;
+                Save();
+            }
+        }
         public void SetProjectStatus(string szProjectName,STATUS status)
         {
             XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "status","project",szProjectName);
@@ -142,6 +182,25 @@ namespace XCamera.Util
         public void Save()
         {
             xmlDoc.Save(szConfigFile);
+        }
+
+        public void SaveDefault()
+        {
+            var dummy = this.szWordTemplate;
+            this.szWordTemplate = dummy;
+            dummy = this.szBasedir;
+            this.szBasedir = dummy;
+            dummy = this.szCurProject;
+            this.szCurProject = dummy;
+            dummy = this.szIP;
+            this.szIP = dummy;
+            dummy = this.szPort;
+            this.szPort = dummy;
+            dummy = this.szPicSuffix;
+            this.szPicSuffix = dummy;
+            dummy = this.szDbSuffix;
+            this.szDbSuffix = dummy;
+            Save();
         }
     }
 }

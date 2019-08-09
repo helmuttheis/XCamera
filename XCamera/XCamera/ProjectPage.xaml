@@ -27,7 +27,7 @@
                                         <!--
                                         <Button Text="senden" x:Name="btnSend" Clicked="BtnSend_Clicked" CommandParameter="{Binding .}" 
                                             IsVisible="{Binding .,Mode=OneWay,Converter={StaticResource bVisible}, ConverterParameter=send, UpdateSourceEventName=local:flagToBoolean.PropertyChanged} "/>
- -->
+                                        -->
                                         <Button Text="löschen" x:Name="btnDelete" Clicked="BtnDelete_Clicked" CommandParameter="{Binding .}" 
                                             IsVisible="{Binding .,Mode=OneWay,Converter={StaticResource bVisible}, ConverterParameter=delete, UpdateSourceEventName=local:flagToBoolean.PropertyChanged}"/>
                                         </StackLayout>

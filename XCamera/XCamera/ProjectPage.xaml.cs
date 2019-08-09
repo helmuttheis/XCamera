@@ -196,7 +196,7 @@ namespace XCamera
                     lblStatus.Text = "Verbindung mit " + ProjectUtil.szServer + " wird aufgebaut ...";
 
                     Overlay overlay2 = new Overlay(grdOverlay2);
-                    overlay2.ShowRunMessage("Versuche eine Verbindung mit dem Server " + Config.current.szIP + " aufzubauen ...");
+                    overlay2.ShowRunMessage("Versuche eine Verbindung mit dem Server " + szIp + " aufzubauen...");
 
                     try
                     {

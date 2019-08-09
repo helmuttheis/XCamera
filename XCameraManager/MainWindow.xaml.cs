@@ -30,7 +30,7 @@ namespace XCameraManager
         public MainWindow()
         {
             InitializeComponent();
-            dpStart.SelectedDate =null;
+            dpStart.SelectedDate = null;
             dpEnd.SelectedDate = null;
 
             XCamera.Util.Config.szConfigFile = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
@@ -179,9 +179,10 @@ namespace XCameraManager
         private void NewCommand_Executed(object sender, ExecutedRoutedEventArgs e)
         {
             string szProjectName = new InputBox("Projektnamen eingeben:").ShowDialog();
+            string szSuffix = Config.current.szDbSuffix;
             if( !string.IsNullOrWhiteSpace(szProjectName))
             {
-                string szFullProjectPath = System.IO.Path.Combine(Config.current.szBasedir, szProjectName);
+                string szFullProjectPath = System.IO.Path.Combine(Config.current.szBasedir, szProjectName, szSuffix);
                 // create the directory
                 if ( !Directory.Exists(szFullProjectPath))
                 {
@@ -194,7 +195,7 @@ namespace XCameraManager
 
                     SetTitle(szProjectName);
                     LoadProjects(szProjectName);
-                    OpenProject(szProjectName);
+                    OpenProject(szProjectName, szSuffix);
                     // projectSql = new ProjectSql(szProjectName);
 
 
@@ -305,11 +306,11 @@ namespace XCameraManager
             }
 
         }
-        private void OpenProject(string szProjectName)
+        private void OpenProject(string szProjectName, string szSuffix="")
         {
             SetTitle(szProjectName);
 
-            projectSql = new ProjectSql(szProjectName);
+            projectSql = new ProjectSql(szProjectName, szSuffix);
 
             cmbGebaeude.ItemsSource = null;
             cmbGebaeude.ItemsSource = projectSql.sqlGebaeude.GetListe();
@@ -355,7 +356,7 @@ namespace XCameraManager
                     BildName = System.IO.Path.GetFileName(bild.Name),
                     BildInfo = projectSql.GetBildInfo(bild.Name,DateTime.Now),
                     Kommentar = szKommentar,
-                    BildPath = projectSql.GetImageFullName(bild.Name,"Fotos"),
+                    BildPath = projectSql.GetImageFullName(bild.Name,Config.current.szPicSuffix),
                     ToBeLaoded = LoadVisibility,
                     CaptureDate = bild.CaptureDate.ToString()
                 });
@@ -485,15 +486,13 @@ namespace XCameraManager
              BildMitKommentar bmk = lvBilder.SelectedItem as BildMitKommentar;
              if(bmk != null  )
              {
-                imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.BildName,"Fotos")));
+                imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.BildName, Config.current.szPicSuffix)));
                 BildInfo bi = projectSql.GetBildInfo(bmk.BildName, DateTime.Now);
                 lblGebaeude.Content = bi.GebaeudeBezeichnung;
                 lblEtage.Content = bi.EtageBezeichnung;
                 lblWohnung.Content = bi.WohnungBezeichnung;
                 lblZimmer.Content = bi.ZimmerBezeichnung;
                 lblKommentar.Content = bi.KommentarBezeichnung;
-
-                
              }
         }
         public void Publish()
@@ -523,7 +522,7 @@ namespace XCameraManager
                     BildMitKommentar bmk = bild as BildMitKommentar;
                     if (bmk != null)
                     {
-                        string szFullName = projectSql.GetImageFullName(bmk.BildName,"Fotos");
+                        string szFullName = projectSql.GetImageFullName(bmk.BildName);
                         if (!dictBilder.ContainsKey(szFullName))
                         {
                             dictBilder.Add(szFullName, bmk);
@@ -553,11 +552,15 @@ namespace XCameraManager
         }
         private void CmbProjects_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-             string szProjectName = cmbProjects.SelectedItem as string;
-             if( !string.IsNullOrWhiteSpace(szProjectName) )
-             {
-                 OpenProject(szProjectName);
-             }
+            string szProjectName = cmbProjects.SelectedItem as string;
+            string szSuffix = Config.current.szDbSuffix;
+            dpEnd.SelectedDate = null;
+            dpStart.SelectedDate = null;
+            lvBilder.ItemsSource = null;
+            if ( !string.IsNullOrWhiteSpace(szProjectName) )
+            {
+                OpenProject(szProjectName, szSuffix);
+            }
 
         }
 
@@ -573,11 +576,13 @@ namespace XCameraManager
         
         private void dpStart_SelectedDateChanged(object sender, RoutedEventArgs e)
         {
+            dpEnd.BlackoutDates.Clear();
             dpEnd.BlackoutDates.Add(new CalendarDateRange(DateTime.MinValue, dpStart.SelectedDate ?? DateTime.Now));
         }
 
         private void dpEnd_SelectedDateChanged(object sender, RoutedEventArgs e)
         {
+            dpStart.BlackoutDates.Clear();
             dpStart.BlackoutDates.Add(new CalendarDateRange(dpEnd.SelectedDate ?? DateTime.Now, DateTime.MaxValue));
         }
 
@@ -695,7 +700,7 @@ namespace XCameraManager
             foreach (var projekt in projekte)
             {
                 ((MainWindow)Application.Current.MainWindow).ToLog("patching " + projekt);
-                ProjectSql tmpProject = new ProjectSql(projekt);
+                ProjectSql tmpProject = new ProjectSql(projekt, Config.current.szDbSuffix);
                 tmpProject.Patch();
             }
             ((MainWindow)Application.Current.MainWindow).ToLog("Patch done");
@@ -744,7 +749,6 @@ namespace XCameraManager
             }
         }
     }
-
     public class ApplicationDocCommand : ICommand
     {
         public event EventHandler CanExecuteChanged
@@ -783,6 +787,27 @@ namespace XCameraManager
         {
             InfoWindow infoWindow = new InfoWindow();
             infoWindow.ShowDialog();
+        }
+    }
+
+    public class ApplicationMoveDataCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged
+        {
+            // You may not need a body here at all...
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return Application.Current != null && Application.Current.MainWindow != null;
+        }
+
+        public void Execute(object parameter)
+        {
+            MoveDataWindow moveDataWindow = new MoveDataWindow();
+            moveDataWindow.ShowDialog();
         }
     }
 
@@ -830,6 +855,11 @@ namespace XCameraManager
         public static ICommand ApplicationInfoCommand
         {
             get { return appInfoCmd; }
+        }
+        private static readonly ICommand appMoveDataCmd = new ApplicationMoveDataCommand();
+        public static ICommand ApplicationMoveDataCommand
+        {
+            get { return appMoveDataCmd; }
         }
     }
 }

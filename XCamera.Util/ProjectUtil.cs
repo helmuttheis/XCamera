@@ -248,7 +248,7 @@ namespace XCamera.Util
 
             return bRet;
         }
-        public static string ProjectPath(string szProjectName)
+        public static string ProjectPath(string szProjectName, string szSuffix="")
         {
             string szProjectPath = Path.Combine(szBasePath, szProjectName);
             if (!Directory.Exists(szProjectPath))

@@ -126,10 +126,10 @@ namespace XCamera.Util
 
         public SQLiteConnection database { get; set; }
 
-        public ProjectSql(string szProjectNameToLoad)
+        public ProjectSql(string szProjectNameToLoad, string szSuffix="")
         {
             this.szProjectName = szProjectNameToLoad;
-            szProjectPath = Path.Combine(ProjectUtil.szBasePath, szProjectName);
+            szProjectPath = Path.Combine(ProjectUtil.szBasePath, szProjectName, szSuffix);
             if (!Directory.Exists(szProjectPath))
             {
                 Directory.CreateDirectory(szProjectPath);

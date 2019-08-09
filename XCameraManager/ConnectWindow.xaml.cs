@@ -59,6 +59,15 @@ namespace XCameraManager
         private void BtnConnect_Click(object sender, RoutedEventArgs e)
         {
             string szIP = cmbIP.SelectedValue.ToString();
+
+            string szCommand = "netsh advfirewall firewall add rule name=XCameraManager program="
+                + System.Reflection.Assembly.GetExecutingAssembly().Location +
+                " protocol=TCP localport=8080 dir=in enable=yes action=allow profile=private,domain,public";
+            if (RunCmd("netsh advfirewall firewall show rule name=XCameraManager") != 0)
+            {
+                RunCmd(szCommand, "runas");
+            }
+
             try
             {
                 webServer = new WebServer(SendResponse, "http://" + szIP + ":" + tbPort.Text.Trim() + "/xcamera/");
@@ -73,7 +82,7 @@ namespace XCameraManager
             {
                 if(ex.ErrorCode == 5)
                 {
-                    string szCommand = @"netsh http add urlacl url=http://" + szIP + ":" + tbPort.Text.Trim() + "/ " + @"user=%USERDOMAIN%\%USERNAME%"; //  listen=yes
+                    szCommand = @"netsh http add urlacl url=http://" + szIP + ":" + tbPort.Text.Trim() + "/ " + @"user=%USERDOMAIN%\%USERNAME%"; //  listen=yes
                     szCommand = Environment.ExpandEnvironmentVariables(szCommand);
                     ShowInfo("Server wurde nicht gestartet: " + ex.ToString());
                     ShowInfo(szCommand);
@@ -81,7 +90,7 @@ namespace XCameraManager
                         "Soll versucht werden die Einstellungen vorzunehmen?",
                         "Firewalleinstellungen", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                     {
-                        RunAs(szCommand);
+                        RunCmd(szCommand, "runas");
                     }
 
                 }
@@ -93,17 +102,22 @@ namespace XCameraManager
             }
 
         }
-        private void RunAs(string szCommand)
+        private int RunCmd(string szCommand, string szVerb="")
         {
             Process q = new Process();
             ProcessStartInfo info = new ProcessStartInfo();
             info.FileName = "cmd.exe";
+            info.WindowStyle = ProcessWindowStyle.Hidden;
             info.UseShellExecute = true;
             info.Arguments = "/c " + szCommand;
-            info.Verb = "runas";
+            info.Verb = szVerb;
             q.StartInfo = info;
             q.Start();
+            q.WaitForExit();
+            int exitCode = q.ExitCode;
+            return exitCode;
         }
+
         public  wsResponse SendResponse(HttpListenerRequest request)
         {
             Dictionary<string, string> postParams = new Dictionary<string, string>();
@@ -163,7 +177,7 @@ namespace XCameraManager
                         {
                             bi.CaptureDate = DateTime.Now;
                         }
-                        ProjectSql tmpProject = new ProjectSql(szProjectname);
+                        ProjectSql tmpProject = new ProjectSql(szProjectname, Config.current.szDbSuffix);
                         var biResult = tmpProject.GetBildId(bi.BildName, bi.CaptureDate);
                         tmpProject.SetCaptureDate(biResult.BildId,bi.CaptureDate);
                         
@@ -204,7 +218,7 @@ namespace XCameraManager
                 {
                     try
                     {
-                        string szFullPath = System.IO.Path.Combine(XCamera.Util.Config.current.szBasedir, szProjectname, "Fotos");
+                        string szFullPath = System.IO.Path.Combine(XCamera.Util.Config.current.szBasedir, szProjectname, Config.current.szPicSuffix);
                         if (!Directory.Exists(szFullPath))
                         {
                             Directory.CreateDirectory(szFullPath);
@@ -217,7 +231,7 @@ namespace XCameraManager
                             request.InputStream.CopyTo(fs);
                         }
                         request.InputStream.Close();
-                        ProjectSql tmpProject = new ProjectSql(szProjectname);
+                        ProjectSql tmpProject = new ProjectSql(szProjectname, Config.current.szDbSuffix);
                         tmpProject.AddBild(szFilename);
                     }
                     catch (Exception ex)
