@@ -123,7 +123,7 @@ namespace XCameraManager
         {
             if(dataFormat.Equals("docx",StringComparison.InvariantCultureIgnoreCase))
             {
-                Docx.CreateTable(szFileName, this.szTitel, dictBilder);
+               // Docx.CreateTable(szFileName, this.szTitel, dictBilder);
             }
         }
 

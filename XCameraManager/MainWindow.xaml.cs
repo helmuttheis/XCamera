@@ -530,7 +530,10 @@ namespace XCameraManager
                         }
                     }
                 }
-                if (Docx.FillTable(dlg.FileName, projectSql.szProjectName, dictBilder))
+                Dictionary<string, string> varDict = new Dictionary<string, string>();
+                varDict.Add("Project", projectSql.szProjectName);
+
+                if (Docx.FillTable(dlg.FileName, varDict, dictBilder))
                 {
                     if (MessageBox.Show("Die Worddatei " + dlg.FileName + " wurde erzeugt." + Environment.NewLine +
                         "Soll sie in Word angezeigt werden?",

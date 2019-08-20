@@ -20,83 +20,8 @@ namespace XCameraManager
 {
     public static class Docx
     {
-        // Insert a table into a word processing document.
-        public static void CreateTable(string fileName,string szTitle, Dictionary<string, BildMitKommentar> dictBilder)
-        {
-            // Use the file name and path passed in as an argument 
-            // to open an existing Word 2007 document.
-
-            using (WordprocessingDocument wordDocument
-                = WordprocessingDocument.Create(fileName, WordprocessingDocumentType.Document))
-            {
-                // Add a main document part. 
-                MainDocumentPart mainPart = wordDocument.AddMainDocumentPart();
-
-                // Create the document structure and add some text.
-                mainPart.Document = new Document();
-                Body body = mainPart.Document.AppendChild(new Body());
-
-
-                Paragraph h1 = new Paragraph(RunWithFont(szTitle,24,true));
-
-                // Append the title to the document.
-                body.Append(h1);
-                // Create an empty table.
-                Table table = new Table();
-
-                // Create a TableProperties object and specify its border information.
-                BorderValues borderValue = BorderValues.BasicThinLines;
-                UInt32Value borderWidth = 10;
-                TableProperties tblProp = new TableProperties(
-                    new TableBorders(
-                        new TopBorder()
-                        {
-                            Val =
-                            new EnumValue<BorderValues>(borderValue),
-                            Size = borderWidth
-                        },
-                        new BottomBorder()
-                        {
-                            Val =
-                            new EnumValue<BorderValues>(borderValue),
-                            Size = borderWidth
-                        },
-                        new LeftBorder()
-                        {
-                            Val =
-                            new EnumValue<BorderValues>(borderValue),
-                            Size = borderWidth
-                        },
-                        new RightBorder()
-                        {
-                            Val =
-                            new EnumValue<BorderValues>(borderValue),
-                            Size = borderWidth
-                        },
-                        new InsideHorizontalBorder()
-                        {
-                            Val =
-                            new EnumValue<BorderValues>(borderValue),
-                            Size = borderWidth
-                        },
-                        new InsideVerticalBorder()
-                        {
-                            Val =
-                            new EnumValue<BorderValues>(borderValue),
-                            Size = borderWidth
-                        }
-                    )
-                );
-                AddInTable(mainPart, table, dictBilder);
-                // Append the TableProperties object to the empty table.
-                table.AppendChild<TableProperties>(tblProp);
-                
-                // Append the table to the document.
-                body.Append(table);
-            }
-        }
         public static string szError { get; set; }
-        public static Boolean FillTable(string fileName, string szTitle, Dictionary<string, BildMitKommentar> dictBilder)
+        public static Boolean FillTable(string fileName, Dictionary<string, string> varDict, Dictionary<string, BildMitKommentar> dictBilder)
         {
             Boolean bRet = false;
             szError = "";
@@ -106,18 +31,66 @@ namespace XCameraManager
                 using (WordprocessingDocument wordDocument
                     = WordprocessingDocument.Open(fileName, true))
                 {
-                    MainDocumentPart mainPart = wordDocument.MainDocumentPart;
-                    var para = mainPart.Document.Descendants<Paragraph>().FirstOrDefault();
-                    if (para != null)
+                    OpenXmlPowerTools.SimplifyMarkupSettings settings = new OpenXmlPowerTools.SimplifyMarkupSettings
                     {
-                        var text = para.Descendants<Text>().FirstOrDefault();
-                        text.Text = szTitle;
+                        RemoveComments = true,
+                        RemoveContentControls = true,
+                        RemoveEndAndFootNotes = true,
+                        RemoveFieldCodes = false,
+                        RemoveLastRenderedPageBreak = true,
+                        RemovePermissions = true,
+                        RemoveProof = true,
+                        RemoveRsidInfo = true,
+                        RemoveSmartTags = true,
+                        RemoveSoftHyphens = true,
+                        // ReplaceTabsWithSpaces = true,
+                        RemoveGoBackBookmark=true,
+                        RemoveBookmarks=true,
+                        RemoveMarkupForDocumentComparison=true,
+                        RemoveWebHidden=true
+                        
+                    };
+                    OpenXmlPowerTools.MarkupSimplifier.SimplifyMarkup(wordDocument, settings);
+
+
+                    MainDocumentPart mainPart = wordDocument.MainDocumentPart;
+                    
+                    var paraList = mainPart.Document.Descendants<Paragraph>();
+                    foreach ( var para in paraList)
+                    {
+                        ReplaceVar(para, varDict);
+                    }
+                    var headerPart = mainPart.HeaderParts.FirstOrDefault();
+                    paraList = headerPart.Header.Descendants<Paragraph>();
+                    foreach (var para in paraList)
+                    {
+                        ReplaceVar(para, varDict);
+                    }
+                    // ToDo foreach
+                    var footerPart = mainPart.FooterParts.FirstOrDefault();
+                    paraList = footerPart.Footer.Descendants<Paragraph>();
+                    foreach (var para in paraList)
+                    {
+                        ReplaceVar(para, varDict);
                     }
 
-                    var table = mainPart.Document.Descendants<Table>().FirstOrDefault();
-                    if (table != null)
+                    var tableList = mainPart.Document.Descendants<Table>();
+                    foreach(var table in tableList)
                     {
-                        AddInTable(mainPart, table, dictBilder);
+                        var rowList = table.Descendants<TableRow>();
+                        foreach (var tr in rowList)
+                        {
+                            var tc = tr.Descendants<TableCell>().FirstOrDefault();
+                            // get the first para
+                            var p = tc.Descendants<Paragraph>().FirstOrDefault();
+                            if (p.InnerText.Trim().Equals("${PictureTable}", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                AddInTable(mainPart, table, tr, dictBilder, varDict);
+                            }
+                        }
+
+                            
+                        
                     }
                     wordDocument.Save();
                     bRet = true;
@@ -130,10 +103,27 @@ namespace XCameraManager
             }
             return bRet;
         }
-        private static void AddInTable(MainDocumentPart mainPart,Table table, Dictionary<string, BildMitKommentar> dictBilder)
+        private static void ReplaceVar(Paragraph para, Dictionary<string,string> varDict)
         {
-            TableRow trTemplate = table.Descendants<TableRow>().FirstOrDefault();
-            if(trTemplate == null)
+            // OpenXmlPowerTools.MarkupSimplifier.MergeAdjacentSuperfluousRuns(para);
+
+            var runList = para.Descendants<Run>();
+            var textList = para.Descendants<Text>();
+            foreach (var text in textList)
+            {
+                foreach(var kv in varDict)
+                {
+                    text.Text = text.Text.Replace("${" + kv.Key + "}", kv.Value);
+                }
+            }
+        }
+        private static void AddInTable(MainDocumentPart mainPart,Table table, TableRow trRef, Dictionary<string, BildMitKommentar> dictBilder,
+            Dictionary<string, string> varDict)
+        {
+            TableRow trTemplate = trRef.NextSibling<TableRow>();
+            trRef.Remove();
+
+            if (trTemplate == null)
             {
                 trTemplate = new TableRow();
                 TableCell tc1 = new TableCell();
@@ -146,43 +136,91 @@ namespace XCameraManager
                 TableCell tc2 = new TableCell();
                 trTemplate.Append(tc2);
             }
+            //
+            var tcList = trTemplate.Descendants<TableCell>();
+
             foreach (var kv in dictBilder)
             {
+                Dictionary<string, string> localVarDict = new Dictionary<string, string>();
+                localVarDict.Add("Building", kv.Value.BildInfo.GebaeudeBezeichnung);
+                localVarDict.Add("Floor", kv.Value.BildInfo.EtageBezeichnung);
+                localVarDict.Add("Flat", kv.Value.BildInfo.WohnungBezeichnung);
+                localVarDict.Add("Room", kv.Value.BildInfo.ZimmerBezeichnung);
+                localVarDict.Add("Comment", kv.Value.Kommentar);
+
+                localVarDict.Add("PictureName", kv.Key);
+                localVarDict.Add("PictureDate", kv.Value.CaptureDate);
+
                 // Create a row.
                 TableRow tr = new TableRow();
 
-                // Create a cell.
-                TableCell tc1 = new TableCell();
-
-                // Specify the table cell content.
-                tc1.Append(new Paragraph(new Run(new Text(kv.Key))));
-
-                ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Jpeg);
-
-                using (FileStream stream = new FileStream(kv.Key, FileMode.Open, FileAccess.Read))
+                foreach (var tc in tcList)
                 {
-                    imagePart.FeedData(ResizeImageWindows(stream, 4));
+                    var tcNew = tc.CloneNode(true) as TableCell;
+
+                    // get the first para
+                    var p = tcNew.Descendants<Paragraph>().FirstOrDefault();
+                    var paraList = tcNew.Descendants<Paragraph>();
+                    foreach (var para in paraList)
+                    {
+                        if (para.InnerText.Trim().Equals("${Picture}", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            // ToDo para.Remove()
+                            para.RemoveAllChildren();
+                            ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Jpeg);
+
+                            using (FileStream stream = new FileStream(kv.Key, FileMode.Open, FileAccess.Read))
+                            {
+                                imagePart.FeedData(ResizeImageWindows(stream, 4));
+                            }
+                            AddImageToPara(para, mainPart.GetIdOfPart(imagePart));
+                        }
+                        else
+                        {
+                            ReplaceVar(para, localVarDict);
+                        }
+                    }
+
+                    tr.Append(tcNew);
                 }
-                AddImageToCell(tc1, mainPart.GetIdOfPart(imagePart));
-                tc1.Append(new Paragraph(RunWithFont(kv.Value.CaptureDate, 8)));
+                //// Create a cell.
+                //TableCell tc1 = new TableCell();
 
-                // Append the table cell to the table row.
-                tr.Append(tc1);
+                //// Specify the table cell content.
+                //tc1.Append(new Paragraph(new Run(new Text(kv.Key))));
 
-                TableCell tc2 = new TableCell();
-                // Specify the table cell content.
-                tc2.Append(new Paragraph(new Run(new Text(kv.Value.BildInfo.GebaeudeBezeichnung))));
-                tc2.Append(new Paragraph(new Run(new Text(kv.Value.BildInfo.EtageBezeichnung))));
-                tc2.Append(new Paragraph(new Run(new Text(kv.Value.BildInfo.WohnungBezeichnung))));
-                tc2.Append(new Paragraph(new Run(new Text(kv.Value.BildInfo.ZimmerBezeichnung))));
-                tc2.Append(new Paragraph(new Run(new Text(kv.Value.Kommentar))));
+                //ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Jpeg);
 
-                // Append the table cell to the table row.
-                tr.Append(tc2);
+                //using (FileStream stream = new FileStream(kv.Key, FileMode.Open, FileAccess.Read))
+                //{
+                //    imagePart.FeedData(ResizeImageWindows(stream, 4));
+                //}
+                //AddImageToCell(tc1, mainPart.GetIdOfPart(imagePart));
+                //tc1.Append(new Paragraph(RunWithFont(kv.Value.CaptureDate, 8)));
+
+                //// Append the table cell to the table row.
+                //tr.Append(tc1);
+
+                //TableCell tc2 = new TableCell();
+                //// Specify the table cell content.
+                //tc2.Append(new Paragraph(new Run(new Text(kv.Value.BildInfo.GebaeudeBezeichnung))));
+                //tc2.Append(new Paragraph(new Run(new Text(kv.Value.BildInfo.EtageBezeichnung))));
+                //tc2.Append(new Paragraph(new Run(new Text(kv.Value.BildInfo.WohnungBezeichnung))));
+                //tc2.Append(new Paragraph(new Run(new Text(kv.Value.BildInfo.ZimmerBezeichnung))));
+                //tc2.Append(new Paragraph(new Run(new Text(kv.Value.Kommentar))));
+
+                //// Append the table cell to the table row.
+                //tr.Append(tc2);
 
                 // Append the table row to the table.
                 table.Append(tr);
             }
+
+            if (trTemplate != null)
+            {
+                trTemplate.Remove();
+            }
+
         }
         private static Run RunWithFont(string szStr, int iFontSize,Boolean bBold=false)
         {
@@ -245,7 +283,7 @@ namespace XCameraManager
             }
             return newImage;
         }
-        private static void AddImageToCell(TableCell tc1, string relationshipId)
+        private static void AddImageToPara(Paragraph para, string relationshipId)
         {
             // Define the reference of the image.
             var element =
@@ -312,7 +350,8 @@ namespace XCameraManager
                      });
 
             // Append the reference to body, the element should be in a Run.
-            tc1.AppendChild(new Paragraph(new Run(element)));
+            para.RemoveAllChildren();
+            para.Append(new Run(element));
         }
     }
     
