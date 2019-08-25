@@ -161,7 +161,7 @@ namespace XCameraManager
                 Dictionary<string, string> tmpVarDict = new Dictionary<string, string>(localVarDict);
                 foreach (var kv2 in tmpVarDict)
                 {
-                    if (kv2.Value == "")
+                    if (kv2.Value == null)
                     {
                         localVarDict[kv2.Key] = Config.current.szWordEmptyInfo;
                     }
