@@ -168,6 +168,44 @@ namespace XCamera.Util
                 Save();
             }
         }
+        public string szWordEmptySearch
+        {
+            get
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "szWordEmptySearch");
+                string szWordEmptySearch = oneNode.InnerText.Trim();
+                if (string.IsNullOrEmpty(szWordEmptySearch))
+                {
+                    szWordEmptySearch = "-";
+                }
+                return szWordEmptySearch;
+            }
+            set
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "szWordEmptySearch");
+                oneNode.InnerText = value;
+                Save();
+            }
+        }
+        public string szWordEmptyInfo
+        {
+            get
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "szWordEmptyInfo");
+                string szWordEmptyInfo = oneNode.InnerText.Trim();
+                if (string.IsNullOrEmpty(szWordEmptySearch))
+                {
+                    szWordEmptyInfo = "-";
+                }
+                return szWordEmptyInfo;
+            }
+            set
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "szWordEmptyInfo");
+                oneNode.InnerText = value;
+                Save();
+            }
+        }
         public void SetProjectStatus(string szProjectName,STATUS status)
         {
             XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "status","project",szProjectName);
@@ -200,6 +238,10 @@ namespace XCamera.Util
             this.szPicSuffix = dummy;
             dummy = this.szDbSuffix;
             this.szDbSuffix = dummy;
+            dummy = this.szWordEmptySearch;
+            szWordEmptySearch = dummy;
+            dummy = this.szWordEmptyInfo;
+            szWordEmptyInfo = dummy;
             Save();
         }
     }

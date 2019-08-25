@@ -513,6 +513,8 @@ namespace XCameraManager
             // Display OpenFileDialog by calling ShowDialog method 
             Nullable<bool> result = dlg.ShowDialog();
 
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+
             // Get the selected file name and display in a TextBox 
             if (result == true)
             {
@@ -522,7 +524,7 @@ namespace XCameraManager
                     BildMitKommentar bmk = bild as BildMitKommentar;
                     if (bmk != null)
                     {
-                        string szFullName = projectSql.GetImageFullName(bmk.BildName);
+                        string szFullName = projectSql.GetImageFullName(bmk.BildName, Config.current.szPicSuffix);
                         if (!dictBilder.ContainsKey(szFullName))
                         {
                             dictBilder.Add(szFullName, bmk);
@@ -531,9 +533,43 @@ namespace XCameraManager
                 }
                 Dictionary<string, string> varDict = new Dictionary<string, string>();
                 varDict.Add("Project", projectSql.szProjectName);
+                varDict.Add("SearchBuilding", cmbGebaeude.Text);
+                varDict.Add("SearchFloor", cmbEtage.Text);
+                varDict.Add("SearchFlat", cmbWohnung.Text);
+                varDict.Add("SearchRoom", cmbZimmer.Text);
+                varDict.Add("SearchComment", tbKommentar.Text);
+
+                if (dpStart.SelectedDate != null)
+                {
+                    varDict.Add("SearchStartDate", dpStart.SelectedDate.Value.ToShortDateString());
+                }
+                else
+                {
+                    varDict.Add("SearchStartDate", Config.current.szWordEmptySearch);
+                }
+                if (dpEnd.SelectedDate != null)
+                {
+                    varDict.Add("SearchEndDate", dpEnd.SelectedDate.Value.ToShortDateString());
+                }
+                else
+                {
+                    varDict.Add("SearchEndDate", Config.current.szWordEmptySearch);
+                }
+
+                varDict.Add("ImageCount", lvBilder.Items.Count.ToString());
+
+                Dictionary<string, string> tmpVarDict = new Dictionary<string, string>(varDict);
+                foreach (var kv in tmpVarDict)
+                {
+                    if(kv.Value == "")
+                    {
+                        varDict[kv.Key] = Config.current.szWordEmptySearch;
+                    }
+                }
 
                 if (Docx.FillTable(dlg.FileName, varDict, dictBilder))
                 {
+                    Mouse.OverrideCursor = null;
                     if (MessageBox.Show("Die Worddatei " + dlg.FileName + " wurde erzeugt." + Environment.NewLine +
                         "Soll sie in Word angezeigt werden?",
                         "XCameraManager",
@@ -544,6 +580,7 @@ namespace XCameraManager
                 }
                 else
                 {
+                    Mouse.OverrideCursor = null;
                     MessageBox.Show("Fehler beim Erstellen der Word-Datei: " + Docx.szError);
                 }
             }

@@ -138,6 +138,13 @@ namespace XCameraManager
             }
             //
             var tcList = trTemplate.Descendants<TableCell>();
+            var image = trTemplate.Descendants<Drawing>().FirstOrDefault();
+            Int64Value imageWidth = 2160000L;
+            if (image != null)
+            {
+                imageWidth = image.Inline.Extent.Cx;
+                image.Ancestors<Paragraph>().FirstOrDefault().Remove();
+            }
 
             foreach (var kv in dictBilder)
             {
@@ -150,6 +157,18 @@ namespace XCameraManager
 
                 localVarDict.Add("PictureName", kv.Key);
                 localVarDict.Add("PictureDate", kv.Value.CaptureDate);
+
+                Dictionary<string, string> tmpVarDict = new Dictionary<string, string>(localVarDict);
+                foreach (var kv2 in tmpVarDict)
+                {
+                    if (kv2.Value == "")
+                    {
+                        localVarDict[kv2.Key] = Config.current.szWordEmptyInfo;
+                    }
+                }
+
+                System.Drawing.Image img = System.Drawing.Image.FromFile(kv.Key);
+                Int64Value imageHeight = (imageWidth/img.Width)*img.Height;
 
                 // Create a row.
                 TableRow tr = new TableRow();
@@ -171,9 +190,9 @@ namespace XCameraManager
 
                             using (FileStream stream = new FileStream(kv.Key, FileMode.Open, FileAccess.Read))
                             {
-                                imagePart.FeedData(ResizeImageWindows(stream, 4));
+                                imagePart.FeedData(stream);
                             }
-                            AddImageToPara(para, mainPart.GetIdOfPart(imagePart));
+                            AddImageToPara(para, mainPart.GetIdOfPart(imagePart), imageWidth, imageHeight);
                         }
                         else
                         {
@@ -241,7 +260,7 @@ namespace XCameraManager
 
             return run;
         }
-        private static  MemoryStream ResizeImageWindows(Stream imageStream, int scale)
+        private static  MemoryStream ResizeImageWindows(Stream imageStream, int scale = 1)
         {
             MemoryStream memoryStream = new MemoryStream();
             using (Image img = Image.FromStream(imageStream))
@@ -283,13 +302,13 @@ namespace XCameraManager
             }
             return newImage;
         }
-        private static void AddImageToPara(Paragraph para, string relationshipId)
+        private static void AddImageToPara(Paragraph para, string relationshipId, Int64Value imageWidth, Int64Value imageHeight)
         {
             // Define the reference of the image.
             var element =
                  new Drawing(
                      new DW.Inline(
-                         new DW.Extent() { Cx = 990000L, Cy = 792000L },
+                         new DW.Extent() { Cx = imageWidth, Cy = imageHeight },
                          new DW.EffectExtent()
                          {
                              LeftEdge = 0L,
@@ -333,7 +352,7 @@ namespace XCameraManager
                                      new PIC.ShapeProperties(
                                          new A.Transform2D(
                                              new A.Offset() { X = 0L, Y = 0L },
-                                             new A.Extents() { Cx = 990000L, Cy = 792000L }),
+                                             new A.Extents() { Cx = imageWidth, Cy = imageHeight }),
                                          new A.PresetGeometry(
                                              new A.AdjustValueList()
                                          )
