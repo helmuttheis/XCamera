@@ -138,7 +138,7 @@ namespace XCamera.Util
                 string szPicSuffix = oneNode.InnerText.Trim();
                 if(string.IsNullOrEmpty(szPicSuffix))
                 {
-                    szPicSuffix = "";
+                    szPicSuffix = "Fotos";
                 }
                 return szPicSuffix;
             }
