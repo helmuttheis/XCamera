@@ -15,6 +15,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using XCamera.Util;
+using System.Diagnostics;
+using System.Windows.Navigation;
 
 
 namespace XCameraManager
@@ -23,7 +25,12 @@ namespace XCameraManager
     {
         public InfoWindow()
         {
-            InitializeComponent();
+            InitializeComponent();   
+        }
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+            e.Handled = true;
         }
     }
 }

@@ -6,9 +6,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XCameraManager"
         mc:Ignorable="d"
-        Title="Info" Height="450" Width="300" MinHeight="200">
+        Title="Info" Width="300" SizeToContent="Height">
     <StackPanel Margin="5">
-        <Label Content="XCameraManager" HorizontalAlignment="Center" />
-        
+        <Label Content="XCameraManager" HorizontalAlignment="Center" FontSize="20" FontWeight="Bold"/>
+        <Label Content="Version 1.0.4" HorizontalAlignment="Center" Margin="2"></Label>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <!--<TextBlock Margin="5">
+                <Hyperlink NavigateUri="https://github.com/helmuttheis/XCamera" RequestNavigate="Hyperlink_RequestNavigate">Github Repository</Hyperlink>
+            </TextBlock>-->
+            <TextBlock Margin="5">
+                <Hyperlink NavigateUri="https://github.com/helmuttheis/XCamera/wiki" RequestNavigate="Hyperlink_RequestNavigate">Dokumentation</Hyperlink>
+            </TextBlock>
+        </StackPanel>
+        <Separator Margin="5"></Separator>
+        <Label Content="© Niklas Theis" HorizontalAlignment="Center"/>
     </StackPanel>
 </Window>
