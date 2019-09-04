@@ -15,7 +15,7 @@ Die Client App ist zur Zeit für Android und als UWP für Windows 10 verfügbar.
 
 ## Dokumentation
 
-Die Programme sind im Wiki https://github.com/helmuttheis/XCamera beschrieben.
+Die Programme sind im Wiki https://github.com/helmuttheis/XCamera/wiki beschrieben.
 
 ## License
 Dieses Projekt ist unter der MIT Lizenz lizensiert.
