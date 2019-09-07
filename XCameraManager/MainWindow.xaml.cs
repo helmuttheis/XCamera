@@ -841,7 +841,7 @@ namespace XCameraManager
 
         public bool CanExecute(object parameter)
         {
-            return Application.Current != null && Application.Current.MainWindow != null;
+            return Application.Current != null && Application.Current.MainWindow != null && ((MainWindow)Application.Current.MainWindow).cmbProjects.SelectedItem == null;
         }
 
         public void Execute(object parameter)
