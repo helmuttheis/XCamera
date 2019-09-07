@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XCamera.Android", "XCamera\XCamera.Android\XCamera.Android.csproj", "{2AD97D9D-5E3B-492E-8488-71D85C3FAAE9}"
 EndProject
@@ -12,6 +12,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XCamera", "XCamera\XCamera\XCamera.csproj", "{A14012C2-8D98-4DDC-8BD5-EDB2E746BFAF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XCamera.Util", "XCamera.Util\XCamera.Util.csproj", "{614C419F-3F52-4156-9467-BADEF827B64F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DE7B1A1B-693C-416A-ABB2-D8C1110B5CDF}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
