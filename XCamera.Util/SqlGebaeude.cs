@@ -119,5 +119,11 @@ namespace XCamera.Util
 
             return result.Count() != 0;
         }
+        public void Edit(Gebaeude gebaeude, string newBezeichnung)
+        {
+            var eintrag = gebaeude;
+            eintrag.Bezeichnung = newBezeichnung;
+            projectSql.database.Update(eintrag);
+        }
     }
 }

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-         xmlns:window="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
+        xmlns:window="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:local="clr-namespace:XCameraManager"
         mc:Ignorable="d"
@@ -24,7 +24,8 @@
             <MenuItem Header="_Projekt">
                 <MenuItem Header="Neu" Command="New" />
                 <MenuItem Header="Als Word-Dokument" Command="local:MyCommands.ApplicationPublishCommand" />
-                <MenuItem Header="Verwalten" Command="local:MyCommands.ApplicationManageCommand" />
+                <MenuItem Header="Verwalten" Command="local:MyCommands.ApplicationManageCommand"/>
+                <MenuItem Header="Bild importieren" Command="local:MyCommands.ApplicationImportImageCommand"/>
                 <Separator />
                 <MenuItem Header="_Beenden" Command="local:MyCommands.ApplicationCloseCommand"/>
             </MenuItem>
@@ -103,13 +104,19 @@
                                 <Grid MinWidth="225" >
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="16"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Bezeichnung}" HorizontalAlignment="Stretch"/>
-                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" 
+                                    <Button Click="BtnEditTag_Click" Grid.Column="1" 
                                             BorderThickness="0" Tag="{Binding .}"
                                             Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                                        <Image Source=".\Resources\DeleteIcon.png" MaxWidth="12" Opacity="0.6"/>
+                                        <Image Source=".\Resources\EditIcon.png" MaxWidth="16" Opacity="0.6"/>
+                                    </Button>
+                                    <Button Click="BtnDeleteTag_Click" Grid.Column="2" 
+                                            BorderThickness="0" Tag="{Binding .}"
+                                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                        <Image Source=".\Resources\DeleteIcon.png" MaxWidth="16" Opacity="0.6"/>
                                     </Button>
                                 </Grid>
                             </DataTemplate>
@@ -128,13 +135,19 @@
                                 <Grid MinWidth="225" >
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="16"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Bezeichnung}" HorizontalAlignment="Stretch"/>
-                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" 
+                                    <Button Click="BtnEditTag_Click" Grid.Column="1" 
+                                            BorderThickness="0" Tag="{Binding .}"
+                                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                        <Image Source=".\Resources\EditIcon.png" MaxWidth="16" Opacity="0.6"/>
+                                    </Button>
+                                    <Button Click="BtnDeleteTag_Click" Grid.Column="2" 
                                              Tag="{Binding .}"
                                             BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                                        <Image Source=".\Resources\DeleteIcon.png" MaxWidth="12" Opacity="0.6"/>
+                                        <Image Source=".\Resources\DeleteIcon.png" MaxWidth="16" Opacity="0.6"/>
                                     </Button>
                                 </Grid>
                             </DataTemplate>
@@ -153,13 +166,19 @@
                                 <Grid MinWidth="225" >
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="16"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Bezeichnung}" HorizontalAlignment="Stretch"/>
-                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" 
+                                    <Button Click="BtnEditTag_Click" Grid.Column="1" 
+                                            BorderThickness="0" Tag="{Binding .}"
+                                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                        <Image Source=".\Resources\EditIcon.png" MaxWidth="16" Opacity="0.6"/>
+                                    </Button>
+                                    <Button Click="BtnDeleteTag_Click" Grid.Column="2" 
                                              Tag="{Binding .}"
                                             BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                                        <Image Source=".\Resources\DeleteIcon.png" MaxWidth="12" Opacity="0.6"/>
+                                        <Image Source=".\Resources\DeleteIcon.png" MaxWidth="16" Opacity="0.6"/>
                                     </Button>
                                 </Grid>
                             </DataTemplate>
@@ -178,13 +197,19 @@
                                 <Grid MinWidth="225" >
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="16"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{Binding Bezeichnung}" HorizontalAlignment="Stretch"/>
-                                    <Button Click="BtnDeleteTag_Click" Grid.Column="1" 
+                                    <Button Click="BtnEditTag_Click" Grid.Column="1" 
+                                            BorderThickness="0" Tag="{Binding .}"
+                                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                        <Image Source=".\Resources\EditIcon.png" MaxWidth="16" Opacity="0.6"/>
+                                    </Button>
+                                    <Button Click="BtnDeleteTag_Click" Grid.Column="2" 
                                              Tag="{Binding .}"
                                             BorderThickness="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                                        <Image Source=".\Resources\DeleteIcon.png" MaxWidth="12" Opacity="0.6"/>
+                                        <Image Source=".\Resources\DeleteIcon.png" MaxWidth="16" Opacity="0.6"/>
                                     </Button>
                                 </Grid>
                             </DataTemplate>
@@ -213,8 +238,15 @@
                         <DatePicker Grid.Column="1" Grid.Row="6" x:Name="dpEnd" SelectedDateChanged="dpEnd_SelectedDateChanged"></DatePicker>
 
                     </Grid>
-                    <Button Grid.Column="1" Grid.Row="7"  x:Name="btnSearch" Content="suchen" Click="BtnSearch_Click" Margin="0 2 0 0"/>
-                    
+                    <Grid Grid.Column="1" Grid.Row="7" Margin="0 2 0 0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>                        
+                        <Button Grid.Column="0" x:Name="btnSearch" Content="suchen" Click="BtnSearch_Click" />
+                        <Button Grid.Column="1" x:Name="btnReset" Content="Reset" Click="btnReset_Click" Margin="2 0 0 0"/>
+                    </Grid>
+
                     <!--
                     <Grid Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="6"   >
                         <Grid.RowDefinitions>
@@ -258,12 +290,16 @@
                         <StackPanel>
                             <Grid Height="40" Margin="0 1" MinWidth="320">
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" x:Name="SelctionColumn"/>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
+                                <CheckBox Grid.Column="0" x:Name="chkImageItem" Margin="1 0 5 0" VerticalAlignment="Center" 
+                                          IsChecked="{Binding IsSelected}"/>
                                 <Rectangle Width="50" MaxHeight="39" Visibility="{Binding ToBeLaoded}"/>
-                                <Image Grid.Column="0" x:Name="imgPreview" Width="Auto" MaxHeight="39" Source="{Binding BildPath, IsAsync=True}" Visibility="{Binding ToBeLaoded}"/>
-                                <StackPanel Orientation="Vertical" Grid.Column="1" MaxHeight="40">
+                                <Image Grid.Column="1" x:Name="imgPreview" Width="Auto" MaxHeight="39" Source="{Binding BildPath, IsAsync=True}" Visibility="{Binding ToBeLaoded}"/>
+                                <StackPanel Orientation="Vertical" Grid.Column="2" MaxHeight="40">
                                     <!--<TextBlock Text="{Binding BildName}" />-->
                                     <StackPanel Orientation="Horizontal" Height="19">
                                         <TextBlock Padding="2 0 0 0" Text="{Binding BildInfo.GebaeudeBezeichnung}"/>
@@ -280,6 +316,11 @@
                                         <TextBlock Text="{Binding Kommentar}" Padding="2 0 2 0" />
                                     </StackPanel>
                                 </StackPanel>
+                                <Button Click="BtnEditImage_Click" Grid.Column="3"
+                                            BorderThickness="0" Tag="{Binding .}"
+                                            Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                                    <Image Source=".\Resources\EditIcon.png" MaxWidth="16" Opacity="0.6"/>
+                                </Button>
                             </Grid>
                             <Separator Padding="0" Margin="0" MaxHeight="1"/>
                         </StackPanel>

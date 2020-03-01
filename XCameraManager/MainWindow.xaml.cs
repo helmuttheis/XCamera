@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,6 +19,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using XCamera.Util;
+using static XCamera.Util.ProjectSql;
 
 namespace XCameraManager
 {
@@ -54,19 +56,21 @@ namespace XCameraManager
                 if (ev.Key == Key.Enter || ev.Key == Key.Return || ev.Key == Key.Tab)
                 {
                     Gebaeude gebaeude = cmbGebaeude.SelectedItem as Gebaeude;
-
-                    if (gebaeude == null && !string.IsNullOrWhiteSpace(cmbGebaeude.Text.ToString()) )
+                    if (!string.IsNullOrWhiteSpace(cmbGebaeude.Text.ToString()))
                     {
-                        // add the new value
-                        gebaeude = projectSql.sqlGebaeude.Get(cmbGebaeude.Text.ToString()) as Gebaeude;
-                        if (gebaeude == null)
+                        if (gebaeude == null || !gebaeude.Bezeichnung.Equals(cmbGebaeude.Text.Trim()))
                         {
-                            projectSql.sqlGebaeude.Add(cmbGebaeude.Text.ToString());
+                            // add the new value
                             gebaeude = projectSql.sqlGebaeude.Get(cmbGebaeude.Text.ToString()) as Gebaeude;
+                            if (gebaeude == null)
+                            {
+                                projectSql.sqlGebaeude.Add(cmbGebaeude.Text.ToString());
+                                gebaeude = projectSql.sqlGebaeude.Get(cmbGebaeude.Text.ToString()) as Gebaeude;
+                            }
+                            cmbGebaeude.ItemsSource = null;
+                            cmbGebaeude.ItemsSource = projectSql.sqlGebaeude.GetListe();
+                            cmbGebaeude.SelectedItem = gebaeude;
                         }
-                        cmbGebaeude.ItemsSource = null;
-                        cmbGebaeude.ItemsSource = projectSql.sqlGebaeude.GetListe();
-                        cmbGebaeude.SelectedItem = gebaeude;
                     }
                 }
                 return;
@@ -76,19 +80,20 @@ namespace XCameraManager
                 if (ev.Key == Key.Enter || ev.Key == Key.Return || ev.Key == Key.Tab)
                 {
                     Etage etage = cmbEtage.SelectedItem as Etage;
-
-                    if (etage == null && !string.IsNullOrWhiteSpace(cmbEtage.Text.ToString()))
-                    {
-                        // add the new value
-                        etage = projectSql.sqlEtage.Get(cmbEtage.Text.ToString()) as Etage;
-                        if (etage == null)
+                    if (!string.IsNullOrWhiteSpace(cmbEtage.Text.ToString())) {
+                        if (etage == null || !etage.Bezeichnung.Equals(cmbEtage.Text.Trim()))
                         {
-                            projectSql.sqlEtage.Add(cmbEtage.Text.ToString());
+                            // add the new value
                             etage = projectSql.sqlEtage.Get(cmbEtage.Text.ToString()) as Etage;
-                        }
-                        cmbEtage.ItemsSource = null;
-                        cmbEtage.ItemsSource = projectSql.sqlEtage.GetListe();
-                        cmbEtage.SelectedItem = etage;
+                            if (etage == null)
+                            {
+                                projectSql.sqlEtage.Add(cmbEtage.Text.ToString());
+                                etage = projectSql.sqlEtage.Get(cmbEtage.Text.ToString()) as Etage;
+                            }
+                            cmbEtage.ItemsSource = null;
+                            cmbEtage.ItemsSource = projectSql.sqlEtage.GetListe();
+                            cmbEtage.SelectedItem = etage;
+                        } 
                     }
                 }
                 return;
@@ -98,19 +103,21 @@ namespace XCameraManager
                 if (ev.Key == Key.Enter || ev.Key == Key.Return || ev.Key == Key.Tab)
                 {
                     Wohnung wohnung = cmbWohnung.SelectedItem as Wohnung;
-
-                    if (wohnung == null && !string.IsNullOrWhiteSpace(cmbWohnung.Text.ToString()))
+                    if (!string.IsNullOrWhiteSpace(cmbWohnung.Text.ToString()))
                     {
-                        // add the new value
-                        wohnung = projectSql.sqlWohnung.Get(cmbWohnung.Text.ToString()) as Wohnung;
-                        if (wohnung == null)
+                        if (wohnung == null || !wohnung.Bezeichnung.Equals(cmbWohnung.Text.Trim()))
                         {
-                            projectSql.sqlWohnung.Add(cmbWohnung.Text.ToString());
+                            // add the new value
                             wohnung = projectSql.sqlWohnung.Get(cmbWohnung.Text.ToString()) as Wohnung;
+                            if (wohnung == null)
+                            {
+                                projectSql.sqlWohnung.Add(cmbWohnung.Text.ToString());
+                                wohnung = projectSql.sqlWohnung.Get(cmbWohnung.Text.ToString()) as Wohnung;
+                            }
+                            cmbWohnung.ItemsSource = null;
+                            cmbWohnung.ItemsSource = projectSql.sqlWohnung.GetListe();
+                            cmbWohnung.SelectedItem = wohnung;
                         }
-                        cmbWohnung.ItemsSource = null;
-                        cmbWohnung.ItemsSource = projectSql.sqlWohnung.GetListe();
-                        cmbWohnung.SelectedItem = wohnung;
                     }
                 }
                 return;
@@ -120,19 +127,21 @@ namespace XCameraManager
                 if (ev.Key == Key.Enter || ev.Key == Key.Return || ev.Key == Key.Tab)
                 {
                     Zimmer zimmer = cmbZimmer.SelectedItem as Zimmer;
-
-                    if (zimmer == null && !string.IsNullOrWhiteSpace(cmbZimmer.Text.ToString()))
+                    if (!string.IsNullOrWhiteSpace(cmbZimmer.Text.ToString()))
                     {
-                        // add the new value
-                        zimmer = projectSql.sqlZimmer.Get(cmbZimmer.Text.ToString()) as Zimmer;
-                        if (zimmer == null)
+                        if (zimmer == null || !zimmer.Bezeichnung.Equals(cmbZimmer.Text.Trim()))
                         {
-                            projectSql.sqlZimmer.Add(cmbZimmer.Text.ToString());
+                            // add the new value
                             zimmer = projectSql.sqlZimmer.Get(cmbZimmer.Text.ToString()) as Zimmer;
+                            if (zimmer == null)
+                            {
+                                projectSql.sqlZimmer.Add(cmbZimmer.Text.ToString());
+                                zimmer = projectSql.sqlZimmer.Get(cmbZimmer.Text.ToString()) as Zimmer;
+                            }
+                            cmbZimmer.ItemsSource = null;
+                            cmbZimmer.ItemsSource = projectSql.sqlZimmer.GetListe();
+                            cmbZimmer.SelectedItem = zimmer;
                         }
-                        cmbZimmer.ItemsSource = null;
-                        cmbZimmer.ItemsSource = projectSql.sqlZimmer.GetListe();
-                        cmbZimmer.SelectedItem = zimmer;
                     }
                 }
                 return;
@@ -456,6 +465,121 @@ namespace XCameraManager
             }
         }
 
+        private void BtnEditTag_Click(object sender, RoutedEventArgs e)
+        {
+            var gebaeude = ((Button)sender).Tag as Gebaeude;
+            if (gebaeude != null)
+            {
+                int selectedIndex = cmbGebaeude.SelectedIndex;
+                string szNewBezeichnung = new InputWindow("Gebäude-Tag bearbeiten", gebaeude.Bezeichnung)
+                {
+                    IsValidHandler = (szWert) => {
+                        var existingGebaeude = projectSql.sqlGebaeude.Get(szWert) as Gebaeude;
+                        if (existingGebaeude == null)
+                        {
+                            return true;
+                        }
+                        return false;
+                    }
+                }.ShowDialog();
+                if (!string.IsNullOrWhiteSpace(szNewBezeichnung))
+                {
+                    projectSql.sqlGebaeude.Edit(gebaeude, szNewBezeichnung);
+                }
+                cmbGebaeude.ItemsSource = null;
+                cmbGebaeude.ItemsSource = projectSql.sqlGebaeude.GetListe();
+                cmbGebaeude.SelectedIndex = selectedIndex;
+            }
+
+            var etage = ((Button)sender).Tag as Etage;
+            if (etage != null)
+            {
+                int selectedIndex = cmbEtage.SelectedIndex;
+                string szNewBezeichnung = new InputWindow("Etagen-Tag bearbeiten", etage.Bezeichnung)
+                {
+                    IsValidHandler = (szWert) => {
+                        var existingEtage = projectSql.sqlEtage.Get(szWert) as Etage;
+                        if (existingEtage == null)
+                        {
+                            return true;
+                        }
+                        return false;
+                    }
+                }.ShowDialog();
+                if(!string.IsNullOrWhiteSpace(szNewBezeichnung))
+                {
+                    projectSql.sqlEtage.Edit(etage, szNewBezeichnung);
+                }
+                cmbEtage.ItemsSource = null;
+                cmbEtage.ItemsSource = projectSql.sqlEtage.GetListe();
+                cmbEtage.SelectedIndex = selectedIndex;
+            }
+
+            var wohnung = ((Button)sender).Tag as Wohnung;
+            if (wohnung != null)
+            {
+                int selectedIndex = cmbWohnung.SelectedIndex;
+                string szNewBezeichnung = new InputWindow("Wohnungs-Tag bearbeiten", wohnung.Bezeichnung) 
+                { 
+                    IsValidHandler = (szWert) => {
+                        var existingWohnung = projectSql.sqlWohnung.Get(szWert) as Wohnung;
+                        if (existingWohnung == null)
+                        {
+                            return true;
+                        }
+                        return false;
+                    } 
+                }.ShowDialog();
+                if (!string.IsNullOrWhiteSpace(szNewBezeichnung))
+                {
+                    projectSql.sqlWohnung.Edit(wohnung, szNewBezeichnung);
+                }
+                cmbWohnung.ItemsSource = null;
+                cmbWohnung.ItemsSource = projectSql.sqlWohnung.GetListe();
+                cmbWohnung.SelectedIndex = selectedIndex;
+            }
+
+            var zimmer = ((Button)sender).Tag as Zimmer;
+            if (zimmer != null)
+            {
+                int selectedIndex = cmbZimmer.SelectedIndex;
+                string szNewBezeichnung = new InputWindow("Gebäude Tag bearbeiten", zimmer.Bezeichnung)
+                {
+                    IsValidHandler = (szWert) => {
+                        var existingZimmer = projectSql.sqlZimmer.Get(szWert) as Zimmer;
+                        if (existingZimmer == null)
+                        {
+                            return true;
+                        }
+                        return false;
+                    }
+                }.ShowDialog();
+                if (!string.IsNullOrWhiteSpace(szNewBezeichnung))
+                {
+                    projectSql.sqlZimmer.Edit(zimmer, szNewBezeichnung);
+                }
+                cmbZimmer.ItemsSource = null;
+                cmbZimmer.ItemsSource = projectSql.sqlZimmer.GetListe();
+                cmbZimmer.SelectedIndex = selectedIndex;
+            }
+        }
+
+        private void BtnEditImage_Click(object sender, RoutedEventArgs e)
+        {
+            var bmk = ((Button)sender).Tag as BildMitKommentar;
+            var newbmk = new ImageEditWindow(projectSql, bmk).ShowDialog();
+
+            if (newbmk != null)
+            {
+                if (newbmk.BildInfo.GebaeudeId != 0) projectSql.sqlGebaeude.Set(newbmk.BildInfo.BildId, newbmk.BildInfo.GebaeudeId);
+                if (newbmk.BildInfo.EtageId != 0) projectSql.sqlEtage.Set(newbmk.BildInfo.BildId, newbmk.BildInfo.EtageId);
+                if (newbmk.BildInfo.WohnungId != 0) projectSql.sqlWohnung.Set(newbmk.BildInfo.BildId, newbmk.BildInfo.WohnungId);
+                if (newbmk.BildInfo.ZimmerId != 0) projectSql.sqlZimmer.Set(newbmk.BildInfo.BildId, newbmk.BildInfo.ZimmerId);
+                if (newbmk.BildInfo.KommentarId != 0) projectSql.SetComment(newbmk.BildInfo.BildId, newbmk.BildInfo.KommentarBezeichnung);
+                BtnSearch_Click(null, null);
+            }
+        }
+
         private void OpenCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
@@ -518,8 +642,9 @@ namespace XCameraManager
             // Get the selected file name and display in a TextBox 
             if (result == true)
             {
+                var bilist = lvBilder.ItemsSource as List<BildMitKommentar>;
                 Dictionary<string, BildMitKommentar> dictBilder = new Dictionary<string, BildMitKommentar>();
-                foreach (var bild in lvBilder.Items)
+                foreach (var bild in bilist.FindAll(bi => bi.IsSelected == true))
                 {
                     BildMitKommentar bmk = bild as BildMitKommentar;
                     if (bmk != null)
@@ -584,6 +709,10 @@ namespace XCameraManager
                     MessageBox.Show("Fehler beim Erstellen der Word-Datei: " + Docx.szError);
                 }
             }
+            else
+            {
+                Mouse.OverrideCursor = null;
+            }
         }
         public void Manage()
         {
@@ -626,6 +755,88 @@ namespace XCameraManager
             dpStart.BlackoutDates.Add(new CalendarDateRange(dpEnd.SelectedDate ?? DateTime.Now, DateTime.MaxValue));
         }
 
+        private void btnReset_Click(object sender, RoutedEventArgs e)
+        {
+            cmbGebaeude.SelectedItem = null;
+            cmbEtage.SelectedItem = null;
+            cmbWohnung.SelectedItem = null;
+            cmbZimmer.SelectedItem = null;
+
+            dpEnd.SelectedDate = null;
+            dpStart.SelectedDate = null;
+
+            lvBilder.ItemsSource = null;
+        }
+
+        internal void ImportImage()
+        {
+            BildMitKommentar newbmk = new BildMitKommentar();
+
+            System.Windows.Forms.OpenFileDialog fileDlg = new System.Windows.Forms.OpenFileDialog();
+            System.Windows.Forms.DialogResult result = fileDlg.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                string filePath = fileDlg.FileName;
+                string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+                string fileExt = System.IO.Path.GetExtension(filePath);
+                string baseDir = System.IO.Path.Combine(projectSql.szProjectPath, Config.current.szPicSuffix);
+                string newFilePath = System.IO.Path.Combine(baseDir, fileName + fileExt);
+
+                for (int i = 1; ; ++i)
+                {
+                    if (!File.Exists(newFilePath))
+                        break;
+
+                    newFilePath = System.IO.Path.Combine(baseDir, fileName + " (" + i + ")" + fileExt);
+                }
+
+                File.Copy(filePath, newFilePath);
+
+                newbmk.BildName = System.IO.Path.GetFileName(newFilePath);
+                //newbmk.BildInfo.BildName = System.IO.Path.GetFileName(newFilePath);
+                newbmk.BildPath = newFilePath;
+
+                using (FileStream fs = new FileStream(newFilePath, FileMode.Open, FileAccess.Read))
+                {
+                    using (System.Drawing.Image myImage = System.Drawing.Image.FromStream(fs, false, false))
+                    {
+                        Regex r = new Regex(":");
+                        try
+                        {
+                            PropertyItem propItem = myImage.GetPropertyItem(36867);
+                            string dateTaken = r.Replace(Encoding.UTF8.GetString(propItem.Value), "-", 2);
+                            newbmk.BildInfo.CaptureDate = DateTime.Parse(dateTaken);
+                        }
+                        catch (Exception e)
+                        {
+
+                        }
+                    }
+                }
+                
+
+                newbmk = new ImageEditWindow(projectSql, newbmk, true).ShowDialog();
+
+                if(newbmk == null)
+                {
+                    File.Delete(newFilePath);
+                    return;
+                }
+
+                projectSql.AddBild(newbmk.BildName);
+                GetBildIdResult bildID = projectSql.GetBildId(newbmk.BildName, newbmk.BildInfo.CaptureDate);
+
+                if (newbmk.BildInfo.GebaeudeBezeichnung != null) projectSql.sqlGebaeude.Set(bildID.BildId, newbmk.BildInfo.GebaeudeId);
+                if (newbmk.BildInfo.EtageBezeichnung != null) projectSql.sqlEtage.Set(bildID.BildId, newbmk.BildInfo.EtageId);
+                if (newbmk.BildInfo.WohnungBezeichnung != null) projectSql.sqlWohnung.Set(bildID.BildId, newbmk.BildInfo.WohnungId);
+                if (newbmk.BildInfo.ZimmerBezeichnung != null) projectSql.sqlZimmer.Set(bildID.BildId, newbmk.BildInfo.ZimmerId);
+
+                if (newbmk.BildInfo.KommentarBezeichnung != null) projectSql.SetComment(bildID.BildId, newbmk.BildInfo.KommentarBezeichnung);
+
+                projectSql.SetCaptureDate(bildID.BildId, newbmk.BildInfo.CaptureDate);
+
+            }
+        }
     }
     public class BildMitKommentar
     {
@@ -635,6 +846,7 @@ namespace XCameraManager
         public string BildPath { get; set; }
         public string ToBeLaoded{ get; set; }
         public string CaptureDate { get; set; }
+        public bool IsSelected { get; set; } = true;
     }
     public class ApplicationCloseCommand : ICommand
     {
@@ -708,13 +920,34 @@ namespace XCameraManager
 
         public bool CanExecute(object parameter)
         {
-            return Application.Current != null && Application.Current.MainWindow != null
-                && ((MainWindow)Application.Current.MainWindow).spProject.IsEnabled;
+            return false;
+                //Application.Current != null && Application.Current.MainWindow != null
+                //&& ((MainWindow)Application.Current.MainWindow).spProject.IsEnabled;
         }
 
         public void Execute(object parameter)
         {
             ((MainWindow)Application.Current.MainWindow).Manage();
+        }
+    }
+    public class ApplicationImportImageCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged
+        {
+            // You may not need a body here at all...
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return Application.Current != null && Application.Current.MainWindow != null
+            && ((MainWindow)Application.Current.MainWindow).spProject.IsEnabled;
+        }
+
+        public void Execute(object parameter)
+        {
+            ((MainWindow)Application.Current.MainWindow).ImportImage();
         }
     }
     public class ApplicationPatchCommand : ICommand
@@ -863,6 +1096,12 @@ namespace XCameraManager
         public static ICommand ApplicationManageCommand
         {
             get { return appManageCmd; }
+        }
+
+        private static readonly ICommand appImportImageCmd = new ApplicationImportImageCommand();
+        public static ICommand ApplicationImportImageCommand
+        {
+            get { return appImportImageCmd; }
         }
 
         private static readonly ICommand appCloseCmd = new ApplicationCloseCommand();
