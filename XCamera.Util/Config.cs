@@ -206,6 +206,30 @@ namespace XCamera.Util
                 Save();
             }
         }
+        public string szWordTemplateFolder
+        {
+            get
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "szWordTemplateFolder");
+                string szTemplateFolder = oneNode.InnerText.Trim();
+                if (string.IsNullOrWhiteSpace(szTemplateFolder))
+                {
+                    szTemplateFolder = "Templates";
+                }
+                if (!Path.IsPathRooted(szTemplateFolder))
+                {
+                    szTemplateFolder = Path.Combine(Path.GetDirectoryName(szConfigFile), szTemplateFolder);
+                }
+                return szTemplateFolder;
+            }
+            set
+            {
+                XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "szWordTemplateFolder");
+                oneNode.InnerText = value;
+                Save();
+            }
+        }
+
         public void SetProjectStatus(string szProjectName,STATUS status)
         {
             XmlNode oneNode = XmlUtil.EnsureElement(settingsNode, "status","project",szProjectName);
@@ -242,6 +266,8 @@ namespace XCamera.Util
             szWordEmptySearch = dummy;
             dummy = this.szWordEmptyInfo;
             szWordEmptyInfo = dummy;
+            dummy = this.szWordTemplateFolder;
+            szWordTemplateFolder = dummy;
             Save();
         }
     }

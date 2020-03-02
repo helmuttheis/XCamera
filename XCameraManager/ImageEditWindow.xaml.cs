@@ -80,6 +80,7 @@ namespace XCameraManager
                 cmbWohnung.SelectedValue = bmk.BildInfo.WohnungId;
                 cmbZimmer.SelectedValue = bmk.BildInfo.ZimmerId;
                 tbKommentar.Text = bmk.BildInfo.KommentarBezeichnung;
+                dpCaptureDate.SelectedDate = bmk.BildInfo.CaptureDate;
             }
         }
 
@@ -121,12 +122,21 @@ namespace XCameraManager
 
                 if(newImage)
                 {
+                    //TODO: Auch Timepicker für neues Bild? Aktuell nur DatePicker.
+                    
                     if (dpCaptureDate.SelectedDate == null)
                     {
                         MessageBoxResult MbResult = MessageBox.Show("Es wurde kein Aufnahmedatum eingetragen. Wenn kein Datum eingetragen wird, wird das aktuelle Datum verwendet.\n Möchten sie ein Datum eintragen?", " Kein Aufnahmedatum eingetragen", MessageBoxButton.YesNo);
                         if (MbResult == MessageBoxResult.Yes) return;
                     }
                     bmk.BildInfo.CaptureDate = dpCaptureDate.SelectedDate ?? DateTime.Now;
+                }
+                else
+                {
+                    TimeSpan time = bmk.BildInfo.CaptureDate.TimeOfDay;
+                    DateTime date = dpCaptureDate.SelectedDate ?? DateTime.Now;
+
+                    bmk.BildInfo.CaptureDate = date.Add(time);
                 }
 
                 clicked = true;

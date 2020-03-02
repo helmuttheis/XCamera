@@ -66,7 +66,6 @@ namespace XCameraManager
                     {
                         ReplaceVar(para, varDict);
                     }
-                    // ToDo foreach
                     var footerPart = mainPart.FooterParts.FirstOrDefault();
                     paraList = footerPart.Footer.Descendants<Paragraph>();
                     foreach (var para in paraList)
@@ -184,7 +183,6 @@ namespace XCameraManager
                     {
                         if (para.InnerText.Trim().Equals("${Picture}", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            // ToDo para.Remove()
                             para.RemoveAllChildren();
                             ImagePart imagePart = mainPart.AddImagePart(ImagePartType.Jpeg);
 

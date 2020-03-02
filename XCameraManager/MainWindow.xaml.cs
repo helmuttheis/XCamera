@@ -576,6 +576,7 @@ namespace XCameraManager
                 if (newbmk.BildInfo.WohnungId != 0) projectSql.sqlWohnung.Set(newbmk.BildInfo.BildId, newbmk.BildInfo.WohnungId);
                 if (newbmk.BildInfo.ZimmerId != 0) projectSql.sqlZimmer.Set(newbmk.BildInfo.BildId, newbmk.BildInfo.ZimmerId);
                 if (newbmk.BildInfo.KommentarId != 0) projectSql.SetComment(newbmk.BildInfo.BildId, newbmk.BildInfo.KommentarBezeichnung);
+                if (newbmk.BildInfo.CaptureDate != DateTime.MinValue) projectSql.SetCaptureDate(newbmk.BildInfo.BildId, newbmk.BildInfo.CaptureDate);
                 BtnSearch_Click(null, null);
             }
         }
@@ -625,6 +626,12 @@ namespace XCameraManager
             {
                 return;
             }
+
+            string templatePath = new PublishWindow().ShowDialog();
+
+            if (string.IsNullOrWhiteSpace(templatePath)) return;
+
+            Config.current.szWordTemplate = templatePath;
 
             Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
 

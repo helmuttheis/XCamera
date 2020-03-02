@@ -67,7 +67,7 @@ namespace XCameraManager
             }
             catch (Exception ex)
             {
-                // ToDo log
+
             }
         }
     }
