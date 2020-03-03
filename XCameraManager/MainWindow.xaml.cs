@@ -567,7 +567,7 @@ namespace XCameraManager
         private void BtnEditImage_Click(object sender, RoutedEventArgs e)
         {
             var bmk = ((Button)sender).Tag as BildMitKommentar;
-            var newbmk = new ImageEditWindow(projectSql, bmk).ShowDialog();
+            var newbmk = new ImageEditWindow(projectSql, bmk) { Owner = this }.ShowDialog();
 
             if (newbmk != null)
             {
@@ -611,7 +611,15 @@ namespace XCameraManager
              BildMitKommentar bmk = lvBilder.SelectedItem as BildMitKommentar;
              if(bmk != null  )
              {
-                imgBild.Source = new BitmapImage(new Uri(projectSql.GetImageFullName(bmk.BildName, Config.current.szPicSuffix)));
+                string fullname = projectSql.GetImageFullName(bmk.BildName, Config.current.szPicSuffix);
+                if (File.Exists(fullname))
+                {
+                    imgBild.Source = new BitmapImage(new Uri(fullname));
+                }
+                else
+                {
+                    Logging.AddError("Image not found: " + fullname);
+                }
                 BildInfo bi = projectSql.GetBildInfo(bmk.BildName, DateTime.Now);
                 lblGebaeude.Content = bi.GebaeudeBezeichnung;
                 lblEtage.Content = bi.EtageBezeichnung;
@@ -736,8 +744,13 @@ namespace XCameraManager
             if ( !string.IsNullOrWhiteSpace(szProjectName) )
             {
                 OpenProject(szProjectName, szSuffix);
+                cmbProjects.AllowDrop = true;
             }
+            else
+            {
+                cmbProjects.AllowDrop = true;
 
+            }
         }
 
         private void BtnOpenProjectdir_Click(object sender, RoutedEventArgs e)
@@ -777,71 +790,98 @@ namespace XCameraManager
 
         internal void ImportImage()
         {
-            BildMitKommentar newbmk = new BildMitKommentar();
-
             System.Windows.Forms.OpenFileDialog fileDlg = new System.Windows.Forms.OpenFileDialog();
             System.Windows.Forms.DialogResult result = fileDlg.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
                 string filePath = fileDlg.FileName;
-                string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
-                string fileExt = System.IO.Path.GetExtension(filePath);
-                string baseDir = System.IO.Path.Combine(projectSql.szProjectPath, Config.current.szPicSuffix);
-                string newFilePath = System.IO.Path.Combine(baseDir, fileName + fileExt);
+                ImportFile(filePath);
 
-                for (int i = 1; ; ++i)
+            }
+        }
+        private Boolean ImportFile(string filePath, string title="")
+        {
+            BildMitKommentar newbmk = new BildMitKommentar();
+
+            string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
+            string fileExt = System.IO.Path.GetExtension(filePath);
+            string baseDir = System.IO.Path.Combine(projectSql.szProjectPath, Config.current.szPicSuffix);
+            string newFilePath = System.IO.Path.Combine(baseDir, fileName + fileExt);
+
+            for (int i = 1; ; ++i)
+            {
+                if (!File.Exists(newFilePath))
+                    break;
+
+                newFilePath = System.IO.Path.Combine(baseDir, fileName + " (" + i + ")" + fileExt);
+            }
+
+            File.Copy(filePath, newFilePath);
+
+            newbmk.BildName = System.IO.Path.GetFileName(newFilePath);
+            //newbmk.BildInfo.BildName = System.IO.Path.GetFileName(newFilePath);
+            newbmk.BildPath = newFilePath;
+
+            using (FileStream fs = new FileStream(newFilePath, FileMode.Open, FileAccess.Read))
+            {
+                using (System.Drawing.Image myImage = System.Drawing.Image.FromStream(fs, false, false))
                 {
-                    if (!File.Exists(newFilePath))
-                        break;
-
-                    newFilePath = System.IO.Path.Combine(baseDir, fileName + " (" + i + ")" + fileExt);
-                }
-
-                File.Copy(filePath, newFilePath);
-
-                newbmk.BildName = System.IO.Path.GetFileName(newFilePath);
-                //newbmk.BildInfo.BildName = System.IO.Path.GetFileName(newFilePath);
-                newbmk.BildPath = newFilePath;
-
-                using (FileStream fs = new FileStream(newFilePath, FileMode.Open, FileAccess.Read))
-                {
-                    using (System.Drawing.Image myImage = System.Drawing.Image.FromStream(fs, false, false))
+                    Regex r = new Regex(":");
+                    try
                     {
-                        Regex r = new Regex(":");
-                        try
-                        {
-                            PropertyItem propItem = myImage.GetPropertyItem(36867);
-                            string dateTaken = r.Replace(Encoding.UTF8.GetString(propItem.Value), "-", 2);
-                            newbmk.BildInfo.CaptureDate = DateTime.Parse(dateTaken);
-                        }
-                        catch (Exception e)
-                        {
+                        PropertyItem propItem = myImage.GetPropertyItem(36867);
+                        string dateTaken = r.Replace(Encoding.UTF8.GetString(propItem.Value), "-", 2);
+                        newbmk.BildInfo.CaptureDate = DateTime.Parse(dateTaken);
+                    }
+                    catch (Exception e)
+                    {
 
-                        }
                     }
                 }
-                
+            }
 
-                newbmk = new ImageEditWindow(projectSql, newbmk, true).ShowDialog();
+            var iew = new ImageEditWindow(projectSql, newbmk, true) { Owner = this};
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                iew.Title += " " + title;
+            }
+            newbmk = iew.ShowDialog();
 
-                if(newbmk == null)
+            if (newbmk == null)
+            {
+                File.Delete(newFilePath);
+                return false;
+            }
+
+            projectSql.AddBild(newbmk.BildName);
+            GetBildIdResult bildID = projectSql.GetBildId(newbmk.BildName, newbmk.BildInfo.CaptureDate);
+
+            if (newbmk.BildInfo.GebaeudeBezeichnung != null) projectSql.sqlGebaeude.Set(bildID.BildId, newbmk.BildInfo.GebaeudeId);
+            if (newbmk.BildInfo.EtageBezeichnung != null) projectSql.sqlEtage.Set(bildID.BildId, newbmk.BildInfo.EtageId);
+            if (newbmk.BildInfo.WohnungBezeichnung != null) projectSql.sqlWohnung.Set(bildID.BildId, newbmk.BildInfo.WohnungId);
+            if (newbmk.BildInfo.ZimmerBezeichnung != null) projectSql.sqlZimmer.Set(bildID.BildId, newbmk.BildInfo.ZimmerId);
+
+            if (newbmk.BildInfo.KommentarBezeichnung != null) projectSql.SetComment(bildID.BildId, newbmk.BildInfo.KommentarBezeichnung);
+
+            projectSql.SetCaptureDate(bildID.BildId, newbmk.BildInfo.CaptureDate);
+            return true;
+        }
+        private void imgBild_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                // Note that you can have more than one file.
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                int cnt = 0;
+                foreach( var file in files)
                 {
-                    File.Delete(newFilePath);
-                    return;
+                    cnt++;
+                    if( !ImportFile(file,string.Format("{0} von {1}",cnt,files.Length)) )
+                    {
+                        // ToDo: should we skip all of the following images as well?
+                        // break;
+                    }
                 }
-
-                projectSql.AddBild(newbmk.BildName);
-                GetBildIdResult bildID = projectSql.GetBildId(newbmk.BildName, newbmk.BildInfo.CaptureDate);
-
-                if (newbmk.BildInfo.GebaeudeBezeichnung != null) projectSql.sqlGebaeude.Set(bildID.BildId, newbmk.BildInfo.GebaeudeId);
-                if (newbmk.BildInfo.EtageBezeichnung != null) projectSql.sqlEtage.Set(bildID.BildId, newbmk.BildInfo.EtageId);
-                if (newbmk.BildInfo.WohnungBezeichnung != null) projectSql.sqlWohnung.Set(bildID.BildId, newbmk.BildInfo.WohnungId);
-                if (newbmk.BildInfo.ZimmerBezeichnung != null) projectSql.sqlZimmer.Set(bildID.BildId, newbmk.BildInfo.ZimmerId);
-
-                if (newbmk.BildInfo.KommentarBezeichnung != null) projectSql.SetComment(bildID.BildId, newbmk.BildInfo.KommentarBezeichnung);
-
-                projectSql.SetCaptureDate(bildID.BildId, newbmk.BildInfo.CaptureDate);
-
             }
         }
     }
