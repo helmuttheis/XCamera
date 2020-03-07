@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -333,6 +334,8 @@ namespace XCameraManager
             cmbZimmer.ItemsSource = null;
             cmbZimmer.ItemsSource = projectSql.sqlZimmer.GetListe();
 
+            tbKommentar.Text = null;
+
             spProject.IsEnabled = true;
         }
         private void BtnSearch_Click(object sender, RoutedEventArgs e)
@@ -348,7 +351,7 @@ namespace XCameraManager
             int zimmerId = zimmer != null ? zimmer.ID : -1;
 
 
-            string szSerarchKommentar = tbKommentar.Text.Trim().ToLower();
+            string szSearchKommentar = tbKommentar.Text.Trim().ToLower();
             List<BildMitKommentar> bmk = new List<BildMitKommentar>();
             List<Bild> bildListe = projectSql.GetBilder(dpStart.SelectedDate, dpEnd.SelectedDate, gebaeudeId, etageId, wohnungId, zimmerId);
             foreach (var bild in bildListe)
@@ -360,21 +363,26 @@ namespace XCameraManager
                 {
                     LoadVisibility = "Visible";
                 }
-                if ( string.IsNullOrWhiteSpace(szSerarchKommentar) || szKommentar.ToLower().Contains(szSerarchKommentar))
-                bmk.Add(new BildMitKommentar {
-                    BildName = System.IO.Path.GetFileName(bild.Name),
-                    BildInfo = projectSql.GetBildInfo(bild.Name,DateTime.Now),
-                    Kommentar = szKommentar,
-                    BildPath = projectSql.GetImageFullName(bild.Name,Config.current.szPicSuffix),
-                    ToBeLaoded = LoadVisibility,
-                    CaptureDate = bild.CaptureDate.ToString()
-                });
+                if (szKommentar != null)
+                {
+                    if (string.IsNullOrWhiteSpace(szSearchKommentar) || szKommentar.ToLower().Contains(szSearchKommentar))
+                        bmk.Add(new BildMitKommentar
+                        {
+                            BildName = System.IO.Path.GetFileName(bild.Name),
+                            BildInfo = projectSql.GetBildInfo(bild.Name, DateTime.Now),
+                            Kommentar = szKommentar,
+                            BildPath = projectSql.GetImageFullName(bild.Name, Config.current.szPicSuffix),
+                            ToBeLaoded = LoadVisibility,
+                            CaptureDate = bild.CaptureDate.ToString()
+                        });
+                }
             }
             lvBilder.ItemsSource = bmk;
             Mouse.OverrideCursor = null;
 
             imgBild.Source = null;
         }
+
         private void BtnDeleteTag_Click(object sender, RoutedEventArgs e)
         {
             var gebaeude = ((Button)sender).Tag as Gebaeude;
@@ -782,6 +790,8 @@ namespace XCameraManager
             cmbWohnung.SelectedItem = null;
             cmbZimmer.SelectedItem = null;
 
+            tbKommentar.Text = null;
+
             dpEnd.SelectedDate = null;
             dpStart.SelectedDate = null;
 
@@ -791,17 +801,38 @@ namespace XCameraManager
         internal void ImportImage()
         {
             System.Windows.Forms.OpenFileDialog fileDlg = new System.Windows.Forms.OpenFileDialog();
+            fileDlg.Multiselect = true;
+            fileDlg.Filter = "Alle Bilder|*.JPG;*.PNG;*.JPEG;*.GIF;*.TIF;*.TIFF;*.BMP|JPEG-Dateien (*.JPG; *.JPEG)|*.JPG;*.JPEG|PNG-Dateien (*.PNG) |*.PNG|Alle (*.*)|*.*";
             System.Windows.Forms.DialogResult result = fileDlg.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
-                string filePath = fileDlg.FileName;
-                ImportFile(filePath);
+                string[] filePaths = fileDlg.FileNames;
+                int cnt = 0;
+                BildMitKommentar lastbmk = new BildMitKommentar();
+                foreach (string filePath in filePaths)
+                {
+                    cnt++;
+                    if (!ImportFile(filePath, string.Format("{0} von {1}", cnt, filePaths.Length), lastbmk))
+                    {
+                        // ToDo: should we skip all of the following images as well?
+                        // break;
+                    }
+                }
 
             }
         }
-        private Boolean ImportFile(string filePath, string title="")
+        private Boolean ImportFile(string filePath, string title="", BildMitKommentar lastbmk = null)
         {
             BildMitKommentar newbmk = new BildMitKommentar();
+            newbmk.BildInfo = new BildInfo();
+
+            if(lastbmk != null && lastbmk.BildInfo != null)
+            {
+                newbmk.BildInfo.GebaeudeId = lastbmk.BildInfo.GebaeudeId;
+                newbmk.BildInfo.EtageId = lastbmk.BildInfo.EtageId;
+                newbmk.BildInfo.WohnungId = lastbmk.BildInfo.WohnungId;
+                newbmk.BildInfo.ZimmerId = lastbmk.BildInfo.ZimmerId;
+            }
 
             string fileName = System.IO.Path.GetFileNameWithoutExtension(filePath);
             string fileExt = System.IO.Path.GetExtension(filePath);
@@ -819,7 +850,6 @@ namespace XCameraManager
             File.Copy(filePath, newFilePath);
 
             newbmk.BildName = System.IO.Path.GetFileName(newFilePath);
-            //newbmk.BildInfo.BildName = System.IO.Path.GetFileName(newFilePath);
             newbmk.BildPath = newFilePath;
 
             using (FileStream fs = new FileStream(newFilePath, FileMode.Open, FileAccess.Read))
@@ -853,6 +883,16 @@ namespace XCameraManager
                 return false;
             }
 
+            if (lastbmk != null)
+            {
+                if (lastbmk.BildInfo == null) lastbmk.BildInfo = new BildInfo();
+
+                lastbmk.BildInfo.GebaeudeId = newbmk.BildInfo.GebaeudeId;
+                lastbmk.BildInfo.EtageId = newbmk.BildInfo.EtageId;
+                lastbmk.BildInfo.WohnungId = newbmk.BildInfo.WohnungId;
+                lastbmk.BildInfo.ZimmerId = newbmk.BildInfo.ZimmerId;
+            }
+
             projectSql.AddBild(newbmk.BildName);
             GetBildIdResult bildID = projectSql.GetBildId(newbmk.BildName, newbmk.BildInfo.CaptureDate);
 
@@ -860,7 +900,6 @@ namespace XCameraManager
             if (newbmk.BildInfo.EtageBezeichnung != null) projectSql.sqlEtage.Set(bildID.BildId, newbmk.BildInfo.EtageId);
             if (newbmk.BildInfo.WohnungBezeichnung != null) projectSql.sqlWohnung.Set(bildID.BildId, newbmk.BildInfo.WohnungId);
             if (newbmk.BildInfo.ZimmerBezeichnung != null) projectSql.sqlZimmer.Set(bildID.BildId, newbmk.BildInfo.ZimmerId);
-
             if (newbmk.BildInfo.KommentarBezeichnung != null) projectSql.SetComment(bildID.BildId, newbmk.BildInfo.KommentarBezeichnung);
 
             projectSql.SetCaptureDate(bildID.BildId, newbmk.BildInfo.CaptureDate);
@@ -873,14 +912,32 @@ namespace XCameraManager
                 // Note that you can have more than one file.
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
                 int cnt = 0;
+                BildMitKommentar lastbmk = new BildMitKommentar();
                 foreach( var file in files)
                 {
                     cnt++;
-                    if( !ImportFile(file,string.Format("{0} von {1}",cnt,files.Length)) )
+                    if( !ImportFile(file,string.Format("{0} von {1}",cnt,files.Length), lastbmk))
                     {
                         // ToDo: should we skip all of the following images as well?
                         // break;
                     }
+                }
+            }
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.C)
+            {
+                if(lvBilder.SelectedItems != null)
+                {
+                    System.Collections.IList imgs = lvBilder.SelectedItems;
+                    StringCollection paths = new StringCollection();
+                    foreach (BildMitKommentar img in imgs)
+                    {
+                        paths.Add(img.BildPath);
+                    }
+                    Clipboard.SetFileDropList(paths);
                 }
             }
         }

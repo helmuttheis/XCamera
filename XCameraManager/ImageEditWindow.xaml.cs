@@ -73,14 +73,14 @@ namespace XCameraManager
             cmbZimmer.ItemsSource = null;
             cmbZimmer.ItemsSource = projectSql.sqlZimmer.GetListe();
 
-            if (bmk != null && !newImage)
+            if (bmk != null && bmk.BildInfo != null) // && !newImage
             {
                 cmbGebaeude.SelectedValue = bmk.BildInfo.GebaeudeId;
                 cmbEtage.SelectedValue = bmk.BildInfo.EtageId;
                 cmbWohnung.SelectedValue = bmk.BildInfo.WohnungId;
                 cmbZimmer.SelectedValue = bmk.BildInfo.ZimmerId;
                 tbKommentar.Text = bmk.BildInfo.KommentarBezeichnung;
-                dpCaptureDate.SelectedDate = bmk.BildInfo.CaptureDate;
+                if(bmk.BildInfo.CaptureDate != DateTime.MinValue) dpCaptureDate.SelectedDate = bmk.BildInfo.CaptureDate;
             }
         }
 

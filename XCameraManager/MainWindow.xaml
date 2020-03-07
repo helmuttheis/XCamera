@@ -7,12 +7,14 @@
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:local="clr-namespace:XCameraManager"
         mc:Ignorable="d"
+        KeyDown="Window_KeyDown"
         Title="XCameraManager " Height="Auto" Width="800" MinWidth="400">
     <Window.CommandBindings>
         <CommandBinding Command="New" CanExecute="NewCommand_CanExecute" Executed="NewCommand_Executed" />
         <CommandBinding Command="Open" CanExecute="OpenCommand_CanExecute" Executed="OpenCommand_Executed" />
         <CommandBinding Command="Close" CanExecute="CloseCommand_CanExecute" Executed="CloseCommand_Executed" />
     </Window.CommandBindings>
+
     <DockPanel LastChildFill="True">
         <!-- Top menu -->
         <Menu DockPanel.Dock="Top">
@@ -25,7 +27,7 @@
                 <MenuItem Header="Neu" Command="New" />
                 <MenuItem Header="Als Word-Dokument" Command="local:MyCommands.ApplicationPublishCommand" />
                 <MenuItem Header="Verwalten" Command="local:MyCommands.ApplicationManageCommand"/>
-                <MenuItem Header="Bild importieren" Command="local:MyCommands.ApplicationImportImageCommand"/>
+                <MenuItem Header="Bilder importieren" Command="local:MyCommands.ApplicationImportImageCommand"/>
                 <Separator />
                 <MenuItem Header="_Beenden" Command="local:MyCommands.ApplicationCloseCommand"/>
             </MenuItem>
