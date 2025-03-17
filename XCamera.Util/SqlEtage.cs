@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace XCamera.Util
 {
@@ -65,7 +64,7 @@ namespace XCamera.Util
         }
         public IDbObject Get(string szBezeichnung)
         {
-            return database.Table<Etage>().Where(x => x.Bezeichnung.Equals(szBezeichnung)).SingleOrDefault() ;
+            return database.Table<Etage>().Where(x => x.Bezeichnung.Equals(szBezeichnung)).SingleOrDefault();
         }
         public IDbObject Get(int id)
         {
@@ -73,7 +72,9 @@ namespace XCamera.Util
         }
         public List<Etage> GetListe()
         {
-            return database.Table<Etage>().ToList();
+            var list = database.Table<Etage>().ToList();
+            list.Sort((x, y) => x.Bezeichnung.CompareTo(y.Bezeichnung));
+            return list;
         }
 
         public int GetForBild(int bildId, BildInfo bi = null)

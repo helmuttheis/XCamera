@@ -2,11 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace XCamera.Util
 {
-    public class SqlGebaeude: ISql
+    public class SqlGebaeude : ISql
     {
         readonly ProjectSql projectSql;
         private SQLiteConnection database;
@@ -96,7 +95,9 @@ namespace XCamera.Util
         }
         public List<Gebaeude> GetListe()
         {
-            return projectSql.database.Table<Gebaeude>().ToList();
+            var list = projectSql.database.Table<Gebaeude>().ToList();
+            list.Sort((x, y) => x.Bezeichnung.CompareTo(y.Bezeichnung));
+            return list;
         }
 
         public Boolean Delete(IDbObject gebaeude)

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace XCamera.Util
 {
@@ -66,7 +65,9 @@ namespace XCamera.Util
         }
         public List<Zimmer> GetListe()
         {
-            return database.Table<Zimmer>().ToList();
+            var roomList = database.Table<Zimmer>().ToList();
+            roomList.Sort((x, y) => x.Bezeichnung.CompareTo(y.Bezeichnung));
+            return roomList;
         }
         public List<Grouped> GetUsed()
         {

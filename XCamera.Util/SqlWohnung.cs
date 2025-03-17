@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace XCamera.Util
 {
@@ -66,7 +65,9 @@ namespace XCamera.Util
         }
         public List<Wohnung> GetListe()
         {
-            return database.Table<Wohnung>().ToList();
+            var list = database.Table<Wohnung>().ToList();
+            list.Sort((x, y) => x.Bezeichnung.CompareTo(y.Bezeichnung));
+            return list;
         }
         public IDbObject Get(string szBezeichnung)
         {
